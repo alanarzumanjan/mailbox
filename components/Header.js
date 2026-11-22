@@ -30,7 +30,7 @@ export default function Header({
   }, []);
 
   return (
-    <header className="h-[68px] shrink-0 bg-white border-b border-slate-200/80 flex items-center justify-between px-3 sm:px-5 md:px-7 z-20 gap-2">
+    <header className="h-17 shrink-0 bg-white border-b border-slate-200/80 flex items-center justify-between px-3 sm:px-5 md:px-7 z-20 gap-2">
       <div className="flex items-center gap-3 min-w-0">
         <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center shadow-sm shrink-0">
           <svg

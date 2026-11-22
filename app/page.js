@@ -103,7 +103,7 @@ export default function DashboardPage() {
       />
 
       <div
-        className={`fixed top-[82px] right-5 z-[1200] transition-all duration-300 bg-slate-900/90 backdrop-blur text-white rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm pointer-events-none ${
+        className={`fixed top-20.5 right-5 z-1200 transition-all duration-300 bg-slate-900/90 backdrop-blur text-white rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm pointer-events-none ${
           toastMessage
             ? "translate-y-0 opacity-100"
             : "-translate-y-2 opacity-0"

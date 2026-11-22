@@ -1,6 +1,6 @@
 /**
- * Интерактивная карта Риги на базе Leaflet: GPS-позиция курьера, маркеры ящиков,
- * реальный маршрут по дорогам (OSRM), зум на район и автоопределение прибытия к точке.
+- Интерактивная карта Риги на базе Leaflet: GPS-позиция курьера, маркеры ящиков,
+- реальный маршрут по дорогам (OSRM), зум на район и автоопределение прибытия к точке.
  */
 "use client";
 
@@ -79,13 +79,25 @@ export default function MapView({
   const onDistanceRef = useRef(onDistanceCalculated);
   const onArriveRef = useRef(onArrive);
   const boxesRef = useRef(boxes);
-  routePointsRef.current = routePoints;
-  routeActiveRef.current = routeActive;
-  courierRef.current = courierMode;
-  viewTargetRef.current = viewTarget;
-  onDistanceRef.current = onDistanceCalculated;
-  onArriveRef.current = onArrive;
-  boxesRef.current = boxes;
+
+  // Синхронизируем значения рефов через useEffect (без ошибок рендеринга)
+  useEffect(() => {
+    routePointsRef.current = routePoints;
+    routeActiveRef.current = routeActive;
+    courierRef.current = courierMode;
+    viewTargetRef.current = viewTarget;
+    onDistanceRef.current = onDistanceCalculated;
+    onArriveRef.current = onArrive;
+    boxesRef.current = boxes;
+  }, [
+    routePoints,
+    routeActive,
+    courierMode,
+    viewTarget,
+    onDistanceCalculated,
+    onArrive,
+    boxes,
+  ]);
 
   const [userPos, setUserPos] = useState(DEFAULT_POS);
   const [hasRealPos, setHasRealPos] = useState(false);
@@ -209,7 +221,7 @@ export default function MapView({
       map.flyTo(viewTarget.center, viewTarget.zoom, { duration: 0.7 });
     }
   }, [viewTarget]);
-  
+
   // 5. Маркеры ящиков
   useEffect(() => {
     const map = mapInstanceRef.current;
@@ -335,11 +347,11 @@ export default function MapView({
   }, [routeKey, routeActive, userPos]);
 
   return (
-    <section className="relative flex-1 min-w-0 bg-slate-100 h-[48vh] md:h-auto min-h-[330px]">
+    <section className="relative flex-1 min-w-0 bg-slate-100 h-[48vh] md:h-auto min-h-82.5">
       <div ref={mapContainerRef} className="w-full h-full bg-[#e9eff1]" />
 
-      <div className="absolute top-4 left-4 z-[500] flex flex-col gap-2 pointer-events-none">
-        <div className="bg-white/95 backdrop-blur rounded-xl border border-white shadow-lg shadow-slate-900/5 px-4 py-3 pointer-events-auto min-w-[190px]">
+      <div className="absolute top-4 left-4 z-500 flex flex-col gap-2 pointer-events-none">
+        <div className="bg-white/95 backdrop-blur rounded-xl border border-white shadow-lg shadow-slate-900/5 px-4 py-3 pointer-events-auto min-w-47.5">
           <div className="text-[10px] uppercase tracking-[.13em] text-slate-400 font-bold mb-1">
             Network coverage
           </div>

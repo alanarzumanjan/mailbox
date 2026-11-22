@@ -1,6 +1,6 @@
 /**
- * Боковая панель: сводка по ящикам, фильтр районов и «Next stop» для курьера,
- * список с прогресс-барами, симулятор писем, расчёт дистанции и экономии топлива.
+ * Боковая панель: сводка по ящикам, фильтр районов, навигация курьера
+ * (маршрут, Google Maps, метрики), затем список точек выемки с симулятором писем.
  */
 "use client";
 
@@ -21,7 +21,6 @@ export default function Sidebar({
   districts,
   district,
   onDistrictChange,
-  onArrive,
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const isCourier = role === "courier";
@@ -68,9 +67,10 @@ export default function Sidebar({
     <aside
       ref={sidebarRef}
       className={`${
-        collapsed ? "md:w-[76px]" : "md:w-[390px] xl:w-[420px]"
-      } w-full shrink-0 bg-white border-l border-slate-200 flex flex-col min-h-0 overflow-y-auto relative z-10 transition-all duration-200`}
+        collapsed ? "md:w-19" : "md:w-97.5 xl:w-105"
+      } w-full shrink-0 bg-white border-l border-slate-200 flex flex-col min-h-0 md:overflow-y-auto scrollbar relative z-10 transition-all duration-200`}
     >
+      {/* Заголовок */}
       <div
         className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} px-5 pt-5 pb-3`}
       >
@@ -134,6 +134,7 @@ export default function Sidebar({
         </div>
       )}
 
+      {/* Счётчики */}
       {!collapsed && (
         <div className="grid grid-cols-3 gap-2 px-5 pb-4">
           <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2.5">
@@ -163,111 +164,8 @@ export default function Sidebar({
         </div>
       )}
 
-      <div className="px-5 pb-2 flex items-center justify-between">
-        {!collapsed && (
-          <div className="text-[11px] uppercase tracking-[.12em] font-bold text-slate-400">
-            Collection points
-          </div>
-        )}
-        <button
-          onClick={onSimulateMail}
-          className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-emerald-50 transition cursor-pointer mx-auto md:mx-0"
-          title="Simulate incoming mail"
-        >
-          <span className="text-base leading-none">＋</span>
-          {!collapsed && <span>Simulate incoming mail</span>}
-        </button>
-      </div>
-
-      <div className="scrollbar overflow-y-auto px-3 pb-3 flex-1 min-h-[180px] space-y-1">
-        {" "}
-        {boxes.length === 0 && !collapsed && (
-          <div className="text-center text-sm text-slate-400 py-10 px-4">
-            No postboxes in this zone yet
-          </div>
-        )}
-        {boxes.map((box) => {
-          const status = getBoxStatus(box);
-          const pct = getBoxPercent(box);
-          const dotColor =
-            status === "full"
-              ? "bg-rose-500"
-              : status === "warning"
-                ? "bg-amber-400"
-                : "bg-emerald-500";
-          const statusText =
-            status === "full"
-              ? "Pickup required"
-              : status === "warning"
-                ? "Near capacity"
-                : "Operating normally";
-          const statusColor =
-            status === "full"
-              ? "text-rose-600"
-              : status === "warning"
-                ? "text-amber-600"
-                : "text-emerald-700";
-
-          return (
-            <button
-              key={box.id}
-              onClick={() => onSelectBox(box.id)}
-              className={`w-full text-left flex items-center ${
-                collapsed ? "justify-center px-0" : "gap-3 px-3"
-              } py-3 rounded-xl border ${
-                selectedId === box.id
-                  ? "border-emerald-200 bg-emerald-50/50"
-                  : "border-transparent hover:bg-slate-50"
-              } transition cursor-pointer`}
-            >
-              <span className="relative flex h-2.5 w-2.5 shrink-0">
-                <span
-                  className={`absolute inline-flex h-full w-full rounded-full ${dotColor} opacity-25 ${
-                    status === "full" ? "animate-ping" : ""
-                  }`}
-                />
-                <span
-                  className={`relative inline-flex rounded-full h-2.5 w-2.5 ${dotColor}`}
-                />
-              </span>
-
-              {!collapsed && (
-                <>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="text-[13px] font-bold text-slate-800 truncate">
-                        {box.name}
-                      </span>
-                      <span className={`text-[10px] font-bold ${statusColor}`}>
-                        {pct}%
-                      </span>
-                    </span>
-                    <span className="block text-[11px] text-slate-400 truncate mt-0.5">
-                      {box.id} · {box.updated}
-                    </span>
-                    <span className="flex items-center gap-2 mt-2">
-                      <span className="h-1.5 flex-1 rounded-full bg-slate-100 overflow-hidden">
-                        <span
-                          className={`block h-full rounded-full ${dotColor}`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </span>
-                      <span
-                        className={`text-[10px] ${statusColor} font-semibold whitespace-nowrap`}
-                      >
-                        {statusText}
-                      </span>
-                    </span>
-                  </span>
-                  <span className="text-slate-300 text-lg">›</span>
-                </>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="border-t border-slate-100 p-5 pt-4 space-y-2.5">
+      {/* Навигация курьера: маршрут, Google Maps, метрики */}
+      <div className="border-y border-slate-100 p-5 pt-4 space-y-2.5">
         {!collapsed && (
           <div className="flex items-center justify-between mb-1">
             <div>
@@ -313,7 +211,7 @@ export default function Sidebar({
           } shadow-lg shadow-emerald-600/15 transition cursor-pointer`}
         >
           <svg
-            className="w-[17px] h-[17px] shrink-0"
+            className="w-4.25 h-4.25 shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -394,6 +292,112 @@ export default function Sidebar({
             </div>
           </div>
         )}
+      </div>
+
+      {/* Заголовок списка + симулятор */}
+      <div className="px-5 pt-4 pb-2 flex items-center justify-between">
+        {!collapsed && (
+          <div className="text-[11px] uppercase tracking-[.12em] font-bold text-slate-400">
+            Collection points
+          </div>
+        )}
+        <button
+          onClick={onSimulateMail}
+          className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5 px-2 py-1.5 rounded-md hover:bg-emerald-50 transition cursor-pointer mx-auto md:mx-0"
+          title="Simulate incoming mail"
+        >
+          <span className="text-base leading-none">＋</span>
+          {!collapsed && <span>Simulate incoming mail</span>}
+        </button>
+      </div>
+
+      {/* Список ящиков */}
+      <div className="px-3 pb-3 space-y-1">
+        {boxes.length === 0 && !collapsed && (
+          <div className="text-center text-sm text-slate-400 py-10 px-4">
+            No postboxes in this zone yet
+          </div>
+        )}
+
+        {boxes.map((box) => {
+          const status = getBoxStatus(box);
+          const pct = getBoxPercent(box);
+          const dotColor =
+            status === "full"
+              ? "bg-rose-500"
+              : status === "warning"
+                ? "bg-amber-400"
+                : "bg-emerald-500";
+          const statusText =
+            status === "full"
+              ? "Pickup required"
+              : status === "warning"
+                ? "Near capacity"
+                : "Operating normally";
+          const statusColor =
+            status === "full"
+              ? "text-rose-600"
+              : status === "warning"
+                ? "text-amber-600"
+                : "text-emerald-700";
+
+          return (
+            <button
+              key={box.id}
+              onClick={() => onSelectBox(box.id)}
+              className={`w-full text-left flex items-center ${
+                collapsed ? "justify-center px-0" : "gap-3 px-3"
+              } py-3 rounded-xl border ${
+                selectedId === box.id
+                  ? "border-emerald-200 bg-emerald-50/50"
+                  : "border-transparent hover:bg-slate-50"
+              } transition cursor-pointer`}
+            >
+              <span className="relative flex h-2.5 w-2.5 shrink-0">
+                <span
+                  className={`absolute inline-flex h-full w-full rounded-full ${dotColor} opacity-25 ${
+                    status === "full" ? "animate-ping" : ""
+                  }`}
+                />
+                <span
+                  className={`relative inline-flex rounded-full h-2.5 w-2.5 ${dotColor}`}
+                />
+              </span>
+
+              {!collapsed && (
+                <>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="text-[13px] font-bold text-slate-800 truncate">
+                        {box.name}
+                      </span>
+                      <span className={`text-[10px] font-bold ${statusColor}`}>
+                        {pct}%
+                      </span>
+                    </span>
+                    <span className="block text-[11px] text-slate-400 truncate mt-0.5">
+                      {box.id} · {box.updated}
+                    </span>
+                    <span className="flex items-center gap-2 mt-2">
+                      <span className="h-1.5 flex-1 rounded-full bg-slate-100 overflow-hidden">
+                        <span
+                          className={`block h-full rounded-full ${dotColor}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </span>
+                      <span
+                        className={`text-[10px] ${statusColor} font-semibold whitespace-nowrap`}
+                      >
+                        {statusText}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="text-slate-300 text-lg">›</span>
+                </>
+              )}
+            </button>
+          );
+        })}
       </div>
     </aside>
   );

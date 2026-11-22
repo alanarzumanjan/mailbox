@@ -1,10 +1,10 @@
 /**
- * Мобильное приложение курьера: карта, маршрут по районам,
- * экран «Mark as Collected». Действия попадают в ленту диспетчера.
+- Мобильное приложение курьера: карта, маршрут по районам,
+- экран «Mark as Collected». Действия попадают в ленту диспетчера.
  */
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { getBoxStatus } from "@/data/initialBoxes";
 import { DISTRICTS, getBoxDistrict } from "@/data/districts";
@@ -21,7 +21,7 @@ export default function CourierApp({
   sidebarRef,
 }) {
   const [selectedId, setSelectedId] = useState(null);
-  const [routeActive, setRouteActive] = useState(false);
+  const [routeRequested, setRouteRequested] = useState(false); // Заменили routeActive на флаг намерения
   const [routeDistance, setRouteDistance] = useState(0);
   const [district, setDistrict] = useState("all");
 
@@ -41,16 +41,14 @@ export default function CourierApp({
     [visibleBoxes],
   );
 
+  // Маршрут активен только если курьер его запросил И есть полные точки
+  const routeActive = routeRequested && fullRoutePoints.length > 0;
+
   const selectedBox = boxes.find((b) => b.id === selectedId) || null;
   const viewTarget = DISTRICTS.find((d) => d.id === district) || null;
 
-  // Если полных ящиков не осталось — маршрут выключаем
-  useEffect(() => {
-    if (routeActive && fullRoutePoints.length === 0) {
-      setRouteActive(false);
-      setRouteDistance(0);
-    }
-  }, [routeActive, fullRoutePoints.length]);
+  // Убран useEffect, вызывающий setState синхронно.
+  // Если fullRoutePoints.length стал 0, routeActive автоматически станет false.
 
   const handleDistrictChange = (id) => {
     setDistrict(id);
@@ -87,7 +85,7 @@ export default function CourierApp({
       showToast("No full postboxes — route not needed");
       return;
     }
-    setRouteActive(true);
+    setRouteRequested(true);
     showToast(
       `Optimized route ready · ${fullRoutePoints.length} full stop${fullRoutePoints.length === 1 ? "" : "s"}`,
     );
@@ -118,6 +116,13 @@ export default function CourierApp({
     setSelectedId(null);
 
     const remaining = fullRoutePoints.filter((b) => b.id !== id).length;
+
+    // Если собрали последний ящик, сбрасываем флаг запроса маршрута
+    if (remaining === 0) {
+      setRouteRequested(false);
+      setRouteDistance(0);
+    }
+
     showToast(
       remaining > 0
         ? `${box.name} collected · ${remaining} stop${remaining === 1 ? "" : "s"} left, route updated`

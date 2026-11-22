@@ -174,8 +174,11 @@ export default function DispatcherDashboard({
   const [exporting, setExporting] = useState(null);
 
   const boxesRef = useRef(boxes);
-  boxesRef.current = boxes;
 
+  useEffect(() => {
+    boxesRef.current = boxes;
+  }, [boxes]);
+  
   // Имитация загрузки данных (скелетоны)
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 800);
@@ -575,7 +578,7 @@ export default function DispatcherDashboard({
       setExporting(null);
     }
   };
-  
+
   return (
     <div className="flex-1 min-h-0 md:overflow-y-auto scrollbar bg-slate-50">
       <style>{`
@@ -583,7 +586,7 @@ export default function DispatcherDashboard({
         .mg-slide-in { animation: mgSlideIn .35s ease-out; }
       `}</style>
 
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 md:px-8 py-6 space-y-6">
+      <div className="max-w-375 mx-auto px-4 sm:px-6 md:px-8 py-6 space-y-6">
         {/* Заголовок и действия */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -790,14 +793,12 @@ export default function DispatcherDashboard({
               <EmptyState title={emptyCopy.title} text={emptyCopy.text} />
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[700px] text-left">
+                <table className="w-full min-w-175 text-left">
                   <thead>
                     <tr className="text-[10px] uppercase tracking-[.12em] font-bold text-slate-400 border-b border-slate-100">
                       <th className="px-5 py-3 font-bold">Postbox</th>
                       <th className="px-3 py-3 font-bold">District</th>
-                      <th className="px-3 py-3 font-bold w-[200px]">
-                        Fill level
-                      </th>
+                      <th className="px-3 py-3 font-bold w-50">Fill level</th>
                       <th className="px-3 py-3 font-bold">Battery</th>
                       <th className="px-3 py-3 font-bold">Status</th>
                       <th className="px-5 py-3 font-bold">Updated</th>
@@ -826,7 +827,7 @@ export default function DispatcherDashboard({
                             <div className="text-[13px] font-extrabold text-slate-800 mt-0.5">
                               {box.name}
                             </div>
-                            <div className="text-[11px] text-slate-400 truncate max-w-[220px]">
+                            <div className="text-[11px] text-slate-400 truncate max-w-55">
                               {box.address}
                             </div>
                           </td>
@@ -1039,7 +1040,7 @@ export default function DispatcherDashboard({
                   text="Sensor events will appear here in real time."
                 />
               ) : (
-                <ul className="max-h-[420px] overflow-y-auto scrollbar border-t border-slate-100">
+                <ul className="max-h-105 overflow-y-auto scrollbar border-t border-slate-100">
                   {events.map((ev) => (
                     <li
                       key={ev.id}

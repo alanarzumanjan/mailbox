@@ -29,7 +29,7 @@ export default function CourierPickupSheet({ box, onClose, onCollect }) {
   const navUrl = `https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${box.lat},${box.lng}`;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[700] md:inset-x-auto md:left-5 md:bottom-5 md:w-[380px] bg-white rounded-t-3xl md:rounded-2xl border border-slate-200 shadow-2xl shadow-slate-900/20 overflow-hidden">
+    <div className="fixed inset-x-0 bottom-0 z-700 md:inset-x-auto md:left-5 md:bottom-5 md:w-95 bg-white rounded-t-3xl md:rounded-2xl border border-slate-200 shadow-2xl shadow-slate-900/20 overflow-hidden">
       <div className={`h-1.5 ${barColor}`} />
       <div className="p-4 pb-5">
         <div className="flex justify-between items-start gap-3">
