@@ -1,6 +1,6 @@
 /**
- * Интерактивная карта Риги на базе Leaflet: запрашивает GPS-позицию пользователя,
- * отрисовывает маркеры ящиков и прокладывает реальный маршрут по дорогам через OSRM.
+ * Интерактивная карта Риги на базе Leaflet: GPS-позиция курьера, маркеры ящиков,
+ * реальный маршрут по дорогам (OSRM), зум на район и автоопределение прибытия к точке.
  */
 "use client";
 
@@ -9,8 +9,9 @@ import L from "leaflet";
 import { getBoxStatus, getBoxPercent } from "@/data/initialBoxes";
 
 const DEFAULT_POS = { lat: 56.9515, lng: 24.112 };
+const ARRIVAL_RADIUS_KM = 0.04; // 40 м
+const REROUTE_DISTANCE_KM = 0.15; // пересчёт маршрута, если курьер сместился на 150 м
 
-// Несколько OSRM-серверов: если один недоступен, пробуем следующий
 const ROUTING_SERVERS = [
   "https://routing.openstreetmap.de/routed-car/route/v1/driving",
   "https://router.project-osrm.org/route/v1/driving",
@@ -36,7 +37,6 @@ async function fetchRoadRoute(coordsString, signal) {
   throw lastError;
 }
 
-// Расстояние по прямой (км) — только для запасного варианта
 function haversineKm(a, b) {
   const R = 6371;
   const toRad = (d) => (d * Math.PI) / 180;
@@ -55,24 +55,41 @@ export default function MapView({
   routePoints,
   routeActive,
   onDistanceCalculated,
+  viewTarget,
+  courierMode,
+  onArrive,
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef(new Map());
   const userMarkerRef = useRef(null);
   const routeLayerRef = useRef(null);
+
+  const livePosRef = useRef(null);
+  const hasRealPosRef = useRef(false);
+  const centeredRef = useRef(false);
+  const lastFitRef = useRef(null);
+  const lastArrivedRef = useRef(null);
+
+  // Свежие значения пропсов для колбэков и эффектов без лишних перезапусков
   const routePointsRef = useRef(routePoints);
+  const routeActiveRef = useRef(routeActive);
+  const courierRef = useRef(courierMode);
+  const viewTargetRef = useRef(viewTarget);
   const onDistanceRef = useRef(onDistanceCalculated);
+  const onArriveRef = useRef(onArrive);
+  const boxesRef = useRef(boxes);
+  routePointsRef.current = routePoints;
+  routeActiveRef.current = routeActive;
+  courierRef.current = courierMode;
+  viewTargetRef.current = viewTarget;
+  onDistanceRef.current = onDistanceCalculated;
+  onArriveRef.current = onArrive;
+  boxesRef.current = boxes;
 
   const [userPos, setUserPos] = useState(DEFAULT_POS);
   const [hasRealPos, setHasRealPos] = useState(false);
 
-  // Всегда держим свежие значения в ref, чтобы не перезапускать эффекты зря
-  useEffect(() => {
-    routePointsRef.current = routePoints;
-    onDistanceRef.current = onDistanceCalculated;
-  });
-  // Ключ маршрута: меняется только когда реально изменился набор точек
   const routeKey = routePoints
     .map((b) => `${b.id}:${b.lat.toFixed(5)},${b.lng.toFixed(5)}`)
     .join("|");
@@ -102,40 +119,67 @@ export default function MapView({
     };
   }, []);
 
-  // 2. Геолокация (отдельно от карты, с защитой от уничтоженной карты)
+  // 2. Слежение за GPS (позиция, маркер, определение прибытия)
   useEffect(() => {
     if (!navigator.geolocation) return;
     let cancelled = false;
 
-    navigator.geolocation.getCurrentPosition(
+    const watchId = navigator.geolocation.watchPosition(
       (position) => {
         if (cancelled || !mapInstanceRef.current) return;
-        setUserPos({
+        const p = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-        });
-        setHasRealPos(true);
+        };
+        livePosRef.current = p;
+        userMarkerRef.current?.setLatLng([p.lat, p.lng]);
+
+        if (!hasRealPosRef.current) {
+          hasRealPosRef.current = true;
+          setUserPos(p);
+          setHasRealPos(true);
+        } else {
+          // Маршрут пересчитываем только при заметном перемещении
+          setUserPos((prev) =>
+            haversineKm(prev, p) > REROUTE_DISTANCE_KM ? p : prev,
+          );
+        }
+
+        // Прибытие к следующей точке маршрута
+        const next = routePointsRef.current[0];
+        if (courierRef.current && routeActiveRef.current && next) {
+          const dist = haversineKm(p, next);
+          if (dist < ARRIVAL_RADIUS_KM && lastArrivedRef.current !== next.id) {
+            lastArrivedRef.current = next.id;
+            onArriveRef.current?.(next.id);
+          } else if (dist > 0.1 && lastArrivedRef.current === next.id) {
+            lastArrivedRef.current = null;
+          }
+        }
       },
       () => console.log("Geolocation permission denied or unavailable"),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
 
     return () => {
       cancelled = true;
+      navigator.geolocation.clearWatch(watchId);
     };
   }, []);
 
-  // 3. Маркер пользователя + центрирование (один раз, когда получили позицию)
+  // 3. Маркер пользователя + однократное центрирование на нём
   useEffect(() => {
     const map = mapInstanceRef.current;
-    if (!map || !hasRealPos) return;
+    const pos = livePosRef.current;
+    if (!map || !hasRealPos || !pos) return;
 
-    map.setView([userPos.lat, userPos.lng], 14);
-
-    if (userMarkerRef.current) {
-      userMarkerRef.current.setLatLng([userPos.lat, userPos.lng]);
-      return;
+    if (!centeredRef.current) {
+      centeredRef.current = true;
+      // Если курьер уже выбрал район — не уводим карту от него
+      if (!viewTargetRef.current) map.setView([pos.lat, pos.lng], 14);
     }
+
+    if (userMarkerRef.current) return;
 
     const userIcon = L.divIcon({
       className: "",
@@ -143,13 +187,30 @@ export default function MapView({
       iconSize: [16, 16],
       iconAnchor: [8, 8],
     });
-    userMarkerRef.current = L.marker([userPos.lat, userPos.lng], {
+    userMarkerRef.current = L.marker([pos.lat, pos.lng], {
       icon: userIcon,
     }).addTo(map);
     userMarkerRef.current.bindTooltip("Your location", { direction: "top" });
-  }, [hasRealPos, userPos]);
+  }, [hasRealPos]);
 
-  // 4. Маркеры ящиков
+  // 4. Подгон карты под видимые ящики района (или всей Риги)
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !viewTarget) return;
+
+    const pts = boxesRef.current;
+    if (pts.length > 0) {
+      map.flyToBounds(L.latLngBounds(pts.map((b) => [b.lat, b.lng])), {
+        padding: [60, 60],
+        maxZoom: 15,
+        duration: 0.7,
+      });
+    } else {
+      map.flyTo(viewTarget.center, viewTarget.zoom, { duration: 0.7 });
+    }
+  }, [viewTarget]);
+  
+  // 5. Маркеры ящиков
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -181,7 +242,7 @@ export default function MapView({
     });
   }, [boxes, selectedId, onSelectBox]);
 
-  // 5. Перелёт к выбранному ящику
+  // 6. Перелёт к выбранному ящику
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !selectedId) return;
@@ -194,7 +255,7 @@ export default function MapView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 
-  // 6. Реальный маршрут по дорогам
+  // 7. Реальный маршрут по дорогам (перестраивается при смене точек или позиции)
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -205,12 +266,14 @@ export default function MapView({
     }
 
     const points = routePointsRef.current;
-    if (!routeActive || points.length === 0) return;
+    if (!routeActive || points.length === 0) {
+      lastFitRef.current = null;
+      return;
+    }
 
     let cancelled = false;
     const controller = new AbortController();
 
-    // OSRM принимает координаты в формате lng,lat
     const coordsString = [
       [userPos.lng, userPos.lat],
       ...points.map((b) => [b.lng, b.lat]),
@@ -222,7 +285,11 @@ export default function MapView({
       if (cancelled || mapInstanceRef.current !== map) return;
       if (routeLayerRef.current) map.removeLayer(routeLayerRef.current);
       routeLayerRef.current = layer.addTo(map);
-      map.fitBounds(layer.getBounds().pad(0.25));
+      // Подгоняем карту только при новом наборе точек, не при каждом сдвиге GPS
+      if (lastFitRef.current !== routeKey) {
+        lastFitRef.current = routeKey;
+        map.fitBounds(layer.getBounds().pad(0.25));
+      }
     };
 
     fetchRoadRoute(coordsString, controller.signal)
@@ -247,7 +314,6 @@ export default function MapView({
         if (err.name === "AbortError" || cancelled) return;
         console.warn("Routing failed, showing straight-line fallback:", err);
 
-        // Запасной вариант: серая пунктирная линия (видно, что это не дорожный маршрут)
         const chain = [userPos, ...points];
         let km = 0;
         for (let i = 1; i < chain.length; i++) {

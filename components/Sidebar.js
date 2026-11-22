@@ -1,6 +1,6 @@
 /**
- * Боковая панель диспетчера: сводка по ящикам, список с прогресс-барами,
- * симулятор входящих писем и расчет реальной дистанции и экономии топлива с подсказками.
+ * Боковая панель: сводка по ящикам, фильтр районов и «Next stop» для курьера,
+ * список с прогресс-барами, симулятор писем, расчёт дистанции и экономии топлива.
  */
 "use client";
 
@@ -17,13 +17,20 @@ export default function Sidebar({
   routeActive,
   routePoints,
   routeDistance,
+  role,
+  districts,
+  district,
+  onDistrictChange,
+  onArrive,
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const isCourier = role === "courier";
 
   const fullCount = boxes.filter((b) => getBoxStatus(b) === "full").length;
   const normalCount = boxes.filter((b) => getBoxStatus(b) === "normal").length;
+  const nextStop = routePoints[0] || null;
 
-  // Реальный расчет экономии топлива по сравнению с фиксированным объездом всех ящиков (~3.2 км на точку)
+  // Экономия топлива относительно фиксированного объезда всех ящиков (~3.2 км на точку)
   const baselineDistance = boxes.length * 3.2;
   const currentDistance = routeDistance || 0;
   const fuelSavedPercent =
@@ -47,6 +54,7 @@ export default function Sidebar({
       .map((b) => `${b.lat},${b.lng}`)
       .join("|");
 
+    // Начальная точка не указана — Google Maps возьмёт текущее положение пользователя
     let url =
       `https://www.google.com/maps/dir/?api=1&travelmode=driving` +
       `&destination=${destination.lat},${destination.lng}`;
@@ -55,12 +63,13 @@ export default function Sidebar({
     }
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
   return (
     <aside
       ref={sidebarRef}
       className={`${
         collapsed ? "md:w-[76px]" : "md:w-[390px] xl:w-[420px]"
-      } w-full shrink-0 bg-white border-l border-slate-200 flex flex-col min-h-0 relative z-10 transition-all duration-200`}
+      } w-full shrink-0 bg-white border-l border-slate-200 flex flex-col min-h-0 overflow-y-auto relative z-10 transition-all duration-200`}
     >
       <div
         className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} px-5 pt-5 pb-3`}
@@ -69,7 +78,7 @@ export default function Sidebar({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-[17px] font-extrabold tracking-tight">
-                Postbox fleet
+                {isCourier ? "My pickups" : "Postbox fleet"}
               </h1>
               {fullCount > 0 && (
                 <span className="text-[10px] bg-rose-50 text-rose-600 border border-rose-100 rounded-full px-2 py-0.5 font-bold">
@@ -78,7 +87,9 @@ export default function Sidebar({
               )}
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Live status across the Riga network
+              {isCourier
+                ? "Your assigned zone in Riga"
+                : "Live status across the Riga network"}
             </p>
           </div>
         )}
@@ -98,6 +109,30 @@ export default function Sidebar({
           </svg>
         </button>
       </div>
+
+      {/* Фильтр районов — только в режиме курьера */}
+      {isCourier && !collapsed && (
+        <div className="px-5 pb-3">
+          <div className="text-[10px] uppercase tracking-[.12em] font-bold text-slate-400 mb-2">
+            Zone of responsibility
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {districts.map((d) => (
+              <button
+                key={d.id}
+                onClick={() => onDistrictChange(d.id)}
+                className={`text-xs font-semibold px-3 py-2 rounded-full border transition cursor-pointer ${
+                  district === d.id
+                    ? "bg-slate-900 border-slate-900 text-white"
+                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!collapsed && (
         <div className="grid grid-cols-3 gap-2 px-5 pb-4">
@@ -144,7 +179,13 @@ export default function Sidebar({
         </button>
       </div>
 
-      <div className="scrollbar overflow-y-auto px-3 pb-3 flex-1 space-y-1">
+      <div className="scrollbar overflow-y-auto px-3 pb-3 flex-1 min-h-[180px] space-y-1">
+        {" "}
+        {boxes.length === 0 && !collapsed && (
+          <div className="text-center text-sm text-slate-400 py-10 px-4">
+            No postboxes in this zone yet
+          </div>
+        )}
         {boxes.map((box) => {
           const status = getBoxStatus(box);
           const pct = getBoxPercent(box);
@@ -230,13 +271,37 @@ export default function Sidebar({
         {!collapsed && (
           <div className="flex items-center justify-between mb-1">
             <div>
-              <div className="text-sm font-bold">Courier dispatch</div>
+              <div className="text-sm font-bold">
+                {isCourier ? "Courier navigation" : "Courier dispatch"}
+              </div>
               <div className="text-[11px] text-slate-400 mt-0.5">
-                Collect full boxes in one run
+                {isCourier
+                  ? "Route to full boxes in your zone"
+                  : "Collect full boxes in one run"}
               </div>
             </div>
             <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-bold">
               SMART ROUTING
+            </span>
+          </div>
+        )}
+
+        {/* Следующая остановка (режим курьера) */}
+        {isCourier && routeActive && nextStop && !collapsed && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[.12em] font-bold text-emerald-700">
+                Next stop
+              </div>
+              <div className="font-extrabold text-sm truncate">
+                {nextStop.name}
+              </div>
+              <div className="text-[11px] text-slate-500 truncate">
+                {nextStop.address}
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-emerald-700/80 whitespace-nowrap">
+              {routePoints.length} left
             </span>
           </div>
         )}
@@ -256,7 +321,11 @@ export default function Sidebar({
           >
             <path d="M4 7h11l-3-3m3 3-3 3M20 17H9l3 3m-3-3 3-3" />
           </svg>
-          {!collapsed && <span>Optimize courier route</span>}
+          {!collapsed && (
+            <span>
+              {isCourier ? "Build my route" : "Optimize courier route"}
+            </span>
+          )}
         </button>
 
         {routeActive && (
@@ -273,14 +342,12 @@ export default function Sidebar({
             >
               <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
-            <span>Open route in Google Maps</span>
+            {!collapsed && <span>Open route in Google Maps</span>}
           </button>
         )}
 
-        {/* Реальные метрики маршрута с вопросиками-подсказками при наведении */}
         {routeActive && !collapsed && (
           <div className="mt-2 grid grid-cols-2 gap-2">
-            {/* Карточка EST. DISTANCE */}
             <div className="bg-slate-50 border border-slate-100 rounded-lg p-3 relative">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-slate-400 font-semibold">
@@ -303,7 +370,6 @@ export default function Sidebar({
               </div>
             </div>
 
-            {/* Карточка FUEL SAVED */}
             <div className="bg-slate-50 border border-slate-100 rounded-lg p-3 relative">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-slate-400 font-semibold">
