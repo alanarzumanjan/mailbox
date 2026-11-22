@@ -62,21 +62,6 @@ export default function Header({
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">
-        <div className="hidden xl:flex items-center gap-4 bg-slate-50 border border-slate-200/60 rounded-xl px-3.5 py-1.5 text-[11px] font-semibold text-slate-600">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            Normal
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            Warning
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-rose-500" />
-            Full
-          </span>
-        </div>
-
         <div className="hidden xl:block text-xs text-slate-400">{timeText}</div>
 
         {/* Переключатель ролей */}

@@ -38,7 +38,7 @@ export const INITIAL_BOXES = [
     lng: 24.102,
     weight: 410,
     max: 2000,
-    battery: 76,
+    battery: 15,
     updated: "5 min ago",
   },
   {
@@ -112,7 +112,7 @@ export const INITIAL_BOXES = [
     lng: 24.0206,
     weight: 2000,
     max: 2000,
-    battery: 58,
+    battery: 18,
     updated: "1 min ago",
   },
   {
