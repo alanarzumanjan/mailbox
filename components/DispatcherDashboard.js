@@ -87,6 +87,12 @@ const KPI_ICON_TONE = {
   emerald: "bg-emerald-50 text-emerald-600",
 };
 
+const pdfText = (v) =>
+  String(v ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\x20-\x7E]/g, (ch) => (ch === "·" ? "-" : ""));
+
 const matchesFilter = (box, filter) => {
   if (filter === "critical") return getBoxStatus(box) === "full";
   if (filter === "warning") return getBoxStatus(box) === "warning";
@@ -367,21 +373,209 @@ export default function DispatcherDashboard({
     URL.revokeObjectURL(url);
   };
 
-  const handleExport = (kind) => {
+  const downloadPdf = async () => {
+    // Библиотеки грузятся только при экспорте, чтобы не раздувать основной бандл
+    const { jsPDF } = await import("jspdf");
+    const autoTable = (await import("jspdf-autotable")).default;
+
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 40;
+    const now = new Date();
+
+    const STATUS_RGB = {
+      full: [225, 29, 72],
+      warning: [217, 119, 6],
+      normal: [5, 150, 105],
+    };
+
+    // Шапка отчёта
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageW, 78, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("MailGrid", margin, 36);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("Dispatch Report - Riga network", margin, 54);
+    doc.text(
+      pdfText(
+        `Generated ${now.toLocaleDateString("en-GB")} ${now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`,
+      ),
+      pageW - margin,
+      36,
+      { align: "right" },
+    );
+    doc.text(pdfText(SHIFT_STATS.shiftLabel), pageW - margin, 54, {
+      align: "right",
+    });
+
+    // Сводка (KPI)
+    const kpis = [
+      ["Postboxes", String(net.total)],
+      ["Critical", String(net.critical)],
+      ["Warning", String(net.warning)],
+      ["Low battery", String(net.battery)],
+      ["Avg response", `${avgResponseMin} min`],
+      ["Couriers", `${activeCouriers} of ${COURIERS.length}`],
+    ];
+    const gap = 8;
+    const cardW = (pageW - margin * 2 - gap * (kpis.length - 1)) / kpis.length;
+    kpis.forEach(([label, value], i) => {
+      const x = margin + i * (cardW + gap);
+      doc.setFillColor(241, 245, 249);
+      doc.roundedRect(x, 96, cardW, 52, 6, 6, "F");
+      doc.setTextColor(100, 116, 139);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.text(label.toUpperCase(), x + 8, 112);
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(14);
+      doc.text(value, x + 8, 135);
+    });
+
+    // Таблица ящиков (сначала самые срочные)
+    const sorted = [...boxes].sort(
+      (a, b) =>
+        STATUS_RANK[getBoxStatus(a)] - STATUS_RANK[getBoxStatus(b)] ||
+        b.weight / b.max - a.weight / a.max,
+    );
+
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Postbox status", margin, 176);
+
+    autoTable(doc, {
+      startY: 184,
+      margin: { left: margin, right: margin },
+      head: [
+        [
+          "ID",
+          "Postbox",
+          "District",
+          "Weight",
+          "Fill",
+          "Battery",
+          "Status",
+          "Updated",
+        ],
+      ],
+      body: sorted.map((b) => [
+        b.id,
+        pdfText(b.name),
+        pdfText(DISTRICTS.find((d) => d.id === getBoxDistrict(b))?.label),
+        `${b.weight} / ${b.max} g`,
+        `${getBoxPercent(b)}%`,
+        `${b.battery}%`,
+        STATUS_STYLE[getBoxStatus(b)].label,
+        pdfText(b.updated),
+      ]),
+      styles: {
+        font: "helvetica",
+        fontSize: 8,
+        cellPadding: 5,
+        textColor: [51, 65, 85],
+      },
+      headStyles: { fillColor: [15, 23, 42], textColor: 255, fontSize: 8 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      didParseCell: (data) => {
+        if (data.section !== "body") return;
+        const box = sorted[data.row.index];
+        if (data.column.index === 6) {
+          data.cell.styles.textColor = STATUS_RGB[getBoxStatus(box)];
+          data.cell.styles.fontStyle = "bold";
+        }
+        if (data.column.index === 5 && box.battery <= LOW_BATTERY_THRESHOLD) {
+          data.cell.styles.textColor = STATUS_RGB.full;
+          data.cell.styles.fontStyle = "bold";
+        }
+      },
+    });
+
+    // Курьеры смены
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 28,
+      margin: { left: margin, right: margin },
+      head: [["Courier", "Name", "Zone", "Status", "Pickups", "Note"]],
+      body: COURIERS.map((c) => [
+        c.id,
+        pdfText(c.name),
+        pdfText(c.zone),
+        COURIER_STATUS[c.status].label,
+        String(c.pickups),
+        pdfText(c.note),
+      ]),
+      styles: {
+        font: "helvetica",
+        fontSize: 8,
+        cellPadding: 5,
+        textColor: [51, 65, 85],
+      },
+      headStyles: { fillColor: [5, 150, 105], textColor: 255, fontSize: 8 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      didDrawPage: undefined,
+    });
+
+    // Последние события телеметрии
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 28,
+      margin: { left: margin, right: margin },
+      head: [["Time", "Postbox", "Event"]],
+      body: events
+        .slice(0, 15)
+        .map((e) => [e.time, e.boxId, pdfText(e.message)]),
+      styles: {
+        font: "helvetica",
+        fontSize: 8,
+        cellPadding: 5,
+        textColor: [51, 65, 85],
+      },
+      headStyles: { fillColor: [71, 85, 105], textColor: 255, fontSize: 8 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+    });
+
+    // Нижний колонтитул с номерами страниц
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("MailGrid - Dispatch intelligence", margin, pageH - 20);
+      doc.text(`Page ${i} of ${pages}`, pageW - margin, pageH - 20, {
+        align: "right",
+      });
+    }
+
+    doc.save(`mailgrid-dispatch-report-${now.toISOString().slice(0, 10)}.pdf`);
+  };
+
+  const handleExport = async (kind) => {
     setExportOpen(false);
     setExporting(kind);
-    setTimeout(() => {
+    try {
+      // Небольшая пауза, чтобы кнопка успела показать «Generating…»
+      await new Promise((r) => setTimeout(r, 600));
       if (kind === "csv") downloadCsv();
-      setExporting(null);
+      else await downloadPdf();
+
       showToast(`${kind.toUpperCase()} report generated successfully`);
       pushEvent({
         type: "info",
         boxId: "SYSTEM",
         message: `Dispatch report exported (${kind.toUpperCase()})`,
       });
-    }, 1100);
+    } catch (err) {
+      console.error("Report export failed:", err);
+      showToast("Could not generate the report");
+    } finally {
+      setExporting(null);
+    }
   };
-
+  
   return (
     <div className="flex-1 min-h-0 md:overflow-y-auto scrollbar bg-slate-50">
       <style>{`
