@@ -1,6 +1,6 @@
 /**
  * Интерактивная карта Риги на базе Leaflet: запрашивает GPS-позицию пользователя,
- * отрисовывает маркеры ящиков с защитой от сброса и прокладывает маршрут с учетом текущей геолокации.
+ * отрисовывает маркеры ящиков и прокладывает реальный маршрут по дорогам через OSRM.
  */
 "use client";
 
@@ -8,28 +8,83 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { getBoxStatus, getBoxPercent } from "@/data/initialBoxes";
 
+const DEFAULT_POS = { lat: 56.9515, lng: 24.112 };
+
+// Несколько OSRM-серверов: если один недоступен, пробуем следующий
+const ROUTING_SERVERS = [
+  "https://routing.openstreetmap.de/routed-car/route/v1/driving",
+  "https://router.project-osrm.org/route/v1/driving",
+];
+
+async function fetchRoadRoute(coordsString, signal) {
+  let lastError;
+  for (const server of ROUTING_SERVERS) {
+    try {
+      const res = await fetch(
+        `${server}/${coordsString}?overview=full&geometries=geojson`,
+        { signal },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.code === "Ok" && data.routes?.length > 0) return data.routes[0];
+      throw new Error(data.code || "No route");
+    } catch (err) {
+      if (err.name === "AbortError") throw err;
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
+
+// Расстояние по прямой (км) — только для запасного варианта
+function haversineKm(a, b) {
+  const R = 6371;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
 export default function MapView({
   boxes,
   selectedId,
   onSelectBox,
   routePoints,
   routeActive,
+  onDistanceCalculated,
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef(new Map());
   const userMarkerRef = useRef(null);
   const routeLayerRef = useRef(null);
-  const [userPos, setUserPos] = useState({ lat: 56.9515, lng: 24.112 }); // Центр Риги по умолчанию
+  const routePointsRef = useRef(routePoints);
+  const onDistanceRef = useRef(onDistanceCalculated);
 
-  // Инициализация карты и запрос GPS пользователя
+  const [userPos, setUserPos] = useState(DEFAULT_POS);
+  const [hasRealPos, setHasRealPos] = useState(false);
+
+  // Всегда держим свежие значения в ref, чтобы не перезапускать эффекты зря
+  useEffect(() => {
+    routePointsRef.current = routePoints;
+    onDistanceRef.current = onDistanceCalculated;
+  });
+  // Ключ маршрута: меняется только когда реально изменился набор точек
+  const routeKey = routePoints
+    .map((b) => `${b.id}:${b.lat.toFixed(5)},${b.lng.toFixed(5)}`)
+    .join("|");
+
+  // 1. Создание карты
   useEffect(() => {
     if (mapInstanceRef.current || !mapContainerRef.current) return;
 
     const map = L.map(mapContainerRef.current, {
       zoomControl: true,
       scrollWheelZoom: true,
-    }).setView([56.9515, 24.112], 14);
+    }).setView([DEFAULT_POS.lat, DEFAULT_POS.lng], 14);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
@@ -38,50 +93,67 @@ export default function MapView({
 
     mapInstanceRef.current = map;
 
-    // Запрос геолокации браузера
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setUserPos(pos);
-          map.setView([pos.lat, pos.lng], 14);
-
-          // Добавляем маркер пользователя
-          const userIcon = L.divIcon({
-            className: "",
-            html: `<div style="background:#2563eb; width:16px; height:16px; border:3px solid white; border-radius:50%; box-shadow:0 0 10px rgba(37,99,235,0.5);"></div>`,
-            iconSize: [16, 16],
-            iconAnchor: [8, 8],
-          });
-          userMarkerRef.current = L.marker([pos.lat, pos.lng], {
-            icon: userIcon,
-          }).addTo(map);
-          userMarkerRef.current.bindTooltip("Your location", {
-            direction: "top",
-          });
-        },
-        () => {
-          // Если пользователь запретил геолокацию — остаемся в центре Риги
-          console.log("Geolocation permission denied or unavailable");
-        },
-      );
-    }
-
     return () => {
       map.remove();
       mapInstanceRef.current = null;
+      markersRef.current.clear();
+      userMarkerRef.current = null;
+      routeLayerRef.current = null;
     };
   }, []);
 
-  // Гарантированная отрисовка и обновление маркеров ящиков (исправляет проблему исчезновения)
+  // 2. Геолокация (отдельно от карты, с защитой от уничтоженной карты)
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    let cancelled = false;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        if (cancelled || !mapInstanceRef.current) return;
+        setUserPos({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setHasRealPos(true);
+      },
+      () => console.log("Geolocation permission denied or unavailable"),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 3. Маркер пользователя + центрирование (один раз, когда получили позицию)
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !hasRealPos) return;
+
+    map.setView([userPos.lat, userPos.lng], 14);
+
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setLatLng([userPos.lat, userPos.lng]);
+      return;
+    }
+
+    const userIcon = L.divIcon({
+      className: "",
+      html: `<div style="background:#2563eb; width:16px; height:16px; border:3px solid white; border-radius:50%; box-shadow:0 0 10px rgba(37,99,235,0.5);"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+    userMarkerRef.current = L.marker([userPos.lat, userPos.lng], {
+      icon: userIcon,
+    }).addTo(map);
+    userMarkerRef.current.bindTooltip("Your location", { direction: "top" });
+  }, [hasRealPos, userPos]);
+
+  // 4. Маркеры ящиков
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    // Очищаем старые маркеры, чтобы избежать дублирования
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current.clear();
 
@@ -109,7 +181,7 @@ export default function MapView({
     });
   }, [boxes, selectedId, onSelectBox]);
 
-  // Плавный перелет к выбранному ящику
+  // 5. Перелёт к выбранному ящику
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !selectedId) return;
@@ -119,9 +191,10 @@ export default function MapView({
         duration: 0.55,
       });
     }
-  }, [selectedId, boxes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
 
-  // Построение маршрута от позиции пользователя через OSRM
+  // 6. Реальный маршрут по дорогам
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -131,49 +204,69 @@ export default function MapView({
       routeLayerRef.current = null;
     }
 
-    if (routeActive && routePoints.length > 0) {
-      // Строим путь: [Позиция пользователя] -> [Точки ящиков]
-      const pointsCoords = [
-        [userPos.lng, userPos.lat],
-        ...routePoints.map((b) => [b.lng, b.lat]),
-      ];
-      const coordsString = pointsCoords.map((c) => c.join(",")).join(";");
-      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
+    const points = routePointsRef.current;
+    if (!routeActive || points.length === 0) return;
 
-      fetch(osrmUrl)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.routes && data.routes.length > 0) {
-            const routeCoords = data.routes[0].geometry.coordinates.map((c) => [
-              c[1],
-              c[0],
-            ]);
+    let cancelled = false;
+    const controller = new AbortController();
 
-            routeLayerRef.current = L.polyline(routeCoords, {
-              color: "#0b9b70",
-              weight: 5,
-              opacity: 0.9,
-              lineCap: "round",
-              lineJoin: "round",
-            }).addTo(map);
+    // OSRM принимает координаты в формате lng,lat
+    const coordsString = [
+      [userPos.lng, userPos.lat],
+      ...points.map((b) => [b.lng, b.lat]),
+    ]
+      .map((c) => c.join(","))
+      .join(";");
 
-            map.fitBounds(routeLayerRef.current.getBounds().pad(0.25));
-          }
-        })
-        .catch(() => {
-          const fallbackCoords = [
-            [userPos.lat, userPos.lng],
-            ...routePoints.map((b) => [b.lat, b.lng]),
-          ];
-          routeLayerRef.current = L.polyline(fallbackCoords, {
+    const draw = (layer) => {
+      if (cancelled || mapInstanceRef.current !== map) return;
+      if (routeLayerRef.current) map.removeLayer(routeLayerRef.current);
+      routeLayerRef.current = layer.addTo(map);
+      map.fitBounds(layer.getBounds().pad(0.25));
+    };
+
+    fetchRoadRoute(coordsString, controller.signal)
+      .then((route) => {
+        if (cancelled) return;
+        const latlngs = route.geometry.coordinates.map(([lng, lat]) => [
+          lat,
+          lng,
+        ]);
+        onDistanceRef.current?.(Number((route.distance / 1000).toFixed(1)));
+        draw(
+          L.polyline(latlngs, {
             color: "#0b9b70",
             weight: 5,
             opacity: 0.9,
-          }).addTo(map);
-          map.fitBounds(routeLayerRef.current.getBounds().pad(0.25));
-        });
-    }
-  }, [routePoints, routeActive, userPos]);
+            lineCap: "round",
+            lineJoin: "round",
+          }),
+        );
+      })
+      .catch((err) => {
+        if (err.name === "AbortError" || cancelled) return;
+        console.warn("Routing failed, showing straight-line fallback:", err);
+
+        // Запасной вариант: серая пунктирная линия (видно, что это не дорожный маршрут)
+        const chain = [userPos, ...points];
+        let km = 0;
+        for (let i = 1; i < chain.length; i++) {
+          km += haversineKm(chain[i - 1], chain[i]);
+        }
+        onDistanceRef.current?.(Number((km * 1.3).toFixed(1)));
+        draw(
+          L.polyline(
+            chain.map((p) => [p.lat, p.lng]),
+            { color: "#94a3b8", weight: 4, opacity: 0.9, dashArray: "8 8" },
+          ),
+        );
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [routeKey, routeActive, userPos]);
 
   return (
     <section className="relative flex-1 min-w-0 bg-slate-100 h-[48vh] md:h-auto min-h-[330px]">

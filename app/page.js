@@ -1,6 +1,10 @@
+/**
+ * Главная страница дашборда MailGrid: управляет состоянием ящиков,
+ * связывает карту Риги с сайдбаром, симулятором писем и передачей реального километража маршрута.
+ */
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { INITIAL_BOXES, getBoxStatus } from "@/data/initialBoxes";
 import Header from "@/components/Header";
@@ -8,13 +12,13 @@ import Sidebar from "@/components/Sidebar";
 import DetailDrawer from "@/components/DetailDrawer";
 import AddBoxModal from "@/components/AddBoxModal";
 
-// Leaflet использует объект window, поэтому отключаем SSR для компонента карты
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
 export default function DashboardPage() {
   const [boxes, setBoxes] = useState(INITIAL_BOXES);
   const [selectedId, setSelectedId] = useState(null);
   const [routeActive, setRouteActive] = useState(false);
+  const [routeDistance, setRouteDistance] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const sidebarRef = useRef(null);
@@ -24,7 +28,6 @@ export default function DashboardPage() {
     setTimeout(() => setToastMessage(""), 2800);
   };
 
-  // Симуляция поступления писем в первый незаполненный ящик (для живого демо на сцене)
   const handleSimulateMail = () => {
     const target = boxes.find((b) => getBoxStatus(b) !== "full") || boxes[0];
     const updatedBoxes = boxes.map((b) =>
@@ -35,7 +38,6 @@ export default function DashboardPage() {
     showToast(`${target.name} is full — pickup required`);
   };
 
-  // Построение маршрута только по заполненным ящикам
   const handleOptimizeRoute = () => {
     const fullBoxes = boxes.filter((b) => getBoxStatus(b) === "full");
     if (fullBoxes.length === 0) {
@@ -48,7 +50,6 @@ export default function DashboardPage() {
     );
   };
 
-  // Добавление нового ящика через модальное окно
   const handleAddBox = ({ name, address, weight, battery }) => {
     const n = boxes.length + 1;
     const id = `MG-${String(n).padStart(3, "0")}`;
@@ -73,12 +74,16 @@ export default function DashboardPage() {
   };
 
   const selectedBox = boxes.find((b) => b.id === selectedId) || null;
-  const fullRoutePoints = [
-    ...boxes.filter((b) => getBoxStatus(b) === "full"),
-  ].sort((a, b) => a.lng - b.lng);
 
+  const fullRoutePoints = useMemo(
+    () =>
+      boxes
+        .filter((b) => getBoxStatus(b) === "full")
+        .sort((a, b) => a.lng - b.lng),
+    [boxes],
+  );
   return (
-    <div className="min-h-screen md:h-screen md:min-h-162.5 flex flex-col md:overflow-hidden">
+    <div className="min-h-screen md:h-screen md:min-h-[650px] flex flex-col md:overflow-hidden">
       <Header
         onOpenModal={() => setModalOpen(true)}
         onScrollToSidebar={() =>
@@ -93,6 +98,7 @@ export default function DashboardPage() {
           onSelectBox={setSelectedId}
           routePoints={fullRoutePoints}
           routeActive={routeActive}
+          onDistanceCalculated={setRouteDistance}
         />
 
         <Sidebar
@@ -104,6 +110,7 @@ export default function DashboardPage() {
           onOptimizeRoute={handleOptimizeRoute}
           routeActive={routeActive}
           routePoints={fullRoutePoints}
+          routeDistance={routeDistance}
         />
       </main>
 
@@ -115,9 +122,8 @@ export default function DashboardPage() {
         onAddBox={handleAddBox}
       />
 
-      {/* Всплывающее уведомление */}
       <div
-        className={`fixed top-20.5 right-5 z-1200 transition-all duration-300 bg-slate-900 text-white rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm pointer-events-none ${
+        className={`fixed top-[82px] right-5 z-[1200] transition-all duration-300 bg-slate-900 text-white rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm pointer-events-none ${
           toastMessage
             ? "translate-y-0 opacity-100"
             : "-translate-y-2 opacity-0"
