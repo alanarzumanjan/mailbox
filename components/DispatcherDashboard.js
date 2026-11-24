@@ -23,8 +23,8 @@ import {
   Truck,
   CheckCircle2,
   Download,
-  Plus,
   ChevronDown,
+  Play,
 } from "lucide-react";
 
 const VISIBLE_ROWS = 7; // Миллер: 7 ± 2
@@ -124,6 +124,12 @@ const matchesFilter = (box, filter) => {
 
 const STATUS_RANK = { full: 0, warning: 1, normal: 2 };
 
+// В ленте оставляем только важное: полный ящик, низкий заряд, подтверждённый забор
+const isAlert = (ev) =>
+  ev.type === "critical" ||
+  ev.type === "success" ||
+  (ev.type === "warning" && /battery/i.test(ev.message));
+
 function Skel({ className = "" }) {
   return (
     <div className={`animate-pulse rounded-lg bg-slate-200/70 ${className}`} />
@@ -182,7 +188,6 @@ export default function DispatcherDashboard({
 }) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-  const [district, setDistrict] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
   const [live, setLive] = useState(true);
   const [exportOpen, setExportOpen] = useState(false);
@@ -209,13 +214,13 @@ export default function DispatcherDashboard({
       const box = list[Math.floor(Math.random() * list.length)];
       const roll = Math.random();
 
-      if (roll < 0.4 && getBoxStatus(box) !== "full") {
+      if (roll < 0.65 && getBoxStatus(box) !== "full") {
+        // Ящик наполняется; в ленту попадает только момент «полный»
         const jump = Math.round(10 + Math.random() * 30);
         const newWeight = Math.min(
           box.max,
           box.weight + Math.round((box.max * jump) / 100),
         );
-        const nowFull = newWeight >= box.max;
         setBoxes((prev) =>
           prev.map((b) =>
             b.id === box.id
@@ -223,20 +228,15 @@ export default function DispatcherDashboard({
               : b,
           ),
         );
-        pushEvent({
-          type: nowFull ? "critical" : "warning",
-          boxId: box.id,
-          message: nowFull
-            ? "Capacity reached (100%) — pickup required"
-            : `Rapid fill detected (+${jump}% in the last hour)`,
-        });
-      } else if (roll < 0.7) {
-        pushEvent({
-          type: "info",
-          boxId: box.id,
-          message: "Lid opened · sensor check",
-        });
+        if (newWeight >= box.max) {
+          pushEvent({
+            type: "critical",
+            boxId: box.id,
+            message: "Capacity reached (100%) — pickup required",
+          });
+        }
       } else {
+        // Заряд датчика падает; в ленту — только если стал низким
         const level = Math.max(
           5,
           box.battery - (2 + Math.floor(Math.random() * 5)),
@@ -246,14 +246,13 @@ export default function DispatcherDashboard({
             b.id === box.id ? { ...b, battery: level, updated: "Just now" } : b,
           ),
         );
-        pushEvent({
-          type: level <= LOW_BATTERY_THRESHOLD ? "warning" : "info",
-          boxId: box.id,
-          message:
-            level <= LOW_BATTERY_THRESHOLD
-              ? `Low battery (${level}%) — service needed`
-              : `Battery level ${level}%`,
-        });
+        if (level <= LOW_BATTERY_THRESHOLD && box.battery > LOW_BATTERY_THRESHOLD) {
+          pushEvent({
+            type: "warning",
+            boxId: box.id,
+            message: `Low battery (${level}%) — service needed`,
+          });
+        }
       }
     }, 8000);
     return () => clearInterval(timer);
@@ -263,13 +262,7 @@ export default function DispatcherDashboard({
   const [showAllEvents, setShowAllEvents] = useState(false);
 
   // ───────── Производные данные ─────────
-  const scoped = useMemo(
-    () =>
-      district === "all"
-        ? boxes
-        : boxes.filter((b) => getBoxDistrict(b) === district),
-    [boxes, district],
-  );
+  const scoped = boxes;
 
   const rows = useMemo(
     () =>
@@ -307,12 +300,12 @@ export default function DispatcherDashboard({
   const responseOk = avgResponseMin <= targetResponseMin;
 
   const selectedBox = boxes.find((b) => b.id === selectedId) || null;
-  const districtLabel = DISTRICTS.find((d) => d.id === district)?.label;
 
   const visibleRows = showAll ? rows : rows.slice(0, VISIBLE_ROWS);
+  const alerts = events.filter(isAlert);
   const visibleEvents = showAllEvents
-    ? events
-    : events.slice(0, VISIBLE_EVENTS);
+    ? alerts
+    : alerts.slice(0, VISIBLE_EVENTS);
   const nameOf = (id) => boxes.find((b) => b.id === id)?.name ?? "System";
 
   const toggleFilter = (id) => setFilter((f) => (f === id ? "all" : id));
@@ -328,7 +321,7 @@ export default function DispatcherDashboard({
       : "No pickups needed right now";
 
   const emptyCopy = (() => {
-    const where = district === "all" ? "" : " in this district";
+    const where = "";
     if (filter === "critical")
       return {
         title: `All clear${where}!`,
@@ -346,7 +339,7 @@ export default function DispatcherDashboard({
       };
     return {
       title: "No postboxes here",
-      text: "Try another district or add a new postbox.",
+      text: "Postboxes will show up here.",
     };
   })();
 
@@ -563,7 +556,7 @@ export default function DispatcherDashboard({
       startY: doc.lastAutoTable.finalY + 28,
       margin: { left: margin, right: margin },
       head: [["Time", "Postbox", "Event"]],
-      body: events
+      body: alerts
         .slice(0, 15)
         .map((e) => [e.time, e.boxId, pdfText(e.message)]),
       styles: {
@@ -663,19 +656,20 @@ export default function DispatcherDashboard({
             <button
               onClick={handleSimulateMail}
               disabled={loading}
-              className="inline-flex items-center gap-2 text-sm font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 px-4 py-3 rounded-xl transition disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 text-sm font-extrabold text-amber-900 bg-amber-100 hover:bg-amber-200 border-2 border-dashed border-amber-400 px-4 py-3 rounded-xl transition disabled:opacity-50 cursor-pointer"
+              title="Demo: a postbox fills up right now"
             >
-              <Plus className="w-4 h-4" />
-              Simulate mail
+              <Play className="w-4 h-4 fill-current" />
+              Demo: fill a postbox
             </button>
 
             <button
               onClick={() => setExportOpen((o) => !o)}
               disabled={loading || !!exporting}
-              className="inline-flex items-center gap-2 text-sm font-bold text-white bg-slate-900 hover:bg-slate-700 px-5 py-3 rounded-xl shadow-sm transition disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-2 text-sm font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 px-4 py-3 rounded-xl transition disabled:opacity-60 cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              {exporting ? "Preparing…" : "Download report"}
+              {exporting ? "Preparing…" : "Report"}
             </button>
 
             {exportOpen && (
@@ -772,21 +766,8 @@ export default function DispatcherDashboard({
                   Postboxes
                   <span className="ml-2 text-sm font-semibold text-slate-400">
                     most urgent first
-                    {district !== "all" ? ` · ${districtLabel}` : ""}
                   </span>
                 </h2>
-                <select
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
-                  className="text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-emerald-500 transition cursor-pointer max-w-45"
-                  aria-label="Filter by district"
-                >
-                  {DISTRICTS.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.label}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -939,9 +920,6 @@ export default function DispatcherDashboard({
                             <div className="text-[15px] font-bold text-slate-900 truncate">
                               {c.name}
                             </div>
-                            <div className="text-sm text-slate-500">
-                              {c.pickups} pickups today
-                            </div>
                           </div>
                           <span
                             className={`inline-flex items-center gap-1.5 text-sm font-bold rounded-full px-3 py-1 ${cs.pill}`}
@@ -1002,7 +980,7 @@ export default function DispatcherDashboard({
                     <Skel key={i} className="h-11 w-full" />
                   ))}
                 </div>
-              ) : events.length === 0 ? (
+              ) : alerts.length === 0 ? (
                 <EmptyState
                   title="No alerts yet"
                   text="Sensor news will show up here."
@@ -1036,12 +1014,12 @@ export default function DispatcherDashboard({
                       </li>
                     ))}
                   </ul>
-                  {events.length > VISIBLE_EVENTS && (
+                  {alerts.length > VISIBLE_EVENTS && (
                     <button
                       onClick={() => setShowAllEvents((v) => !v)}
                       className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 border-t border-slate-100 transition cursor-pointer"
                     >
-                      {showAllEvents ? "Show fewer" : `Show all ${events.length}`}
+                      {showAllEvents ? "Show fewer" : `Show all ${alerts.length}`}
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${showAllEvents ? "rotate-180" : ""}`}
                       />

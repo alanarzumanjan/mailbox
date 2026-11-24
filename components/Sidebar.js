@@ -6,18 +6,14 @@
 
 import { useState } from "react";
 import { getBoxStatus, getBoxPercent } from "@/data/initialBoxes";
-import { ChevronDown, MapPin, Navigation, Plus, Route } from "lucide-react";
+import { ChevronDown, MapPin, Navigation, Play, Route } from "lucide-react";
 
 const VISIBLE_ROWS = 7; // Миллер: 7 ± 2
 const STATUS_RANK = { full: 0, warning: 1, normal: 2 };
 
 const LIST_STYLE = {
   full: { dot: "bg-rose-500", text: "text-rose-600", label: "Full" },
-  warning: {
-    dot: "bg-amber-400",
-    text: "text-amber-600",
-    label: "Almost full",
-  },
+  warning: { dot: "bg-amber-400", text: "text-amber-600", label: "Almost full" },
   normal: { dot: "bg-emerald-500", text: "text-emerald-700", label: "OK" },
 };
 
@@ -186,7 +182,7 @@ export default function Sidebar({
                   {fuelSavedPercent}
                   <span className="text-sm">%</span>
                 </div>
-                <div className="text-xs text-slate-500">Fuel saved</div>
+                <div className="text-xs text-slate-500">Fuel saved (est.)</div>
               </div>
             </div>
 
@@ -211,11 +207,11 @@ export default function Sidebar({
         </h2>
         <button
           onClick={onSimulateMail}
-          className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-slate-900 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
-          title="Demo: make the fullest postbox full"
+          className="inline-flex items-center gap-1.5 text-sm font-extrabold text-amber-900 bg-amber-100 hover:bg-amber-200 border-2 border-dashed border-amber-400 px-3 py-1.5 rounded-lg transition cursor-pointer"
+          title="Demo: a postbox fills up right now"
         >
-          <Plus className="w-4 h-4" />
-          Simulate mail
+          <Play className="w-3.5 h-3.5 fill-current" />
+          Demo: fill a postbox
         </button>
       </div>
 

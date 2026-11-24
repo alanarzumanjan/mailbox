@@ -1,6 +1,6 @@
 /**
  * Шапка: логотип слева (начало Z), переключатель роли в центре-справа,
- * одна главная кнопка справа. Никаких лишних подписей.
+ * мобильная кнопка списка для курьера. Никаких лишних подписей.
  */
 "use client";
 
@@ -9,12 +9,7 @@ const ROLES = [
   { id: "courier", label: "Courier" },
 ];
 
-export default function Header({
-  role,
-  onRoleChange,
-  onOpenModal,
-  onScrollToSidebar,
-}) {
+export default function Header({ role, onRoleChange, onScrollToSidebar }) {
   const isCourier = role === "courier";
 
   return (
@@ -61,17 +56,6 @@ export default function Header({
             </button>
           ))}
         </div>
-
-        {!isCourier && (
-          <button
-            onClick={onOpenModal}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-3.5 sm:px-4 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
-            aria-label="Add postbox"
-          >
-            <span className="text-lg leading-none">+</span>
-            <span className="hidden sm:inline">Add postbox</span>
-          </button>
-        )}
 
         {/* Список ящиков на телефоне — только для курьера (у диспетчера нет сайдбара) */}
         {isCourier && (
