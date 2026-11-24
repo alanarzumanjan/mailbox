@@ -1,10 +1,16 @@
 /**
- * Экран курьера у точки забора: кнопка «Mark as Collected»
- * для полного ящика и быстрая навигация в Google Maps.
+ * Экран курьера у точки: один главный ответ («собрать / не нужно»)
+ * и одна главная кнопка «Mark as collected».
  */
 "use client";
 
 import { getBoxStatus, getBoxPercent } from "@/data/initialBoxes";
+
+const STYLE = {
+  full: { bar: "bg-rose-500", text: "text-rose-600", label: "Full — collect now" },
+  warning: { bar: "bg-amber-400", text: "text-amber-600", label: "Almost full" },
+  normal: { bar: "bg-emerald-500", text: "text-emerald-700", label: "All good" },
+};
 
 export default function CourierPickupSheet({ box, onClose, onCollect }) {
   if (!box) return null;
@@ -12,33 +18,20 @@ export default function CourierPickupSheet({ box, onClose, onCollect }) {
   const status = getBoxStatus(box);
   const pct = getBoxPercent(box);
   const isFull = status === "full";
-
-  const barColor =
-    status === "full"
-      ? "bg-rose-500"
-      : status === "warning"
-        ? "bg-amber-400"
-        : "bg-emerald-500";
-  const statusLabel =
-    status === "full"
-      ? "FULL · PICKUP REQUIRED"
-      : status === "warning"
-        ? "NEAR CAPACITY"
-        : "NORMAL · NO PICKUP NEEDED";
+  const st = STYLE[status];
 
   const navUrl = `https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${box.lat},${box.lng}`;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-700 md:inset-x-auto md:left-5 md:bottom-5 md:w-95 bg-white rounded-t-3xl md:rounded-2xl border border-slate-200 shadow-2xl shadow-slate-900/20 overflow-hidden">
-      <div className={`h-1.5 ${barColor}`} />
-      <div className="p-4 pb-5">
+    <div className="fixed inset-x-0 bottom-0 z-700 md:inset-x-auto md:left-5 md:bottom-5 md:w-96 bg-white rounded-t-3xl md:rounded-2xl border border-slate-200 shadow-2xl shadow-slate-900/20 overflow-hidden">
+      <div className={`h-1.5 ${st.bar}`} />
+      <div className="p-5 pb-6">
         <div className="flex justify-between items-start gap-3">
           <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-[.12em] font-bold text-slate-400">
-              Pickup point · {box.id}
-            </div>
-            <h3 className="font-extrabold text-lg mt-1 truncate">{box.name}</h3>
-            <p className="text-xs text-slate-500 mt-0.5">{box.address}</p>
+            <h3 className="font-black text-xl truncate">{box.name}</h3>
+            <p className="text-sm text-slate-500 mt-0.5 truncate">
+              {box.address}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -49,35 +42,29 @@ export default function CourierPickupSheet({ box, onClose, onCollect }) {
           </button>
         </div>
 
-        <div className="mt-3 rounded-xl bg-slate-50 p-3">
-          <div className="flex justify-between items-center text-xs mb-2">
-            <span className="font-semibold text-slate-600">Mail weight</span>
-            <strong className="text-slate-800">
-              {box.weight.toLocaleString("en-US")}g /{" "}
-              {box.max.toLocaleString("en-US")}g
-            </strong>
-          </div>
-          <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all ${barColor}`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <div className="mt-2 text-[10px] font-bold text-slate-500">
-            {pct}% · {statusLabel}
-          </div>
+        <div className="mt-4 flex items-end justify-between">
+          <span className={`text-5xl font-black leading-none ${st.text}`}>
+            {pct}%
+          </span>
+          <span className={`text-base font-bold ${st.text}`}>{st.label}</span>
+        </div>
+        <div className="h-3 rounded-full bg-slate-100 overflow-hidden mt-3">
+          <div
+            className={`h-full rounded-full transition-all ${st.bar}`}
+            style={{ width: `${pct}%` }}
+          />
         </div>
 
         {isFull ? (
           <button
             onClick={() => onCollect(box.id)}
-            className="mt-3 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 active:scale-[0.98] text-white text-sm font-bold shadow-md shadow-emerald-600/20 transition cursor-pointer"
+            className="mt-5 w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 active:scale-[0.98] text-white text-lg font-extrabold shadow-lg shadow-emerald-600/25 transition cursor-pointer"
           >
-            ✓ Mark as Collected
+            ✓ Mark as collected
           </button>
         ) : (
-          <div className="mt-3 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-semibold text-center py-3">
-            This postbox doesn’t need a pickup yet
+          <div className="mt-5 rounded-2xl bg-emerald-50 text-emerald-800 text-base font-bold text-center py-4">
+            No pickup needed yet
           </div>
         )}
 
@@ -85,9 +72,9 @@ export default function CourierPickupSheet({ box, onClose, onCollect }) {
           href={navUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2 block w-full text-center py-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 transition"
+          className="mt-3 block w-full text-center py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-sm font-bold text-slate-700 transition"
         >
-          Navigate here in Google Maps
+          Open in Google Maps
         </a>
       </div>
     </div>
