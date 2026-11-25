@@ -65,11 +65,20 @@ const STATUS_STYLE = {
   },
 };
 
-const EVENT_DOT = {
-  critical: "bg-rose-500",
-  warning: "bg-amber-400",
-  info: "bg-sky-500",
-  success: "bg-emerald-500",
+// Иконка и цвет для каждого типа события в ленте
+const EVENT_STYLE = {
+  critical: {
+    icon: AlertTriangle,
+    box: "bg-rose-100 text-rose-600",
+  },
+  warning: {
+    icon: BatteryLow,
+    box: "bg-amber-100 text-amber-600",
+  },
+  success: {
+    icon: CheckCircle2,
+    box: "bg-emerald-100 text-emerald-600",
+  },
 };
 
 const COURIER_STATUS = {
@@ -198,7 +207,7 @@ export default function DispatcherDashboard({
   useEffect(() => {
     boxesRef.current = boxes;
   }, [boxes]);
-  
+
   // Имитация загрузки данных (скелетоны)
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 800);
@@ -246,7 +255,10 @@ export default function DispatcherDashboard({
             b.id === box.id ? { ...b, battery: level, updated: "Just now" } : b,
           ),
         );
-        if (level <= LOW_BATTERY_THRESHOLD && box.battery > LOW_BATTERY_THRESHOLD) {
+        if (
+          level <= LOW_BATTERY_THRESHOLD &&
+          box.battery > LOW_BATTERY_THRESHOLD
+        ) {
           pushEvent({
             type: "warning",
             boxId: box.id,
@@ -618,7 +630,10 @@ export default function DispatcherDashboard({
 
       <div className="max-w-375 mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 space-y-6 md:space-y-8">
         {/* ① Z-паттерн: вердикт слева сверху, действия справа сверху */}
-        <section className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <section
+          data-tour="dispatch-verdict"
+          className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"
+        >
           {loading ? (
             <div className="flex items-center gap-5">
               <Skel className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl" />
@@ -952,7 +967,10 @@ export default function DispatcherDashboard({
               )}
             </section>
 
-            <section className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <section
+              data-tour="alerts"
+              className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden"
+            >
               <div className="flex items-center justify-between px-5 pt-5 pb-3">
                 <h2 className="font-extrabold text-xl tracking-tight">
                   Latest alerts
@@ -960,7 +978,9 @@ export default function DispatcherDashboard({
                 <button
                   onClick={() => setLive((v) => !v)}
                   className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full px-3 py-1.5 transition cursor-pointer"
-                  aria-label={live ? "Pause live updates" : "Resume live updates"}
+                  aria-label={
+                    live ? "Pause live updates" : "Resume live updates"
+                  }
                 >
                   <span className="relative flex h-2.5 w-2.5">
                     {live && (
@@ -990,36 +1010,44 @@ export default function DispatcherDashboard({
                   <ul
                     className={`border-t border-slate-100 ${showAllEvents ? "max-h-105 overflow-y-auto scrollbar" : ""}`}
                   >
-                    {visibleEvents.map((ev) => (
-                      <li
-                        key={ev.id}
-                        className="mg-slide-in flex gap-3 px-5 py-3.5 border-b border-slate-50 last:border-0"
-                      >
-                        <span
-                          className={`mt-2 w-2.5 h-2.5 rounded-full shrink-0 ${EVENT_DOT[ev.type]}`}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-baseline justify-between gap-2">
-                            <span className="text-[15px] font-bold text-slate-900 truncate">
-                              {nameOf(ev.boxId)}
-                            </span>
-                            <span className="text-xs text-slate-400 shrink-0">
-                              {ev.time}
-                            </span>
+                    {visibleEvents.map((ev) => {
+                      const es = EVENT_STYLE[ev.type] ?? EVENT_STYLE.warning;
+                      const EventIcon = es.icon;
+                      return (
+                        <li
+                          key={ev.id}
+                          className="mg-slide-in flex items-center gap-3 px-5 py-3.5 border-b border-slate-50 last:border-0"
+                        >
+                          <span
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${es.box}`}
+                          >
+                            <EventIcon className="w-5 h-5" strokeWidth={2.2} />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-[15px] font-bold text-slate-900 truncate">
+                                {nameOf(ev.boxId)}
+                              </span>
+                              <span className="text-xs text-slate-400 shrink-0">
+                                {ev.time}
+                              </span>
+                            </div>
+                            <p className="text-sm text-slate-600 leading-snug mt-0.5">
+                              {ev.message}
+                            </p>
                           </div>
-                          <p className="text-sm text-slate-600 leading-snug mt-0.5">
-                            {ev.message}
-                          </p>
-                        </div>
-                      </li>
-                    ))}
+                        </li>
+                      );
+                    })}
                   </ul>
                   {alerts.length > VISIBLE_EVENTS && (
                     <button
                       onClick={() => setShowAllEvents((v) => !v)}
                       className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 border-t border-slate-100 transition cursor-pointer"
                     >
-                      {showAllEvents ? "Show fewer" : `Show all ${alerts.length}`}
+                      {showAllEvents
+                        ? "Show fewer"
+                        : `Show all ${alerts.length}`}
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${showAllEvents ? "rotate-180" : ""}`}
                       />

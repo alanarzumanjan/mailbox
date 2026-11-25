@@ -4,12 +4,20 @@
  */
 "use client";
 
+import { HelpCircle } from "lucide-react";
+
+// Курьер — первая страница, диспетчер — вторая
 const ROLES = [
-  { id: "dispatcher", label: "Dispatcher" },
   { id: "courier", label: "Courier" },
+  { id: "dispatcher", label: "Dispatcher" },
 ];
 
-export default function Header({ role, onRoleChange, onScrollToSidebar }) {
+export default function Header({
+  role,
+  onRoleChange,
+  onScrollToSidebar,
+  onStartTour,
+}) {
   const isCourier = role === "courier";
 
   return (
@@ -34,8 +42,18 @@ export default function Header({ role, onRoleChange, onScrollToSidebar }) {
       </div>
 
       <div className="flex items-center gap-2 md:gap-3">
+        <button
+          onClick={onStartTour}
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-3 py-2.5 rounded-xl transition cursor-pointer"
+          aria-label="Start the tour"
+        >
+          <HelpCircle className="w-5 h-5" />
+          <span className="hidden sm:inline">Tour</span>
+        </button>
+
         {/* Переключатель ролей: 2 понятные кнопки */}
         <div
+          data-tour="role-tabs"
           role="tablist"
           aria-label="Switch role"
           className="flex bg-slate-100 rounded-xl p-1 text-sm font-bold"

@@ -37,6 +37,9 @@ async function fetchRoadRoute(coordsString, signal) {
   throw lastError;
 }
 
+// Иконка почтового ящика для маркера на карте (залитая, без обводки)
+const MAILBOX_SVG = `<svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" fill-rule="evenodd" aria-hidden="true" style="display:block;color:#fff"><path d="M4 9a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v7H4zM8 8h8a1 1 0 0 1 0 2H8a1 1 0 0 1 0-2zM10.5 16h3v5h-3zM8 21h8v1.5H8z"/></svg>`;
+
 function haversineKm(a, b) {
   const R = 6371;
   const toRad = (d) => (d * Math.PI) / 180;
@@ -111,9 +114,14 @@ export default function MapView({
     if (mapInstanceRef.current || !mapContainerRef.current) return;
 
     const map = L.map(mapContainerRef.current, {
-      zoomControl: true,
+      zoomControl: false, // добавим свой, в другом углу
       scrollWheelZoom: true,
     }).setView([DEFAULT_POS.lat, DEFAULT_POS.lng], 14);
+
+    // Кнопки +/−: справа внизу и только там, где нет тач-экрана
+    if (!L.Browser.mobile) {
+      L.control.zoom({ position: "bottomright" }).addTo(map);
+    }
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
@@ -238,7 +246,7 @@ export default function MapView({
       const icon = L.divIcon({
         className: "",
         html: `<div class="post-marker ${status} ${isSelected ? "selected" : ""} ${status === "full" ? "pulse" : ""}">
-                 <span>${box.id.slice(-2)}</span>
+                 <span>${MAILBOX_SVG}</span>
                </div>`,
         iconSize: [34, 34],
         iconAnchor: [17, 32],

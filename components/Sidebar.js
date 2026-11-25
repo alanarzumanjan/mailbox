@@ -1,10 +1,12 @@
 /**
  * Боковая панель курьера. Порядок чтения сверху вниз (Z-паттерн):
  *  вердикт «сколько собрать» → зона → ГЛАВНАЯ кнопка → следующая остановка → список (≤ 7).
+ * После нажатия «Build my route» панель сама прокручивается так, чтобы
+ * кнопка «Open in Google Maps» оказалась в самом низу экрана.
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { getBoxStatus, getBoxPercent } from "@/data/initialBoxes";
 import { ChevronDown, MapPin, Navigation, Play, Route } from "lucide-react";
 
@@ -12,10 +14,40 @@ const VISIBLE_ROWS = 7; // Миллер: 7 ± 2
 const STATUS_RANK = { full: 0, warning: 1, normal: 2 };
 
 const LIST_STYLE = {
-  full: { dot: "bg-rose-500", text: "text-rose-600", label: "Full" },
-  warning: { dot: "bg-amber-400", text: "text-amber-600", label: "Almost full" },
-  normal: { dot: "bg-emerald-500", text: "text-emerald-700", label: "OK" },
+  full: {
+    dot: "bg-rose-500",
+    icon: "text-rose-500",
+    text: "text-rose-600",
+    label: "Full",
+  },
+  warning: {
+    dot: "bg-amber-400",
+    icon: "text-amber-500",
+    text: "text-amber-600",
+    label: "Almost full",
+  },
+  normal: {
+    dot: "bg-emerald-500",
+    icon: "text-emerald-500",
+    text: "text-emerald-700",
+    label: "OK",
+  },
 };
+
+// Залитая иконка почтового ящика (без обводки), цвет берётся из currentColor
+function MailboxIcon({ className = "" }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      fillRule="evenodd"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M4 9a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v7H4zM8 8h8a1 1 0 0 1 0 2H8a1 1 0 0 1 0-2zM10.5 16h3v5h-3zM8 21h8v1.5H8z" />
+    </svg>
+  );
+}
 
 export default function Sidebar({
   sidebarRef,
@@ -33,6 +65,8 @@ export default function Sidebar({
   onDistrictChange,
 }) {
   const [showAll, setShowAll] = useState(false);
+  const routeCardRef = useRef(null);
+  const pendingScrollRef = useRef(false);
   const isCourier = role === "courier";
 
   const fullCount = boxes.filter((b) => getBoxStatus(b) === "full").length;
@@ -62,6 +96,31 @@ export default function Sidebar({
         )
       : 0;
 
+  const scrollToRouteCard = () => {
+    routeCardRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  };
+
+  // Карточка маршрута появляется после нажатия — тогда и прокручиваем
+  useEffect(() => {
+    if (pendingScrollRef.current && routeActive && routeCardRef.current) {
+      pendingScrollRef.current = false;
+      scrollToRouteCard();
+    }
+  }, [routeActive, nextStop?.id]);
+
+  const handleBuildRoute = () => {
+    onOptimizeRoute();
+
+    if (routeActive) {
+      // Маршрут уже был: карточка на месте, прокручиваем сразу
+      requestAnimationFrame(scrollToRouteCard);
+    } else {
+      // Ждём, пока карточка отрисуется (эффект выше)
+      pendingScrollRef.current = true;
+      setTimeout(() => (pendingScrollRef.current = false), 1500);
+    }
+  };
+
   const handleOpenGoogleMaps = () => {
     if (routePoints.length === 0) return;
     const destination = routePoints[routePoints.length - 1];
@@ -86,7 +145,10 @@ export default function Sidebar({
       className="w-full md:w-97.5 xl:w-105 shrink-0 bg-white border-l border-slate-200 flex flex-col min-h-0 md:overflow-y-auto scrollbar relative z-10"
     >
       {/* ① Вердикт: сколько ящиков нужно забрать */}
-      <div className="px-5 pt-6 pb-4 flex items-center gap-4">
+      <div
+        data-tour="courier-verdict"
+        className="px-5 pt-6 pb-4 flex items-center gap-4"
+      >
         <div
           className={`w-16 h-16 rounded-2xl flex items-center justify-center text-4xl font-black text-white shrink-0 ${
             fullCount > 0 ? "bg-rose-500" : "bg-emerald-500"
@@ -132,7 +194,8 @@ export default function Sidebar({
       {/* ③ Главное действие — одна заметная кнопка */}
       <div className="px-5 pb-5 space-y-3">
         <button
-          onClick={onOptimizeRoute}
+          data-tour="route"
+          onClick={handleBuildRoute}
           className="w-full flex items-center justify-center gap-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 active:scale-[0.99] text-white font-extrabold text-lg rounded-2xl py-4 shadow-lg shadow-emerald-600/20 transition cursor-pointer"
         >
           <Route className="w-5 h-5" />
@@ -145,7 +208,10 @@ export default function Sidebar({
 
         {/* Следующая остановка и итоги — только когда маршрут уже есть */}
         {routeActive && nextStop && (
-          <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4">
+          <div
+            ref={routeCardRef}
+            className="scroll-mb-5 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4"
+          >
             <div className="flex items-start gap-3">
               <span className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
                 <MapPin className="w-5 h-5" />
@@ -206,6 +272,7 @@ export default function Sidebar({
           </span>
         </h2>
         <button
+          data-tour="demo"
           onClick={onSimulateMail}
           className="inline-flex items-center gap-1.5 text-sm font-extrabold text-amber-900 bg-amber-100 hover:bg-amber-200 border-2 border-dashed border-amber-400 px-3 py-1.5 rounded-lg transition cursor-pointer"
           title="Demo: a postbox fills up right now"
@@ -236,16 +303,9 @@ export default function Sidebar({
                   : "border-transparent hover:bg-slate-50"
               }`}
             >
-              <span className="relative flex h-3 w-3 shrink-0">
-                {status === "full" && (
-                  <span
-                    className={`absolute inline-flex h-full w-full rounded-full ${st.dot} opacity-40 animate-ping`}
-                  />
-                )}
-                <span
-                  className={`relative inline-flex rounded-full h-3 w-3 ${st.dot}`}
-                />
-              </span>
+              <MailboxIcon
+                className={`w-6 h-6 shrink-0 ${st.icon} ${status === "full" ? "animate-pulse" : ""}`}
+              />
 
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">

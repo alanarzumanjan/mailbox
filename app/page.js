@@ -1,22 +1,25 @@
 /**
  * Главная страница MailGrid: общее состояние (ящики, события IoT, тосты)
- * и переключение между режимами «Dispatcher» и «Courier».
+ * и переключение между режимами «Courier» (первая страница) и «Dispatcher» (вторая),
+ * плюс онбординг-тур.
  * Демо-версия: добавление ящиков убрано, фокус на 3 главных фичах.
  */
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { INITIAL_BOXES } from "@/data/initialBoxes";
 import { INITIAL_EVENTS } from "@/data/dispatchData";
 import Header from "@/components/Header";
 import DispatcherDashboard from "@/components/DispatcherDashboard";
 import CourierApp from "@/components/CourierApp";
+import Tour from "@/components/Tour";
 
 export default function DashboardPage() {
   const [boxes, setBoxes] = useState(INITIAL_BOXES);
   const [events, setEvents] = useState(INITIAL_EVENTS);
-  const [role, setRole] = useState("dispatcher");
+  const [role, setRole] = useState("courier");
   const [toastMessage, setToastMessage] = useState("");
+  const [tourOpen, setTourOpen] = useState(false);
   const sidebarRef = useRef(null);
   const toastTimer = useRef(null);
   const eventSeq = useRef(100);
@@ -38,11 +41,19 @@ export default function DashboardPage() {
     setEvents((prev) => [ev, ...prev].slice(0, 40));
   }, []);
 
+  const closeTour = () => {
+    setTourOpen(false);
+    try {
+      localStorage.setItem("mailgrid_tour_done", "1");
+    } catch {}
+  };
+
   return (
     <div className="min-h-screen md:h-screen flex flex-col md:overflow-hidden">
       <Header
         role={role}
         onRoleChange={setRole}
+        onStartTour={() => setTourOpen(true)}
         onScrollToSidebar={() =>
           sidebarRef.current?.scrollIntoView({ behavior: "smooth" })
         }
@@ -65,6 +76,8 @@ export default function DashboardPage() {
           sidebarRef={sidebarRef}
         />
       )}
+
+      <Tour open={tourOpen} onClose={closeTour} onRoleChange={setRole} />
 
       <div
         role="status"
