@@ -1,5 +1,7 @@
 To run local: 
-```python 
-python -m http.server 8080
+```bash 
+npm install
+npm run dev
 ```
-Place to run command -- /deck
+
+Open: http://localhost:3000/deck
