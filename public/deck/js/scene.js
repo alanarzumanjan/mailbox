@@ -104,6 +104,7 @@ function postbox(hero) {
     var chip = box(0.1, 0.08, 0.02, M.chip); chip.position.set(0.17, cy + 0.21, -BD / 2 + 0.08); g.add(chip);
     var bat = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.24, 16), M.acc); bat.rotation.z = Math.PI / 2; bat.position.set(-0.2, cy + 0.2, -BD / 2 + 0.09); g.add(bat);
     var tof = box(0.09, 0.015, 0.09, M.tof); tof.position.set(0, y0 + BH - 0.06, 0.02); g.add(tof);
+    parts.freeH = (y0 + BH - 0.06 - 0.0075) - parts.plateY;   // what the distance sensor sees when empty
     [[BW - 0.12, BH - 0.12, 0.01, 0, cy, -BD / 2 + 0.055], [0.01, BH - 0.12, BD - 0.1, -BW / 2 + 0.055, cy, 0], [0.01, BH - 0.12, BD - 0.1, BW / 2 - 0.055, cy, 0], [BW - 0.12, 0.01, BD - 0.1, 0, y0 + 0.055, 0]]
       .forEach(function (p) { var m = box(p[0], p[1], p[2], M.lining); m.position.set(p[3], p[4], p[5]); g.add(m); });
   }
@@ -199,7 +200,9 @@ var vanU = 0;
 /* bundles of mail: the fill % is the height of the stack against the free height inside
    (what the distance sensor measures), so 100% really looks like a full box */
 var letters = [], WEIGHTS = [84, 62, 118, 70, 96, 77, 109, 66], THICK = [0.085, 0.07, 0.1, 0.075, 0.09, 0.08, 0.095, 0.075];
-var CAP = 8, STACK_MAX = 0.68, FULL_FILL = 0.75, BASE = [0];
+var CAP = 8, STACK_MAX = hero.p.freeH, FULL_FILL = 0.75, BASE = [0];
+// scale the bundles so that all 8 fill the box right up to the sensor: 8 bundles = 100%
+(function () { var sum = THICK.reduce(function (a, b) { return a + b; }, 0), k = STACK_MAX / sum; THICK = THICK.map(function (t) { return t * k; }); })();
 for (var li = 0; li < CAP; li++) {
   var L = box(0.5, THICK[li], 0.32, M.paper); L.visible = false; L.userData.noCloud = true; hero.g.add(L); letters.push(L);
   BASE.push(BASE[li] + THICK[li]);
@@ -314,7 +317,7 @@ S.view = function (name) {
 function snapAll() {
   snapCamera(); cur.cut = view.cut || 0; cur.bars = view.bars || 0; cur.pilot = view.pilot || 0; viewT = 10;
   tubeAll.userData.k = 1; tubeFull.userData.k = 1; vanU = 0.37;
-  if (view.letters) { heroState.n = 7; heroState.phase = 'fill'; heroState.t = 0; }
+  if (view.letters) { heroState.n = /[?&]fill=8/.test(location.search) ? 8 : 7; heroState.phase = 'fill'; heroState.t = 0; }
   if (cloudMode === 'assemble') { cloudMat.uniforms.uK.value = 1; cloudMat.uniforms.uAlpha.value = 0; cloud.visible = false; hero.g.visible = true; cloudMode = 'off'; }
   if (cloudMode === 'giant') { cloudMat.uniforms.uK.value = 1; cloudMat.uniforms.uAlpha.value = GIANT_A(); }
 }
