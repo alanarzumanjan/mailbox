@@ -28,7 +28,7 @@ Recording: press F, N off, hide the cursor, record with OBS. The clock in N show
 - **Hook:** the postbox assembles from 16,000 points of light, then becomes the real model.
 - **Problem:** the van drives to every box; boxes show "Full? Empty?". Numbers count up click by click.
 - **Solution:** step 0 — boxes show their fill level and signal rings; step 1 — the route goes only to the red ones.
-- **Demo:** the box in cutaway, letters falling on the scale, live readout. Click 1 — dispatcher alerts video, click 2 — courier app video (`../alert-demo.mp4`, `../courier-demo.mp4` from the site's `public/`).
+- **Demo:** the box in cutaway; 40 small envelopes slide in through the slot and pile up on the scale; the readout shows letters, grams and fill % (pile height up to the distance sensor = 100%). Click 1 — dispatcher alerts video, click 2 — courier app video (`../alert-demo.mp4`, `../courier-demo.mp4` from the site's `public/`).
 - **USP:** click — the EmptyLess column wins, the others fade.
 - **Vision:** a giant postbox of light over the city.
 - Between the box close-up and the city the picture dips to the background instead of flying through the houses. The camera drifts slightly all the time so the frame never freezes.
