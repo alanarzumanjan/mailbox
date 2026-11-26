@@ -7,34 +7,29 @@ export function FaqSection() {
 
   const faqs = [
     {
-      question: "Is this really a one-time payment? No subscriptions?",
+      question: "How does the sensor send data from inside a metal mailbox?",
       answer:
-        "Yes, 100%! You pay once and get access forever. We will never charge your card again, auto-renew, or ask for a monthly subscription.",
+        "We use low-power wide-area networking (NB-IoT / LoRaWAN) designed to penetrate metal enclosures and dense urban buildings reliably.",
     },
     {
-      question: "Are the resume templates ATS-friendly?",
+      question: "How long does the battery last?",
       answer:
-        "We offer a mix of templates! Many of our layouts are fully ATS-optimized with single-column structures and clean typography. We also provide human-first, visually creative designs tailored for industries where visual impact matters most. You can choose the format that best fits your role.",
+        "Up to 3–5 years on a single replaceable battery, thanks to ultra-low-power sleep mode between mail drop events.",
     },
     {
-      question: "Can I edit my resume after downloading?",
+      question: "Do couriers need to learn a new app?",
       answer:
-        "Yes! You can come back anytime, make changes, tweak your work experience, and download an updated PDF as many times as you need without extra fees.",
+        "No. Optimized routes integrate directly into existing fleet navigation systems via API or open in standard mobile maps.",
     },
     {
-      question: "What file format will I receive?",
+      question: "Is the hardware weatherproof and tamper-resistant?",
       answer:
-        "You will export high-quality, pixel-perfect PDF files ready to be sent directly to recruiters or uploaded to job platforms.",
+        "Yes. Each unit is IP65-rated for Baltic winters (-30°C to +60°C) and mounts discreetly out of reach from the mail slot.",
     },
     {
-      question: "Do I need to enter credit card details to test it?",
+      question: "How quickly does EmptyLess pay for itself?",
       answer:
-        "No! You can try our live demo to see how it looks. You only pay when you decide to unlock access and download.",
-    },
-    {
-      question: "Do you offer refunds?",
-      answer:
-        "Due to the digital nature of our downloadable templates, all sales are final and non-refundable.",
+        "Typically within 4 to 6 months by cutting empty-box stops, fuel consumption, and courier hours by up to 65%.",
     },
   ];
 
@@ -57,7 +52,7 @@ export function FaqSection() {
   };
 
   return (
-    <section id="faq" className="py-20 bg-[#FAF9F5]">
+    <section id="faq" className="py-20 bg-slate-50">
       {/* Внедрение SEO-скрипта Schema.org */}
       <script
         type="application/ld+json"
@@ -67,12 +62,15 @@ export function FaqSection() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
+          <span className="font-headline text-sm font-bold uppercase tracking-wider text-[#0b9b70] mb-2 block">
+            FAQ
+          </span>
           <h2 className="font-headline font-black text-3xl sm:text-4xl text-slate-900 tracking-tight mb-4">
-            Frequently asked questions
+            Common Questions
           </h2>
           <p className="font-body text-slate-600 text-base sm:text-lg">
-            Everything you need to know about OnePayCV and our one-time payment
-            policy.
+            Everything you need to know about EmptyLess, installation, and
+            network performance.
           </p>
         </div>
 
@@ -90,16 +88,24 @@ export function FaqSection() {
                 <button
                   type="button"
                   onClick={() => toggleFaq(index)}
-                  className="w-full flex items-center justify-between gap-4 p-6 text-left font-headline font-bold text-lg text-slate-900 hover:text-[#0075FF] transition-colors cursor-pointer select-none"
+                  className="w-full flex items-center justify-between gap-4 p-6 text-left font-headline font-bold text-lg text-slate-900 hover:text-[#0b9b70] transition-colors cursor-pointer select-none"
                   aria-expanded={isOpen}
                 >
                   <span>{faq.question}</span>
                   <span
-                    className={`shrink-0 font-mono text-[#0075FF] text-xl font-bold transition-transform duration-300 ${
-                      isOpen ? "rotate-45" : "rotate-0"
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 ${
+                      isOpen
+                        ? "bg-[#0b9b70]/10 text-[#0b9b70]"
+                        : "bg-slate-100 text-slate-500"
                     }`}
                   >
-                    +
+                    <span
+                      className={`font-mono text-xl font-bold transition-transform duration-300 ${
+                        isOpen ? "rotate-45" : "rotate-0"
+                      }`}
+                    >
+                      +
+                    </span>
                   </span>
                 </button>
 
@@ -119,7 +125,6 @@ export function FaqSection() {
             );
           })}
         </div>
-
       </div>
     </section>
   );

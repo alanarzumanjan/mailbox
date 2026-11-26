@@ -214,7 +214,6 @@ export default function InteractiveMailGridPreview() {
     [boxes],
   );
 
-  // Безопасный стабильный callback без пересоздания и лишних триггеров
   const handleDistances = useCallback((base, smart) => {
     if (!Number.isFinite(base) || !Number.isFinite(smart)) return;
     setDist((prev) =>
@@ -456,21 +455,22 @@ export default function InteractiveMailGridPreview() {
                   <span>500</span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="rounded-lg bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-2.5">
-                    <div className="text-lg font-black text-emerald-700 leading-none">
+                {/* Исправлен блок с цифрами калькулятора флота для корректного отображения на мобильных */}
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                  <div className="rounded-lg bg-emerald-50/70 border border-emerald-200/70 px-2 py-2.5 sm:px-2.5">
+                    <div className="text-base sm:text-lg font-black text-emerald-700 leading-none truncate">
                       <AnimatedNumber
                         value={annualSavings}
                         prefix="€"
                         duration={450}
                       />
                     </div>
-                    <div className="text-[10px] font-semibold text-emerald-800/80 mt-1.5 leading-tight">
+                    <div className="text-[9px] sm:text-[10px] font-semibold text-emerald-800/80 mt-1.5 leading-tight">
                       Annual savings
                     </div>
                   </div>
-                  <div className="rounded-lg bg-slate-50 border border-slate-200/70 px-2.5 py-2.5">
-                    <div className="text-lg font-black text-slate-800 leading-none">
+                  <div className="rounded-lg bg-slate-50 border border-slate-200/70 px-2 py-2.5 sm:px-2.5">
+                    <div className="text-base sm:text-lg font-black text-slate-800 leading-none truncate">
                       <AnimatedNumber
                         value={annualCo2Tons}
                         decimals={1}
@@ -478,19 +478,19 @@ export default function InteractiveMailGridPreview() {
                         duration={450}
                       />
                     </div>
-                    <div className="text-[10px] font-semibold text-slate-500 mt-1.5 leading-tight">
+                    <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 mt-1.5 leading-tight">
                       Annual CO₂ reduction
                     </div>
                   </div>
-                  <div className="rounded-lg bg-slate-50 border border-slate-200/70 px-2.5 py-2.5">
-                    <div className="text-lg font-black text-slate-800 leading-none">
+                  <div className="rounded-lg bg-slate-50 border border-slate-200/70 px-2 py-2.5 sm:px-2.5">
+                    <div className="text-base sm:text-lg font-black text-slate-800 leading-none truncate">
                       <AnimatedNumber
                         value={annualHours}
                         suffix=" h"
                         duration={450}
                       />
                     </div>
-                    <div className="text-[10px] font-semibold text-slate-500 mt-1.5 leading-tight">
+                    <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 mt-1.5 leading-tight">
                       Driver hours saved
                     </div>
                   </div>

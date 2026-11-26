@@ -10,10 +10,10 @@
 html {
   scroll-behavior: smooth;
 }
-section[id],
+/* section[id],
 div[id] {
   scroll-margin-top: 80px; 
-}
+} */
 body {
   color: var(--ink);
 }
