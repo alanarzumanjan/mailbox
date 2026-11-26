@@ -1,6 +1,9 @@
 # MailGrid — pitch deck (RobotHack '26)
 
-Static HTML + three.js r128. No build step and no internet: open `index.html` in Chrome.
+Static HTML + three.js r128, no build step.
+
+- In the project: `npm run dev` → http://localhost:3000/deck (light) and http://localhost:3000/deck/dark (dark). On Vercel the same paths, `/deck` and `/deck/dark` (redirects in `next.config.mjs`).
+- Without a server or internet (best for recording): open `public/deck/index.html` or `dark.html` in Chrome.
 
 - `index.html`: light version (white background, dark text)
 - `dark.html`: dark version (#172033 background, white text). After editing `index.html`, run `./make-dark.sh`; `index.html?theme=dark` also works locally
