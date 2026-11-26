@@ -10,6 +10,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Static pitch deck (vendored three.min.js)
+    "public/deck/**",
   ]),
 ]);
 
