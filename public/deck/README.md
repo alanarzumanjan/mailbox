@@ -12,17 +12,36 @@ Static HTML + three.js r128, no build step.
 ## Controls
 | Key | Action |
 |---|---|
-| → / ← / Space / PgDn | next / previous slide |
-| 1–9, 0 | jump to slide |
+| → / Space / Enter / PgDn / click | next **step** (items on a slide appear one by one), then the next slide |
+| ← / Backspace / PgUp | back one step |
+| 1–9, 0 | jump to a slide |
 | F | fullscreen |
 | T | switch light ↔ dark |
-| N | voiceover text under the slide |
+| N | voiceover text, planned time, step and a running clock |
+| R | reset the clock (it starts on your first click) |
 | E | highlight placeholders (TBD) |
+| H | hide the key hint |
 
-For video recording: press F, hide the cursor and record the screen (OBS). Each slide has its own camera angle, and the 3D scene animates continuously.
+Recording: press F, N off, hide the cursor, record with OBS. The clock in N shows whether you're on time (planned time is per slide, `data-t`).
 
-## Demo video
-Put a screen recording of the device and dashboard at `assets/demo.mp4` (16:9). It appears automatically on slide 4 (Demo), in place of the right half of the 3D view.
+## What happens on screen
+- **Hook:** the postbox assembles from 16,000 points of light, then becomes the real model.
+- **Problem:** the van drives to every box; boxes show "Full? Empty?". Numbers count up click by click.
+- **Solution:** step 0 — boxes show their fill level and signal rings; step 1 — the route goes only to the red ones.
+- **Demo:** the box in cutaway, letters falling on the scale, live readout. Click 1 — dispatcher alerts video, click 2 — courier app video (`../alert-demo.mp4`, `../courier-demo.mp4` from the site's `public/`).
+- **USP:** click — the MailGrid column wins, the others fade.
+- **Vision:** a giant postbox of light over the city.
+- Between the box close-up and the city the picture dips to the background instead of flying through the houses. The camera drifts slightly all the time so the frame never freezes.
+- Dark theme: glow on LEDs, routes and points, a soft vignette and a little grain. `?nofx` turns that off if a weak laptop stutters.
+
+## Authoring
+In `index.html`:
+- `data-st="2"` on an element: it appears on click 2 of the slide.
+- `data-to="547"` (+ `data-pre`, `data-suf`, `data-dec`): the number counts up when it appears.
+- `data-views="a,b"` on a section: camera view per step (views are in `js/scene.js → VIEWS`).
+- `data-win="1"` on the USP table: the winning column lights up on click 1.
+- `<aside class="notes">`: the voiceover; write `[click]` where the speaker advances.
+After editing `index.html`, run `./make-dark.sh`.
 
 ## Where the numbers come from (known)
 | Number | Source |
@@ -36,13 +55,12 @@ Put a screen recording of the device and dashboard at `assets/demo.mp4` (16:9). 
 | 547 × €62.26 ≈ €34k; 547 × €49.55 ≈ €27k; pilot 30 × €62.26 = €1,868 | calculation |
 
 ## Placeholders — replace with real data (press E in the deck)
-| Slide | What | Current value (from the PitchPage) |
+| Slide | What | Current value |
 |---|---|---|
-| 6 Business | annual savings | €77k/yr, 107 t CO₂ on 50 routes, −30–40% fuel |
-| 6 Business | serial price of the module | "lower with a bare ESP32 + own PCB" (no figure) |
-| 6 Business | pricing tiers (Pilot / Full rollout) | from the website, no prices |
-| 6 Business | market size outside Latvia | not stated |
-| 7 Validation | feedback from Latvijas Pasts dispatchers / couriers | none yet |
+| 5 USP | price of a new smart box | €1,500–2,500 (from PitchPage) |
+| 6 Business | annual savings | €77k/yr, 107 t CO₂ on 50 routes (from the first PitchPage) |
+| 6 Business | platform licence | €4 / box / month (from PitchPage) |
+| 7 Validation | feedback from Latvijas Pasts dispatchers | none yet |
 | 9 Ask | pilot scope | 30 boxes, 8 weeks, week-by-week plan |
 
 Team (slide 8): check the names and roles before recording.
