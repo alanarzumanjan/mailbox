@@ -81,16 +81,16 @@ export default function Header() {
         {/* 2. Меню с якорными ссылками по центру */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
           <a href="#demo" className="hover:text-slate-900 transition">
-            Live Demo
+            Live Simulation
           </a>
           <a href="#features" className="hover:text-slate-900 transition">
-            Features
+            Problem & Solution
           </a>
-          <a href="#roi" className="hover:text-slate-900 transition">
-            ROI & Savings
+          <a href="#how-it-works" className="hover:text-slate-900 transition">
+            How It Works
           </a>
-          <a href="#team" className="hover:text-slate-900 transition">
-            Team
+          <a href="#platform" className="hover:text-slate-900 transition">
+            Platform 
           </a>
         </nav>
 

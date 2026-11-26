@@ -10,10 +10,10 @@
 html {
   scroll-behavior: smooth;
 }
-section[id],
+/* section[id],
 div[id] {
   scroll-margin-top: 80px; 
-}
+} */
 body {
   color: var(--ink);
 }
@@ -33,6 +33,21 @@ body {
 .leaflet-control-zoom a {
   color: #334155 !important;
   border: 0 !important;
+}
+
+@keyframes slideInFast {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mg-slide-in-fast {
+  animation: slideInFast 0.2s ease-out forwards;
 }
 
 .post-marker {
