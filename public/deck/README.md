@@ -1,4 +1,4 @@
-# MailGrid — pitch deck (RobotHack '26)
+# EmptyLess — pitch deck (RobotHack '26)
 
 Static HTML + three.js r128, no build step.
 
@@ -29,7 +29,7 @@ Recording: press F, N off, hide the cursor, record with OBS. The clock in N show
 - **Problem:** the van drives to every box; boxes show "Full? Empty?". Numbers count up click by click.
 - **Solution:** step 0 — boxes show their fill level and signal rings; step 1 — the route goes only to the red ones.
 - **Demo:** the box in cutaway, letters falling on the scale, live readout. Click 1 — dispatcher alerts video, click 2 — courier app video (`../alert-demo.mp4`, `../courier-demo.mp4` from the site's `public/`).
-- **USP:** click — the MailGrid column wins, the others fade.
+- **USP:** click — the EmptyLess column wins, the others fade.
 - **Vision:** a giant postbox of light over the city.
 - Between the box close-up and the city the picture dips to the background instead of flying through the houses. The camera drifts slightly all the time so the frame never freezes.
 - Dark theme: glow on LEDs, routes and points, a soft vignette and a little grain. `?nofx` turns that off if a weak laptop stutters.
@@ -61,10 +61,10 @@ After editing `index.html`, run `./make-dark.sh`.
 | 6 Business | annual savings | €77k/yr, 107 t CO₂ on 50 routes (from the first PitchPage) |
 | 6 Business | platform licence | €4 / box / month (from PitchPage) |
 | 7 Validation | feedback from Latvijas Pasts dispatchers | none yet |
-| 9 Ask | pilot scope | 30 boxes, 8 weeks, week-by-week plan |
+| 9 Ask | pilot scope | 30 boxes, 6 months: build 1–2, install 3, run & report 4–6 |
 
 Team (slide 8): check the names and roles before recording.
-Product name: `MailGrid`. It is in two places in `index.html` (search for `data-brand`) and in `<title>`.
+Product name: `EmptyLess` (as in the site header). To rename, replace it in `index.html` and run `./make-dark.sh`.
 
 ## Structure
 - `index.html`: slides; each `<section>` has `data-view` (3D camera angle) and `<aside class="notes">` (voiceover text)

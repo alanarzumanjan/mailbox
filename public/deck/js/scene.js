@@ -1,4 +1,4 @@
-/* MailGrid 3D scene — three.js r128 (global THREE), works from file:// with no network.
+/* EmptyLess 3D scene — three.js r128 (global THREE), works from file:// with no network.
    One city and one hero postbox. Slides choose a camera "view"; the view sets a few flags.
    Extras: camera drift, fade between the box and the city, glow pass (dark theme),
    signal rings on full boxes, and a point cloud that assembles into the postbox.
@@ -196,9 +196,13 @@ van.scale.setScalar(1.15); scene.add(van);
 var vanU = 0;
 
 /* ---------- letters for the hero box ---------- */
-var letters = [], WEIGHTS = [21, 18, 34, 19, 26, 22, 31, 20], CAP = 8, FULL_AT = 6;
+/* bundles of mail: the fill % is the height of the stack against the free height inside
+   (what the distance sensor measures), so 100% really looks like a full box */
+var letters = [], WEIGHTS = [84, 62, 118, 70, 96, 77, 109, 66], THICK = [0.085, 0.07, 0.1, 0.075, 0.09, 0.08, 0.095, 0.075];
+var CAP = 8, STACK_MAX = 0.68, FULL_FILL = 0.75, BASE = [0];
 for (var li = 0; li < CAP; li++) {
-  var L = box(0.5, 0.016, 0.32, M.paper); L.visible = false; L.userData.noCloud = true; hero.g.add(L); letters.push(L);
+  var L = box(0.5, THICK[li], 0.32, M.paper); L.visible = false; L.userData.noCloud = true; hero.g.add(L); letters.push(L);
+  BASE.push(BASE[li] + THICK[li]);
 }
 var heroState = { n: 0, t: 0, phase: 'fill', grams: 0 };
 
@@ -310,7 +314,7 @@ S.view = function (name) {
 function snapAll() {
   snapCamera(); cur.cut = view.cut || 0; cur.bars = view.bars || 0; cur.pilot = view.pilot || 0; viewT = 10;
   tubeAll.userData.k = 1; tubeFull.userData.k = 1; vanU = 0.37;
-  if (view.letters) { heroState.n = FULL_AT + 1; heroState.phase = 'fill'; heroState.t = 0; }
+  if (view.letters) { heroState.n = 7; heroState.phase = 'fill'; heroState.t = 0; }
   if (cloudMode === 'assemble') { cloudMat.uniforms.uK.value = 1; cloudMat.uniforms.uAlpha.value = 0; cloud.visible = false; hero.g.visible = true; cloudMode = 'off'; }
   if (cloudMode === 'giant') { cloudMat.uniforms.uK.value = 1; cloudMat.uniforms.uAlpha.value = GIANT_A(); }
 }
@@ -415,13 +419,13 @@ function updateHero(dt) {
     L.visible = shown;
     if (!shown) return;
     grams += WEIGHTS[i];
-    var restY = hero.p.plateY + 0.01 + i * 0.018, age = (i === s.n - 1 && s.phase === 'fill' && !STATIC) ? clamp(s.t / 0.55, 0, 1) : 1;
+    var restY = hero.p.plateY + BASE[i] + THICK[i] / 2, age = (i === s.n - 1 && s.phase === 'fill' && !STATIC) ? clamp(s.t / 0.55, 0, 1) : 1;
     var fz = hero.p.BD / 2 + 0.25;   // falls in through the slot, then lies flat on the scale
-    if (age < 0.35) { var a = age / 0.35; L.position.set(0, hero.p.slotY + 0.02, lerp(fz, 0.1, a)); L.rotation.set(-Math.PI / 2 + 0.2, 0, 0); }
-    else { var b2 = (age - 0.35) / 0.65, e = b2 * b2; L.position.set(Math.sin(i * 2.1) * 0.05, lerp(hero.p.slotY - 0.05, restY, e), lerp(0.1, Math.cos(i * 1.7) * 0.03, e)); L.rotation.set(lerp(-Math.PI / 2 + 0.2, 0, e), 0, Math.sin(i * 1.3) * 0.12 * e); }
+    if (age < 0.35) { var a = age / 0.35; L.position.set(0, hero.p.slotY, lerp(fz, 0.08, a)); L.rotation.set(0.12, 0, 0); }
+    else { var b2 = (age - 0.35) / 0.65, e = b2 * b2; L.position.set(Math.sin(i * 2.1) * 0.04, lerp(hero.p.slotY - 0.02, restY, e), lerp(0.08, Math.cos(i * 1.7) * 0.025, e)); L.rotation.set(lerp(0.12, 0, e), 0, Math.sin(i * 1.3) * 0.08 * e); }
   });
   s.grams = grams;
-  var fill = Math.min(1, s.n / CAP), full = s.n >= FULL_AT && s.phase !== 'collect';
+  var fill = Math.min(1, BASE[Math.min(s.n, CAP)] / STACK_MAX), full = fill >= FULL_FILL && s.phase !== 'collect';
   hero.p.led.color.setHex(full ? FULL : ACC); hero.p.led.emissive.setHex(full ? FULL : ACC);
   hero.liveFill = s.phase === 'collect' ? 0 : fill; hero.liveFull = full;
   var st = s.phase === 'collect' ? '<span class="st">Collected ✓</span>' : full ? '<span class="st">Full · pickup requested</span>' : '<span class="st">Has space</span>';

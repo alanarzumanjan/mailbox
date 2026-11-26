@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
-<title>MailGrid · Smart postboxes for Latvijas Pasts</title>
+<title>EmptyLess · Smart postboxes for Latvijas Pasts</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:,">
 <script>window.DECK_THEME="dark";</script>
@@ -28,7 +28,7 @@
 <div id="stage">
   <div id="brand">
     <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="36" height="32" rx="7" fill="var(--acc)"/><rect x="14" y="17" width="20" height="4" rx="2" fill="#fff"/><path d="M14 30h8l3-5 4 9 3-4h2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span data-brand>MailGrid</span>
+    <span data-brand>EmptyLess</span>
   </div>
   <div id="tag">RobotHack '26 · Challenge by Latvijas Pasts</div>
 
@@ -38,9 +38,9 @@
       <p class="kicker rise">Every working day, all over Latvia</p>
       <h1 class="rise" style="--i:1">A courier opens a postbox.<br>It's <em>empty.</em></h1>
       <p class="lead" data-st="1">Nobody knew — until the lock was open.</p>
-      <p data-st="2" style="margin-top:40px"><span class="pill"><span class="dot"></span>MailGrid makes every postbox report how full it is</span></p>
+      <p data-st="2" style="margin-top:40px"><span class="pill"><span class="dot"></span>EmptyLess makes every postbox report how full it is</span></p>
     </div>
-    <aside class="notes">Every working day, a Latvijas Pasts courier drives to a postbox, opens it — and finds it empty. [click] Nobody could know before the lock was open. So the van drives on, on the same fixed schedule, every day. [click] We built MailGrid, so every postbox can tell you how full it is.</aside>
+    <aside class="notes">Every working day, a Latvijas Pasts courier drives to a postbox, opens it — and finds it empty. [click] Nobody could know before the lock was open. So the van drives on, on the same fixed schedule, every day. [click] We built EmptyLess, so every postbox can tell you how full it is.</aside>
   </section>
 
   <!-- 2 PROBLEM → OPPORTUNITY -->
@@ -67,11 +67,13 @@
   <section class="slide" data-views="cityStatus,cityFull" data-sec="Solution" data-t="1:05">
     <div class="col" style="max-width:1000px">
       <p class="kicker rise">Solution</p>
-      <div class="formula rise" style="--i:1">
-        <div class="w">We create</div><div class="v">a retrofit fill sensor for existing postboxes</div>
-        <div class="w">That</div><div class="v">notices a single letter and reports it live</div>
-        <div class="w">for</div><div class="v">Latvijas Pasts dispatchers and couriers</div>
-        <div class="w">that</div><div class="v">turns blind rounds into pickups on real demand</div>
+      <div class="card formula-card rise" style="--i:1">
+        <div class="formula">
+          <div class="w">We create</div><div class="v">a <em>fill sensor</em> that fits into existing postboxes</div>
+          <div class="w">that</div><div class="v">notices <em>even one letter</em> and reports it live</div>
+          <div class="w">for</div><div class="v"><em>Latvijas Pasts</em> dispatchers and couriers,</div>
+          <div class="w">so that</div><div class="v">couriers drive <em>only to full boxes</em></div>
+        </div>
       </div>
       <div class="g3" data-st="1" style="gap:18px">
         <div class="card mini"><span class="num">1</span><h3>Sense</h3><p>Weight feels a single letter</p></div>
@@ -79,7 +81,7 @@
         <div class="card mini"><span class="num">3</span><h3>Route</h3><p>Only boxes that need it</p></div>
       </div>
     </div>
-    <aside class="notes">We create a retrofit fill sensor for the postboxes Latvijas Pasts already has. It notices a single letter and reports it live — for dispatchers and couriers — and turns blind rounds into pickups on real demand. Now every box on the map has a status. [click] The sensor feels the weight, reports only when something changes, and the route goes only to the red boxes.</aside>
+    <aside class="notes">We create a fill sensor that fits into the postboxes Latvijas Pasts already has. It notices even one letter and reports it live — for dispatchers and couriers — so that couriers drive only to full boxes. Now every box on the map has a status. [click] The sensor feels the weight, reports only when something changes, and the route goes only to the red boxes.</aside>
   </section>
 
   <!-- 4 DEMO -->
@@ -104,13 +106,13 @@
     <p class="kicker rise">Alternatives · why we win</p>
     <h2 class="rise wide" style="--i:1">No new boxes. No cameras. <em>Just data.</em></h2>
     <table class="tbl rise wide" style="--i:2;margin-top:12px" data-win="1">
-      <tr><th style="width:24%"></th><th>Fixed schedule</th><th>Camera in the box</th><th>New smart box</th><th class="us">MailGrid</th></tr>
-      <tr><td>Knows when a box is full</td><td class="no">No</td><td>Yes</td><td>Yes</td><td class="us">Yes, from one letter</td></tr>
-      <tr><td>Works in today's boxes</td><td>Yes</td><td>Needs light, power</td><td class="no">Replace every box</td><td class="us">Yes, retrofit</td></tr>
-      <tr><td>Privacy</td><td>—</td><td class="no">Photos of mail</td><td>OK</td><td class="us">Only grams &amp; %</td></tr>
-      <tr><td>Hardware per box</td><td>€0</td><td class="no">Higher</td><td class="no tbd">€1,500–2,500</td><td class="us">€62</td></tr>
+      <tr><th style="width:26%"></th><th>Fixed schedule</th><th>Camera in the box</th><th>New smart box</th><th class="us">EmptyLess</th></tr>
+      <tr><td>Who finds out a box is full?</td><td class="no">The courier, after opening it</td><td class="no">A person watching the images</td><td>The box itself</td><td class="us">The box itself — automatically</td></tr>
+      <tr><td>Fits today's boxes</td><td>Yes</td><td>Needs light and power</td><td class="no">Replace every box</td><td class="us">Yes, built in</td></tr>
+      <tr><td>Privacy</td><td>—</td><td class="no">Photos of people's mail</td><td>OK</td><td class="us">Only weight and fill level</td></tr>
+      <tr><td>Hardware per box</td><td>€0</td><td class="no">Camera + light + storage</td><td class="no tbd">€1,500–2,500</td><td class="us">€62</td></tr>
     </table>
-    <aside class="notes">The alternatives: keep the fixed schedule — free, but blind. Put a camera in the box — it needs light and power, and it photographs people's mail. Or replace every box with a new smart one — over 1,500 euros each. [click] MailGrid goes into the boxes that already exist, measures only grams and percent, and costs 62 euros per box.</aside>
+    <aside class="notes">The alternatives. Today, the courier finds out a box is empty only after opening it. A camera in the box needs light and power — and someone still has to look at the pictures, which are photos of people's mail. A new smart box knows when it's full, but it means replacing every box, at 1,500 euros or more. [click] EmptyLess goes into the boxes that already exist, the box itself reports when it's full — automatically — it sends only weight and fill level, and it costs 62 euros.</aside>
   </section>
 
   <!-- 6 MARKET & BUSINESS MODEL -->
@@ -170,18 +172,18 @@
 
   <!-- 9 ASK & PLAN -->
   <section class="slide" data-view="cityPilot" data-sec="Ask & plan" data-t="4:15">
-    <div class="col" style="max-width:920px">
+    <div class="col" style="max-width:940px">
       <p class="kicker rise">Ask &amp; plan</p>
-      <h2 class="rise" style="--i:1">Give us <em class="tbd">30 postboxes</em> and <span class="tbd">8 weeks.</span></h2>
+      <h2 class="rise" style="--i:1">Give us <em class="tbd">30 postboxes</em> and <span class="tbd">6 months.</span></h2>
       <p class="lead rise" style="--i:2">One mixed route in Riga. Pilot hardware: <b>€1,868</b>.</p>
       <div class="tl" style="margin-top:30px">
-        <div class="card" data-st="1"><div class="wk tbd">Weeks 1–2</div><p>Install and connect 30 sensors</p></div>
-        <div class="card" data-st="2"><div class="wk tbd">Weeks 3–6</div><p>Demand routes vs a control route</p></div>
-        <div class="card" data-st="3"><div class="wk tbd">Weeks 7–8</div><p>Report: km, fuel, hours, CO₂ saved</p></div>
+        <div class="card" data-st="1"><div class="wk tbd">Months 1–2</div><p>Order parts, build and test 30 units</p></div>
+        <div class="card" data-st="2"><div class="wk tbd">Month 3</div><p>Install on one route, connect</p></div>
+        <div class="card" data-st="3"><div class="wk tbd">Months 4–6</div><p>Demand routes vs a control route → report</p></div>
       </div>
       <p class="small" data-st="4" style="margin-top:26px"><b>From Latvijas Pasts:</b> access to the boxes, route data, one dispatcher.</p>
     </div>
-    <aside class="notes">Our ask: give us 30 postboxes on one mixed route in Riga, and eight weeks. The hardware for the whole pilot costs under 1,900 euros. [click] Weeks one and two — we install and connect. [click] Weeks three to six — demand routes run next to a control route. [click] Weeks seven and eight — a report with kilometres, fuel, hours and CO₂ saved. [click] From Latvijas Pasts we need access to the boxes, the route data, and one dispatcher to work with.</aside>
+    <aside class="notes">Our ask: give us 30 postboxes on one mixed route in Riga, and six months. The hardware for the whole pilot costs under 1,900 euros. [click] In the first two months we order the parts, build and test 30 units. [click] In month three we install them on one route and connect them to the dashboard. [click] Then for three months demand-based routes run next to a control route — and we report the kilometres, fuel, hours and CO₂ saved. [click] From Latvijas Pasts we need access to the boxes, the route data, and one dispatcher to work with.</aside>
   </section>
 
   <!-- 10 VISION -->
@@ -194,9 +196,9 @@
         <li data-st="2"><b>Network decisions</b> made on data, not guesses</li>
         <li data-st="3"><b>Courier hours</b> move to parcels — less fuel, less CO₂</li>
       </ul>
-      <p class="lead" data-st="4" style="margin-top:40px"><b data-brand>MailGrid</b> — never visit an empty postbox again.</p>
+      <p class="lead" data-st="4" style="margin-top:40px"><b data-brand>EmptyLess</b> — never visit an empty postbox again.</p>
     </div>
-    <aside class="notes">Our vision: a postal network that knows itself. [click] Every postbox in Latvia reports its real demand. [click] Decisions about which boxes to keep or move are made on data, not guesses. [click] And courier hours move from empty boxes to growing parcels — with less fuel and less CO₂. [click] MailGrid — never visit an empty postbox again. Thank you.</aside>
+    <aside class="notes">Our vision: a postal network that knows itself. [click] Every postbox in Latvia reports its real demand. [click] Decisions about which boxes to keep or move are made on data, not guesses. [click] And courier hours move from empty boxes to growing parcels — with less fuel and less CO₂. [click] EmptyLess — never visit an empty postbox again. Thank you.</aside>
   </section>
 
   <div id="sec"></div><div id="num"></div>
