@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>MailGrid · Smart postboxes for Latvijas Pasts</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,">
+<script>/* theme before first paint: ?theme=dark | dark.html | saved choice */
+(function(){var q=location.search.match(/[?&]theme=(light|dark)/),t=q?q[1]:(window.DECK_THEME||'light');document.documentElement.setAttribute('data-theme',t);})();</script>
+<link rel="stylesheet" href="css/deck.css">
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="shadeL"></div><div id="shade"></div>
+<div id="labels"></div>
+
+<div id="stage">
+  <div id="brand">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="36" height="32" rx="7" fill="var(--acc)"/><rect x="14" y="17" width="20" height="4" rx="2" fill="#fff"/><path d="M14 30h8l3-5 4 9 3-4h2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span data-brand>MailGrid</span>
+  </div>
+  <div id="tag">RobotHack '26 · Challenge by Latvijas Pasts</div>
+
+  <!-- 1 HOOK -->
+  <section class="slide" data-view="hero" data-sec="Hook">
+    <div class="col">
+      <p class="kicker rise">Every working day, all over Latvia</p>
+      <h1 class="rise" style="--i:1">A courier opens a postbox.<br>It's <em>empty.</em></h1>
+      <p class="lead rise" style="--i:2">Nobody could have known — until the lock was open. Then the van drives to the next one.</p>
+      <p class="rise" style="--i:3;margin-top:44px"><span class="pill"><span class="dot"></span>We make every postbox report how full it is</span></p>
+    </div>
+    <aside class="notes">Every working day a Latvijas Pasts courier drives to a postbox, opens it — and finds nothing. There was no way to know before opening the lock. So the van drives on to the next one, on the same fixed schedule, tomorrow and the day after. We built MailGrid so that every postbox can tell you how full it is.</aside>
+  </section>
+
+  <!-- 2 PROBLEM → OPPORTUNITY -->
+  <section class="slide" data-view="cityAll" data-sec="Problem">
+    <p class="kicker rise">Problem → opportunity</p>
+    <h2 class="rise wide" style="--i:1">Mail is falling. The schedule <em>isn't.</em></h2>
+    <div class="g4 wide rise" style="--i:2;margin-top:18px">
+      <div class="card stat"><div class="n">547</div><div class="u">postboxes</div><p>164 street boxes + 383 integrated boxes across Latvia, emptied on a fixed round.</p></div>
+      <div class="card stat"><div class="n">−14.2<small>%</small></div><div class="u">letters in 2024</div><p>16.6 M letters a year, and −13% again in H1 2025 — about a quarter fewer in two years.</p></div>
+      <div class="card stat"><div class="n">83</div><div class="u">boxes removed, 2025</div><p>112 were planned. Decisions are made without data on real demand per box.</p></div>
+      <div class="card stat"><div class="n">+17<small>%</small></div><div class="u">parcels, H1 2025</div><p>The opportunity: courier hours freed from empty boxes can go where volume grows.</p></div>
+    </div>
+    <div class="card rise wide" style="--i:3;margin-top:26px;display:flex;gap:46px;align-items:center;padding:24px 34px">
+      <h3 style="margin:0;white-space:nowrap">Every empty stop still costs</h3>
+      <p style="font-size:26px;white-space:nowrap"><b>€0.14</b> diesel per km</p>
+      <p style="font-size:26px;white-space:nowrap"><b>€11.87</b> per courier hour</p>
+      <p style="font-size:26px;white-space:nowrap"><b>0.17–0.21 kg</b> CO₂ per km</p>
+    </div>
+    <div class="src">Sources: Latvijas Pasts network changes 2025 · SPRK postal statistics (ifinanses.lv) · CSP diesel €2.08/l Oct 2026, gross hourly wage Q1 2026 (lvportals.lv) · van 6.6 l/100 km (Spritmonitor) · CO₂ 2.6–3.25 kg/l</div>
+    <aside class="notes">Latvijas Pasts runs 547 postboxes — 164 on the street and 383 integrated. They are emptied on a fixed round. But letters are falling fast: minus 14.2 percent in 2024, minus 13 percent again in the first half of 2025 — a quarter fewer in two years. In 2025 Latvijas Pasts removed 83 boxes — without data on how much mail each box actually gets. Meanwhile parcels grow 17 percent. Every empty stop still costs fuel, courier time and CO₂. That time could go where the volume is growing.</aside>
+  </section>
+
+  <!-- 3 SOLUTION -->
+  <section class="slide" data-view="cityFull" data-sec="Solution">
+    <div class="col" style="max-width:1000px">
+      <p class="kicker rise">Solution</p>
+      <div class="formula rise" style="--i:1">
+        <div class="w">We create</div><div class="v">a retrofit fill sensor for existing postboxes</div>
+        <div class="w">That</div><div class="v">notices a single letter and reports it live</div>
+        <div class="w">for</div><div class="v">Latvijas Pasts dispatchers and couriers</div>
+        <div class="w">that</div><div class="v">turns blind rounds into pickups on real demand</div>
+      </div>
+      <div class="g3 rise" style="--i:2;gap:18px">
+        <div class="card" style="padding:22px 24px"><span class="num">1</span><h3 style="margin-top:14px">Sense</h3><p style="font-size:21px">Weight sensor feels every letter; distance sensor stops overflow.</p></div>
+        <div class="card" style="padding:22px 24px"><span class="num">2</span><h3 style="margin-top:14px">Report</h3><p style="font-size:21px">Sends fill level only when something changes.</p></div>
+        <div class="card" style="padding:22px 24px"><span class="num">3</span><h3 style="margin-top:14px">Route</h3><p style="font-size:21px">Shortest route to the boxes that need it — only those.</p></div>
+      </div>
+    </div>
+    <aside class="notes">Our solution in one sentence: we create a fill sensor that retrofits into the postboxes Latvijas Pasts already has; it notices even a single letter and reports it live; for dispatchers and couriers; so blind schedules become pickups on real demand. It works in three steps: sense, report, route. On the map, only the red boxes need a pickup — and the route goes only there.</aside>
+  </section>
+
+  <!-- 4 DEMO -->
+  <section class="slide" data-view="cutaway" data-sec="Demo">
+    <div class="col">
+      <p class="kicker rise">Demo · working prototype</p>
+      <h2 class="rise" style="--i:1">A letter drops in.<br>The dashboard <em>knows.</em></h2>
+      <div class="steps rise" style="--i:2;margin-top:10px">
+        <div class="step"><span class="num">1</span><div><h3>Letter on the scale</h3><p>Load cell + HX711 register the weight change.</p></div></div>
+        <div class="step"><span class="num">2</span><div><h3>ESP32 reports</h3><p>Weight, distance and battery go to our backend over Wi-Fi.</p></div></div>
+        <div class="step"><span class="num">3</span><div><h3>Box turns red on the map</h3><p>Over the threshold, the box joins today's pickup route.</p></div></div>
+      </div>
+      <p class="small rise" style="--i:3;margin-top:30px">Live: smart-postbox.vercel.app</p>
+    </div>
+    <div class="vslot" id="vslot"><video id="demoVid" muted loop playsinline preload="auto"></video></div>
+    <aside class="notes">Here is the prototype. A letter drops in, the load cell feels the weight change, and the ESP32 sends weight, distance and battery level to our backend. Once the box passes the threshold, its LED turns red and the box turns red on the dispatcher's map — and it is added to today's pickup route. [Cut to the live dashboard and the real device here.]</aside>
+  </section>
+
+  <!-- 5 USP -->
+  <section class="slide" data-view="heroDim" data-sec="USP">
+    <p class="kicker rise">Alternatives · why we win</p>
+    <h2 class="rise wide" style="--i:1">No new boxes. No cameras. <em>Just data.</em></h2>
+    <table class="tbl rise wide" style="--i:2;margin-top:12px">
+      <tr><th style="width:23%"></th><th>Fixed schedule<br>(today)</th><th>Camera in the box</th><th>New smart boxes</th><th class="us">MailGrid retrofit</th></tr>
+      <tr><td>Knows if a box is empty</td><td class="no">No</td><td>Yes</td><td>Yes</td><td class="us">Yes — down to one letter</td></tr>
+      <tr><td>Infrastructure</td><td>Existing</td><td>Existing + light, power</td><td class="no">Replace every box</td><td class="us">Existing boxes</td></tr>
+      <tr><td>Privacy</td><td>—</td><td class="no">Images of mail</td><td>OK</td><td class="us">Only grams and %</td></tr>
+      <tr><td>Hardware per box</td><td>€0</td><td class="no">Higher</td><td class="no">Highest</td><td class="us">€50–62 today</td></tr>
+      <tr><td>Route planning</td><td class="no">Manual</td><td class="no">Not included</td><td class="no">Not included</td><td class="us">Built in</td></tr>
+    </table>
+    <aside class="notes">What are the alternatives? Keep the fixed schedule — cheap, but blind. Put a camera into the box — it needs light and power, and it photographs people's mail. Replace the boxes with new smart ones — the most expensive option. MailGrid is a retrofit: it goes into the boxes that already stand on the street, it only measures grams and percent, the hardware costs 50 to 62 euros per box today, and route planning is built in.</aside>
+  </section>
+
+  <!-- 6 MARKET & BUSINESS MODEL -->
+  <section class="slide" data-view="cityHigh" data-sec="Business">
+    <p class="kicker rise">Market &amp; business model</p>
+    <h2 class="rise wide" style="--i:1">Hardware once. <em>Savings every day.</em></h2>
+    <div class="g3 wide rise" style="--i:2;margin-top:12px">
+      <div class="card stat"><div class="u" style="margin-top:0">Kit per box · prototype</div><div class="n">€62<small>.26</small></div><p style="margin-top:14px">Weight + distance sensor, ESP32, IP66 case, battery. <b>€49.55</b> weight-only. Ex-VAT, official EU shops, batch of 200.</p></div>
+      <div class="card stat"><div class="u" style="margin-top:0">All of Latvia · 547 boxes</div><div class="n">€34<small>k</small></div><p style="margin-top:14px">Hardware for the whole network at prototype prices (€27k weight-only). <span class="tbd">Series price lower with a bare ESP32 module and own PCB.</span></p></div>
+      <div class="card stat"><div class="u" style="margin-top:0">Projected savings · 50 routes</div><div class="n tbd">€77<small>k/yr</small></div><p style="margin-top:14px"><span class="tbd">107 t CO₂ less per year; −30–40% fuel on a route.</span> To be confirmed in the pilot.</p></div>
+    </div>
+    <div class="g2 wide rise" style="--i:3;margin-top:24px">
+      <div class="card"><h3>How we earn</h3><p><b>Hardware</b> at cost + installation, and a <b>yearly platform licence</b> per box: dashboard, routing, demand analytics. <span class="tbd">Pricing tiers: Pilot · Full rollout.</span></p></div>
+      <div class="card"><h3>Who else needs it</h3><p>Every postal operator with street boxes and falling letter volume — Baltic neighbours first, then any EU post. <span class="tbd">Market size to be added.</span></p></div>
+    </div>
+    <aside class="notes">The business is simple. The hardware kit costs 62 euros per box at prototype prices — ex VAT, from official shops, in a batch of 200 — or 50 euros without the distance sensor. Equipping all 547 boxes in Latvia costs about 34 thousand euros. On the side of savings, our current projection is [77 thousand euros and 107 tonnes of CO₂ per year on 50 routes] — the pilot will confirm the exact number. We earn on the hardware plus a yearly platform licence per box. And every postal operator with falling letter volume has the same problem.</aside>
+  </section>
+
+  <!-- 7 VALIDATION -->
+  <section class="slide" data-view="cutawayDim" data-sec="Validation">
+    <p class="kicker rise">Validation</p>
+    <h2 class="rise wide" style="--i:1">Built, tested, <em>grounded in real numbers.</em></h2>
+    <div class="g2 wide rise" style="--i:2;margin-top:14px">
+      <div class="card"><h3>What's done</h3>
+        <ul class="list" style="margin-top:16px">
+          <li>Working prototype: load cell + distance sensor + ESP32 + LED</li>
+          <li>Backend receives live data from the real box</li>
+          <li>Dispatcher dashboard with map and route — live online</li>
+          <li>Costs priced part by part from official shops</li>
+        </ul></div>
+      <div class="card"><h3>What we learned</h3>
+        <ul class="list" style="margin-top:16px">
+          <li>Postal data: letters −14.2%, parcels +17% (SPRK)</li>
+          <li>Latvijas Pasts cut 83 boxes in 2025 without per-box demand data</li>
+          <li>Mentor feedback: <b>retrofit, don't replace</b> — we redesigned for existing boxes</li>
+          <li class="tbd">Feedback from Latvijas Pasts dispatchers / couriers</li>
+        </ul></div>
+    </div>
+    <aside class="notes">What have we validated? We have a working prototype — load cell, distance sensor, ESP32 and an LED — that sends live data to our backend, and a dispatcher dashboard that is online right now. Every component is priced from official shops. Our numbers come from the regulator and the national statistics office. And the most important feedback from our mentor — retrofit, don't replace — changed our design: the module now fits into the boxes that already exist.</aside>
+  </section>
+
+  <!-- 8 TEAM -->
+  <section class="slide" data-view="cityHigh" data-sec="Team">
+    <p class="kicker rise">Team</p>
+    <h2 class="rise wide" style="--i:1">Hardware, software and business — <em>in one team.</em></h2>
+    <div class="g3 wide rise" style="--i:2;margin-top:14px">
+      <div class="card member"><div class="ava">K</div><h3>Kira</h3><div class="role">Pitch &amp; presentation</div><p>Story, design and the voice of the project.</p></div>
+      <div class="card member"><div class="ava">S</div><h3>Sofiia</h3><div class="role">Presentation &amp; costs</div><p>Rollout cost per box and per city.</p></div>
+      <div class="card member"><div class="ava">M</div><h3>Margarita</h3><div class="role">Frontend &amp; product</div><p>Dispatcher dashboard and landing page.</p></div>
+      <div class="card member"><div class="ava">A</div><h3>Alan</h3><div class="role">Backend &amp; IoT data</div><p>API, data from the box, routing, cost research.</p></div>
+      <div class="card member"><div class="ava">A</div><h3>Alisa</h3><div class="role">Prototype &amp; research</div><p>Postal network data, visuals, the device.</p></div>
+      <div class="card member"><div class="ava">K</div><h3>Ksenia</h3><div class="role">Prototype hardware</div><p>Sensors, wiring and firmware on the box.</p></div>
+    </div>
+    <p class="small rise wide" style="--i:3;margin-top:22px">TSI · Transport and Telecommunication Institute, Riga</p>
+    <aside class="notes">We are six students from TSI in Riga, and between us we cover the whole chain: the device itself, the backend and data, the dashboard, and the business case. In 48 hours we built a working box and a working platform.</aside>
+  </section>
+
+  <!-- 9 ASK & PLAN -->
+  <section class="slide" data-view="cityPilot" data-sec="Ask & plan">
+    <div class="col" style="max-width:920px">
+      <p class="kicker rise">Ask &amp; plan</p>
+      <h2 class="rise" style="--i:1">Give us <em class="tbd">30 postboxes</em> and <span class="tbd">8 weeks.</span></h2>
+      <p class="lead rise" style="--i:2">One mixed route — Riga centre plus a suburb. Hardware for the whole pilot: <b>€1,868</b>.</p>
+      <div class="tl rise" style="--i:3;margin-top:30px">
+        <div class="card" style="padding:22px 24px"><div class="wk tbd">Weeks 1–2</div><p>Install sensors on 30 boxes, connect to the dashboard.</p></div>
+        <div class="card" style="padding:22px 24px"><div class="wk tbd">Weeks 3–6</div><p>Real fill data; demand routes vs a control route.</p></div>
+        <div class="card" style="padding:22px 24px"><div class="wk tbd">Weeks 7–8</div><p>Report: km, fuel, hours, CO₂ saved; which boxes to keep.</p></div>
+      </div>
+      <p class="small rise" style="--i:4;margin-top:26px"><b>From Latvijas Pasts:</b> access to the boxes, current route &amp; schedule data, one dispatcher to work with.</p>
+    </div>
+    <aside class="notes">Our ask is concrete. Give us 30 postboxes on one mixed route — Riga centre plus a suburb — and eight weeks. The hardware for the whole pilot costs under 1,900 euros. Weeks one and two: install and connect. Weeks three to six: collect real data and run demand-based routes next to a control route. Weeks seven and eight: a report with kilometres, fuel, hours and CO₂ saved — and data on which boxes to keep or move. From Latvijas Pasts we need access to the boxes, the current route data, and one dispatcher to work with.</aside>
+  </section>
+
+  <!-- 10 VISION -->
+  <section class="slide" data-view="cityFar" data-sec="Vision">
+    <div class="col" style="max-width:980px">
+      <p class="kicker rise">Vision &amp; impact</p>
+      <h1 class="rise" style="--i:1;font-size:96px">A postal network that <em>knows itself.</em></h1>
+      <ul class="list rise" style="--i:2;margin-top:10px">
+        <li><b>Every box in Latvia</b> reports real demand, every day</li>
+        <li><b>Network decisions on data</b> — which boxes to keep, move or add</li>
+        <li><b>Courier hours</b> moved from empty boxes to growing parcels</li>
+        <li><b>Less fuel, less CO₂</b> on every route</li>
+      </ul>
+      <p class="lead rise" style="--i:3;margin-top:40px"><b data-brand>MailGrid</b> — never visit an empty postbox again.</p>
+    </div>
+    <aside class="notes">Our vision: a postal network that knows itself. Every postbox in Latvia reports its real demand every day. Decisions about which boxes to keep, move or add are made on data. Courier hours move from empty boxes to the parcels that keep growing. And every route burns less fuel and less CO₂. MailGrid — never visit an empty postbox again. Thank you.</aside>
+  </section>
+
+  <div id="sec"></div><div id="num"></div>
+</div>
+
+<div id="segs"></div>
+<div id="help">← → navigate · F fullscreen · T theme · N notes · E show placeholders</div>
+<div id="notes"></div>
+
+<script src="assets/three.min.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/deck.js"></script>
+</body>
+</html>
