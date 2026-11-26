@@ -46,8 +46,41 @@ export default function HowItWorksPlatform() {
   const currentItem = steps[activeStep];
   const BadgeIcon = currentItem.icon;
 
+  // Вспомогательный компонент для рендеринга медиа (видео или картинки)
+  const renderMedia = (item) => (
+    <div className="relative w-full rounded-3xl overflow-hidden bg-slate-50">
+      <div className="relative w-full aspect-[1623/1318] overflow-hidden rounded-3xl flex items-center justify-center bg-white">
+        <div className="w-full h-full transition-opacity duration-300 ease-in-out opacity-100">
+          {item.videoSrc ? (
+            <video
+              key={item.videoSrc}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full rounded-3xl shadow-md object-contain"
+            >
+              <source src={item.videoSrc} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <div className="relative w-full h-full rounded-3xl overflow-hidden bg-white">
+              <Image
+                src={item.imageSrc}
+                alt={item.title}
+                fill
+                className="object-contain rounded-3xl"
+                priority
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <section id="platform" className="py-24 bg-white text-[#172033] font-body">
+    <section id="features" className="py-24 bg-white text-[#172033] font-body">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -117,9 +150,14 @@ export default function HowItWorksPlatform() {
                         </p>
 
                         {/* Bottom Badge with Icon */}
-                        <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-semibold text-[#172033]">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-semibold text-[#172033] mb-4">
                           <BadgeIcon className="w-4 h-4 text-[#0b9b70]" />
                           <span>{step.badge}</span>
+                        </div>
+
+                        {/* МОБИЛЬНАЯ ВЕРСИЯ: Медиа встраивается прямо внутрь аккордеона */}
+                        <div className="block lg:hidden mt-4">
+                          {renderMedia(step)}
                         </div>
                       </div>
                     </div>
@@ -140,37 +178,9 @@ export default function HowItWorksPlatform() {
             </div>
           </div>
 
-          {/* Right Column: Dynamic Product Preview (lg:col-span-7) */}
-          <div className="lg:col-span-7">
-            <div className="relative w-full rounded-3xl overflow-hidden bg-slate-50">
-              <div className="relative w-full aspect-[1623/1318] overflow-hidden rounded-3xl flex items-center justify-center bg-white">
-                <div className="w-full h-full transition-opacity duration-300 ease-in-out opacity-100">
-                  {currentItem.videoSrc ? (
-                    <video
-                      key={currentItem.videoSrc}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="w-full h-full rounded-3xl shadow-md object-contain"
-                    >
-                      <source src={currentItem.videoSrc} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  ) : (
-                    <div className="relative w-full h-full rounded-3xl overflow-hidden bg-white">
-                      <Image
-                        src={currentItem.imageSrc}
-                        alt={currentItem.title}
-                        fill
-                        className="object-contain rounded-3xl"
-                        priority
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+          {/* ДЕСКТОПНАЯ ВЕРСИЯ: Правая колонка с превью (скрыта на мобильных, видна на lg+) */}
+          <div className="hidden lg:block lg:col-span-7">
+            {renderMedia(currentItem)}
           </div>
         </div>
       </div>
