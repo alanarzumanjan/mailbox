@@ -1,10 +1,10 @@
-# MailGrid — voiceover script (EN)
+# EmptyLess — voiceover script (EN)
 
 Target ≈ 5:00. `[click]` = press → (next step). In the deck press **N** to see this text, the planned time and a running clock (R resets the clock).
 
 ## 1. Hook — 0:00
 
-Every working day, a Latvijas Pasts courier drives to a postbox, opens it — and finds it empty. [click] Nobody could know before the lock was open. So the van drives on, on the same fixed schedule, every day. [click] We built MailGrid, so every postbox can tell you how full it is.
+Every working day, a Latvijas Pasts courier drives to a postbox, opens it — and finds it empty. [click] Nobody could know before the lock was open. So the van drives on, on the same fixed schedule, every day. [click] We built EmptyLess, so every postbox can tell you how full it is.
 
 ## 2. Problem — 0:25
 
@@ -12,7 +12,7 @@ Latvijas Pasts runs [click] 547 postboxes, all emptied on a fixed round. But [cl
 
 ## 3. Solution — 1:05
 
-We create a retrofit fill sensor for the postboxes Latvijas Pasts already has. It notices a single letter and reports it live — for dispatchers and couriers — and turns blind rounds into pickups on real demand. Now every box on the map has a status. [click] The sensor feels the weight, reports only when something changes, and the route goes only to the red boxes.
+We create a fill sensor that fits into the postboxes Latvijas Pasts already has. It notices even one letter and reports it live — for dispatchers and couriers — so that couriers drive only to full boxes. Now every box on the map has a status. [click] The sensor feels the weight, reports only when something changes, and the route goes only to the red boxes.
 
 ## 4. Demo — 1:40
 
@@ -20,7 +20,7 @@ Here is our prototype. A letter drops in, the load cell feels the weight, the ES
 
 ## 5. USP — 2:20
 
-The alternatives: keep the fixed schedule — free, but blind. Put a camera in the box — it needs light and power, and it photographs people's mail. Or replace every box with a new smart one — over 1,500 euros each. [click] MailGrid goes into the boxes that already exist, measures only grams and percent, and costs 62 euros per box.
+The alternatives. Today, the courier finds out a box is empty only after opening it. A camera in the box needs light and power — and someone still has to look at the pictures, which are photos of people's mail. A new smart box knows when it's full, but it means replacing every box, at 1,500 euros or more. [click] EmptyLess goes into the boxes that already exist, the box itself reports when it's full — automatically — it sends only weight and fill level, and it costs 62 euros.
 
 ## 6. Business — 2:55
 
@@ -36,8 +36,8 @@ We are six students from TSI in Riga, and together we cover the whole chain: the
 
 ## 9. Ask & plan — 4:15
 
-Our ask: give us 30 postboxes on one mixed route in Riga, and eight weeks. The hardware for the whole pilot costs under 1,900 euros. [click] Weeks one and two — we install and connect. [click] Weeks three to six — demand routes run next to a control route. [click] Weeks seven and eight — a report with kilometres, fuel, hours and CO₂ saved. [click] From Latvijas Pasts we need access to the boxes, the route data, and one dispatcher to work with.
+Our ask: give us 30 postboxes on one mixed route in Riga, and six months. The hardware for the whole pilot costs under 1,900 euros. [click] In the first two months we order the parts, build and test 30 units. [click] In month three we install them on one route and connect them to the dashboard. [click] Then for three months demand-based routes run next to a control route — and we report the kilometres, fuel, hours and CO₂ saved. [click] From Latvijas Pasts we need access to the boxes, the route data, and one dispatcher to work with.
 
 ## 10. Vision — 4:45
 
-Our vision: a postal network that knows itself. [click] Every postbox in Latvia reports its real demand. [click] Decisions about which boxes to keep or move are made on data, not guesses. [click] And courier hours move from empty boxes to growing parcels — with less fuel and less CO₂. [click] MailGrid — never visit an empty postbox again. Thank you.
+Our vision: a postal network that knows itself. [click] Every postbox in Latvia reports its real demand. [click] Decisions about which boxes to keep or move are made on data, not guesses. [click] And courier hours move from empty boxes to growing parcels — with less fuel and less CO₂. [click] EmptyLess — never visit an empty postbox again. Thank you.

@@ -1,4 +1,4 @@
-/* MailGrid 3D scene — three.js r128 (global THREE), works from file:// with no network.
+/* EmptyLess 3D scene — three.js r128 (global THREE), works from file:// with no network.
    One city and one hero postbox. Slides choose a camera "view"; the view sets a few flags.
    Extras: camera drift, fade between the box and the city, glow pass (dark theme),
    signal rings on full boxes, and a point cloud that assembles into the postbox.
@@ -104,6 +104,7 @@ function postbox(hero) {
     var chip = box(0.1, 0.08, 0.02, M.chip); chip.position.set(0.17, cy + 0.21, -BD / 2 + 0.08); g.add(chip);
     var bat = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.24, 16), M.acc); bat.rotation.z = Math.PI / 2; bat.position.set(-0.2, cy + 0.2, -BD / 2 + 0.09); g.add(bat);
     var tof = box(0.09, 0.015, 0.09, M.tof); tof.position.set(0, y0 + BH - 0.06, 0.02); g.add(tof);
+    parts.freeH = (y0 + BH - 0.06 - 0.0075) - parts.plateY;   // what the distance sensor sees when empty
     [[BW - 0.12, BH - 0.12, 0.01, 0, cy, -BD / 2 + 0.055], [0.01, BH - 0.12, BD - 0.1, -BW / 2 + 0.055, cy, 0], [0.01, BH - 0.12, BD - 0.1, BW / 2 - 0.055, cy, 0], [BW - 0.12, 0.01, BD - 0.1, 0, y0 + 0.055, 0]]
       .forEach(function (p) { var m = box(p[0], p[1], p[2], M.lining); m.position.set(p[3], p[4], p[5]); g.add(m); });
   }
@@ -196,11 +197,28 @@ van.scale.setScalar(1.15); scene.add(van);
 var vanU = 0;
 
 /* ---------- letters for the hero box ---------- */
-var letters = [], WEIGHTS = [21, 18, 34, 19, 26, 22, 31, 20], CAP = 8, FULL_AT = 6;
-for (var li = 0; li < CAP; li++) {
-  var L = box(0.5, 0.016, 0.32, M.paper); L.visible = false; L.userData.noCloud = true; hero.g.add(L); letters.push(L);
-}
-var heroState = { n: 0, t: 0, phase: 'fill', grams: 0 };
+/* small letters: envelopes of different sizes and colours, each with a stamp.
+   Fill % = height of the pile against the free height inside (what the distance sensor sees),
+   and the letters are sized so that the last one reaches the sensor: all letters = 100%. */
+var CAP = 40, STACK_MAX = hero.p.freeH, FULL_FILL = 0.75, BASE = [0], letters = [], LT = [], WEIGHTS = [], LPOS = [];
+var envMats = [0xfbfbf8, 0xf3ead8, 0xe4eef8, 0xd9c2a0, 0xfdf3f0, 0xeaf6ef].map(function (c) { return std(c, 0.9); });
+var stampMats = [std(ACC, 0.6), std(FULL, 0.6), std(0x3b6fd8, 0.6), std(0xf2b233, 0.6)];
+(function () {
+  var r = function () { return rnd(); }, raw = [], sum = 0;
+  for (var i = 0; i < CAP; i++) { var t = 0.7 + r() * 0.6; raw.push(t); sum += t; }
+  for (var j = 0; j < CAP; j++) {
+    var th = raw[j] / sum * STACK_MAX, w = 0.34 + r() * 0.14, d = 0.2 + r() * 0.1;
+    var L = new THREE.Group();
+    var env = box(w, th, d, envMats[j % envMats.length]); L.add(env);
+    var st = box(0.05, 0.004, 0.06, stampMats[j % stampMats.length]); st.position.set(w / 2 - 0.045, th / 2 + 0.002, -d / 2 + 0.05); st.castShadow = false; L.add(st);
+    L.visible = false; L.traverse(function (o) { o.userData.noCloud = true; }); L.userData.noCloud = true;
+    hero.g.add(L); letters.push(L); LT.push(th); WEIGHTS.push(14 + Math.round(r() * 22));
+    LPOS.push({ x: (r() - 0.5) * 0.14, z: (r() - 0.5) * 0.1, yaw: (r() - 0.5) * 0.9, tilt: (r() - 0.5) * 0.06 });
+    BASE.push(BASE[j] + th);
+  }
+})();
+var heroState = { n: 0, t: 0, phase: 'fill', grams: 0, born: [], clock: 0 };
+var DROP_EVERY = 0.24, DROP_TIME = 0.6;
 
 /* ---------- point cloud: the postbox made of light ---------- */
 var CLOUD_N = 16000;
@@ -310,7 +328,7 @@ S.view = function (name) {
 function snapAll() {
   snapCamera(); cur.cut = view.cut || 0; cur.bars = view.bars || 0; cur.pilot = view.pilot || 0; viewT = 10;
   tubeAll.userData.k = 1; tubeFull.userData.k = 1; vanU = 0.37;
-  if (view.letters) { heroState.n = FULL_AT + 1; heroState.phase = 'fill'; heroState.t = 0; }
+  if (view.letters) { heroState.n = /[?&]fill=full/.test(location.search) ? CAP : 34; heroState.phase = 'fill'; heroState.t = 0; heroState.born = []; }
   if (cloudMode === 'assemble') { cloudMat.uniforms.uK.value = 1; cloudMat.uniforms.uAlpha.value = 0; cloud.visible = false; hero.g.visible = true; cloudMode = 'off'; }
   if (cloudMode === 'giant') { cloudMat.uniforms.uK.value = 1; cloudMat.uniforms.uAlpha.value = GIANT_A(); }
 }
@@ -402,31 +420,40 @@ var clock = new THREE.Clock(), tmp = new THREE.Vector3(), tmpT = new THREE.Vecto
 
 function updateHero(dt) {
   var s = heroState, active = !!view.letters;
-  if (!active) { s.n = 0; s.phase = 'fill'; s.t = 0; }
+  if (!active) { s.n = 0; s.phase = 'fill'; s.t = 0; s.born = []; }
+  s.clock += dt;
   if (active && !STATIC) {
     s.t += dt;
-    if (s.phase === 'fill' && s.t > 0.95) { s.t = 0; s.n++; if (s.n >= CAP) s.phase = 'hold'; }
-    else if (s.phase === 'hold' && s.t > 2.6) { s.phase = 'collect'; s.t = 0; }
-    else if (s.phase === 'collect' && s.t > 1.2) { s.phase = 'fill'; s.t = 0; s.n = 0; }
+    if (s.phase === 'fill' && s.t > DROP_EVERY) { s.t = 0; s.born[s.n] = s.clock; s.n++; if (s.n >= CAP) s.phase = 'hold'; }
+    else if (s.phase === 'hold' && s.t > 3.0) { s.phase = 'collect'; s.t = 0; }
+    else if (s.phase === 'collect' && s.t > 1.2) { s.phase = 'fill'; s.t = 0; s.n = 0; s.born = []; }
   }
-  var grams = 0;
+  var grams = 0, landed = 0, fz = hero.p.BD / 2 + 0.3;
   letters.forEach(function (L, i) {
     var shown = i < s.n && s.phase !== 'collect';
     L.visible = shown;
     if (!shown) return;
     grams += WEIGHTS[i];
-    var restY = hero.p.plateY + 0.01 + i * 0.018, age = (i === s.n - 1 && s.phase === 'fill' && !STATIC) ? clamp(s.t / 0.55, 0, 1) : 1;
-    var fz = hero.p.BD / 2 + 0.25;   // falls in through the slot, then lies flat on the scale
-    if (age < 0.35) { var a = age / 0.35; L.position.set(0, hero.p.slotY + 0.02, lerp(fz, 0.1, a)); L.rotation.set(-Math.PI / 2 + 0.2, 0, 0); }
-    else { var b2 = (age - 0.35) / 0.65, e = b2 * b2; L.position.set(Math.sin(i * 2.1) * 0.05, lerp(hero.p.slotY - 0.05, restY, e), lerp(0.1, Math.cos(i * 1.7) * 0.03, e)); L.rotation.set(lerp(-Math.PI / 2 + 0.2, 0, e), 0, Math.sin(i * 1.3) * 0.12 * e); }
+    var q = LPOS[i], restY = hero.p.plateY + BASE[i] + LT[i] / 2;
+    var age = (STATIC || s.born[i] == null) ? 1 : clamp((s.clock - s.born[i]) / DROP_TIME, 0, 1);
+    if (age >= 1) landed = i + 1;
+    if (age < 0.35) {            // slides in flat through the slot
+      var a = age / 0.35; L.position.set(0, hero.p.slotY, lerp(fz, 0.06, a)); L.rotation.set(0.1, 0, 0);
+    } else {                     // drops and settles on the pile, slightly turned
+      var b2 = (age - 0.35) / 0.65, e = b2 * b2;
+      L.position.set(lerp(0, q.x, e), lerp(hero.p.slotY - 0.02, restY, e), lerp(0.06, q.z, e));
+      L.rotation.set(lerp(0.1, q.tilt, e), q.yaw * e, q.tilt * e);
+    }
   });
+  if (STATIC) landed = Math.min(s.n, CAP);
   s.grams = grams;
-  var fill = Math.min(1, s.n / CAP), full = s.n >= FULL_AT && s.phase !== 'collect';
+  // the sensor reads what has landed
+  var fill = Math.min(1, BASE[landed] / STACK_MAX), full = fill >= FULL_FILL && s.phase !== 'collect';
   hero.p.led.color.setHex(full ? FULL : ACC); hero.p.led.emissive.setHex(full ? FULL : ACC);
   hero.liveFill = s.phase === 'collect' ? 0 : fill; hero.liveFull = full;
   var st = s.phase === 'collect' ? '<span class="st">Collected ✓</span>' : full ? '<span class="st">Full · pickup requested</span>' : '<span class="st">Has space</span>';
   heroLab.inner.className = 'tagl big' + (full ? ' full' : '');
-  heroLab.inner.innerHTML = '<span class="k">Box LV-0142 · live</span><span>' + grams + ' g · ' + Math.round(hero.liveFill * 100) + '% full</span>' + st;
+  heroLab.inner.innerHTML = '<span class="k">Box LV-0142 · live</span><span>' + (s.phase === 'collect' ? 0 : landed) + ' letters · ' + (s.phase === 'collect' ? 0 : grams) + ' g · ' + Math.round(hero.liveFill * 100) + '%</span>' + st;
 }
 
 function updateCloud(dt) {
