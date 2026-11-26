@@ -83,7 +83,7 @@ export default function Header() {
           <a href="#demo" className="hover:text-slate-900 transition">
             Live Simulation
           </a>
-          <a href="#problem" className="hover:text-slate-900 transition">
+          <a href="#features" className="hover:text-slate-900 transition">
             Problem & Solution
           </a>
           <a href="#how-it-works" className="hover:text-slate-900 transition">

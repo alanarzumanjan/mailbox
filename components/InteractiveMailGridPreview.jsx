@@ -19,6 +19,8 @@ import {
   Clock,
   Shuffle,
   Info,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 const HeroLeafletMap = dynamic(() => import("./HeroLeafletMap"), {
@@ -205,6 +207,7 @@ export default function InteractiveMailGridPreview() {
   const [dist, setDist] = useState({ base: 38.7, smart: 13.1 });
   const [fleetRoutes, setFleetRoutes] = useState(50);
   const [spin, setSpin] = useState(0);
+  const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
 
   const fullBoxes = useMemo(
     () =>
@@ -283,8 +286,8 @@ export default function InteractiveMailGridPreview() {
             />
           </div>
 
-          <div className="lg:col-span-6 flex flex-col justify-between space-y-4">
-            <div className="space-y-5">
+          <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
+            <div className="space-y-3">
               <div className="space-y-1.5">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold tracking-wide uppercase">
                   Live Simulation
@@ -358,65 +361,98 @@ export default function InteractiveMailGridPreview() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-                <MetricCard
-                  icon={MapPin}
-                  label="Distance"
-                  value={
-                    <AnimatedNumber
-                      value={routeBuilt ? dist.smart : dist.base}
-                      decimals={1}
-                      suffix=" km"
-                    />
-                  }
-                  sub={`Was: ${
-                    routeBuilt ? dist.base.toFixed(1) : dist.base.toFixed(1)
-                  } km`}
-                />
+              {/* Collapsible Route Breakdown Toggle */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setIsBreakdownOpen((prev) => !prev)}
+                  className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-xs font-bold text-slate-600 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <span>
+                    {isBreakdownOpen
+                      ? "Hide route breakdown"
+                      : "View route breakdown"}
+                  </span>
+                  {isBreakdownOpen ? (
+                    <ChevronUp className="w-4 h-4 text-slate-500" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-slate-500" />
+                  )}
+                </button>
+              </div>
 
-                <MetricCard
-                  icon={Fuel}
-                  label="Fuel Cost"
-                  value={
-                    <AnimatedNumber
-                      value={routeBuilt ? smartFuel : baseFuel}
-                      decimals={2}
-                      prefix="€"
-                    />
-                  }
-                  sub={`Was: €${
-                    routeBuilt ? baseFuel.toFixed(2) : baseFuel.toFixed(2)
-                  }`}
-                />
-
-                <MetricCard
-                  icon={CloudRain}
-                  label="CO₂"
-                  value={
-                    <AnimatedNumber
-                      value={routeBuilt ? smartCo2 : baseCo2}
-                      decimals={1}
-                      suffix=" kg"
-                    />
-                  }
-                  sub={`Was: ${
-                    routeBuilt ? baseCo2.toFixed(1) : baseCo2.toFixed(1)
-                  } kg`}
-                />
-
-                <MetricCard
-                  icon={Clock}
-                  label="Route Time"
-                  value={
-                    <AnimatedNumber
+              {/* Collapsible 4 Metric Cards Grid */}
+              <div
+                className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
+                  isBreakdownOpen
+                    ? "grid-rows-[1fr] opacity-100 py-1"
+                    : "grid-rows-[0fr] opacity-0 py-0"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <MetricCard
+                      icon={MapPin}
+                      label="Distance"
                       value={
-                        routeBuilt ? Math.round(smartMin) : Math.round(baseMin)
+                        <AnimatedNumber
+                          value={routeBuilt ? dist.smart : dist.base}
+                          decimals={1}
+                          suffix=" km"
+                        />
                       }
-                      suffix=" min"
+                      sub={`Was: ${
+                        routeBuilt ? dist.base.toFixed(1) : dist.base.toFixed(1)
+                      } km`}
                     />
-                  }
-                  sub={`Was: ${Math.round(baseMin)} min`}
-                />
+
+                    <MetricCard
+                      icon={Fuel}
+                      label="Fuel Cost"
+                      value={
+                        <AnimatedNumber
+                          value={routeBuilt ? smartFuel : baseFuel}
+                          decimals={2}
+                          prefix="€"
+                        />
+                      }
+                      sub={`Was: €${
+                        routeBuilt ? baseFuel.toFixed(2) : baseFuel.toFixed(2)
+                      }`}
+                    />
+
+                    <MetricCard
+                      icon={CloudRain}
+                      label="CO₂"
+                      value={
+                        <AnimatedNumber
+                          value={routeBuilt ? smartCo2 : baseCo2}
+                          decimals={1}
+                          suffix=" kg"
+                        />
+                      }
+                      sub={`Was: ${
+                        routeBuilt ? baseCo2.toFixed(1) : baseCo2.toFixed(1)
+                      } kg`}
+                    />
+
+                    <MetricCard
+                      icon={Clock}
+                      label="Route Time"
+                      value={
+                        <AnimatedNumber
+                          value={
+                            routeBuilt
+                              ? Math.round(smartMin)
+                              : Math.round(baseMin)
+                          }
+                          suffix=" min"
+                        />
+                      }
+                      sub={`Was: ${Math.round(baseMin)} min`}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="rounded-xl border border-slate-200/80 bg-white p-4 space-y-3">
@@ -455,43 +491,45 @@ export default function InteractiveMailGridPreview() {
                   <span>500</span>
                 </div>
 
-                {/* Исправлен блок с цифрами калькулятора флота для корректного отображения на мобильных */}
-                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-                  <div className="rounded-lg bg-emerald-50/70 border border-emerald-200/70 px-2 py-2.5 sm:px-2.5">
-                    <div className="text-base sm:text-lg font-black text-emerald-700 leading-none truncate">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="col-span-full sm:col-span-1 rounded-lg bg-emerald-50/70 border border-emerald-200/70 px-3 py-2.5">
+                    <div className="text-xl sm:text-2xl font-bold tabular-nums text-emerald-700 leading-none">
                       <AnimatedNumber
                         value={annualSavings}
                         prefix="€"
                         duration={450}
                       />
                     </div>
-                    <div className="text-[9px] sm:text-[10px] font-semibold text-emerald-800/80 mt-1.5 leading-tight">
+                    <div className="text-[10px] sm:text-[11px] font-semibold text-emerald-800/80 mt-1.5 leading-tight">
                       Annual savings
                     </div>
                   </div>
-                  <div className="rounded-lg bg-slate-50 border border-slate-200/70 px-2 py-2.5 sm:px-2.5">
-                    <div className="text-base sm:text-lg font-black text-slate-800 leading-none truncate">
-                      <AnimatedNumber
-                        value={annualCo2Tons}
-                        decimals={1}
-                        suffix=" t"
-                        duration={450}
-                      />
+
+                  <div className="grid grid-cols-2 sm:contents gap-2">
+                    <div className="rounded-lg bg-slate-50 border border-slate-200/70 px-3 py-2.5">
+                      <div className="text-xl sm:text-2xl font-bold tabular-nums text-slate-800 leading-none">
+                        <AnimatedNumber
+                          value={annualCo2Tons}
+                          decimals={1}
+                          suffix=" t"
+                          duration={450}
+                        />
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500 mt-1.5 leading-tight">
+                        Annual CO₂ reduction
+                      </div>
                     </div>
-                    <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 mt-1.5 leading-tight">
-                      Annual CO₂ reduction
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-slate-50 border border-slate-200/70 px-2 py-2.5 sm:px-2.5">
-                    <div className="text-base sm:text-lg font-black text-slate-800 leading-none truncate">
-                      <AnimatedNumber
-                        value={annualHours}
-                        suffix=" h"
-                        duration={450}
-                      />
-                    </div>
-                    <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 mt-1.5 leading-tight">
-                      Driver hours saved
+                    <div className="rounded-lg bg-slate-50 border border-slate-200/70 px-3 py-2.5">
+                      <div className="text-xl sm:text-2xl font-bold tabular-nums text-slate-800 leading-none">
+                        <AnimatedNumber
+                          value={annualHours}
+                          suffix=" h"
+                          duration={450}
+                        />
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500 mt-1.5 leading-tight">
+                        Driver hours saved
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -503,10 +541,11 @@ export default function InteractiveMailGridPreview() {
               </div>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+            {/* Изменен контейнер кнопок на вертикальный стек с одинаковой шириной и высотой (w-full h-12) */}
+            <div className="pt-1 flex flex-col gap-2.5">
               <button
                 onClick={handleToggleRoute}
-                className={`flex-1 h-12 flex items-center justify-center gap-2 font-bold text-sm rounded-xl transition-all cursor-pointer shadow-md active:scale-[0.99] ${
+                className={`w-full h-12 flex items-center justify-center gap-2 font-bold text-sm rounded-xl transition-all cursor-pointer shadow-md active:scale-[0.99] ${
                   routeBuilt
                     ? "bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-slate-900/5"
                     : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25 animate-pulse"
@@ -525,7 +564,7 @@ export default function InteractiveMailGridPreview() {
 
               <button
                 onClick={handleRandomDay}
-                className={`h-12 px-5 flex items-center justify-center gap-2 font-bold text-sm rounded-xl transition-all cursor-pointer active:scale-[0.99] border ${
+                className={`w-full h-12 px-5 flex items-center justify-center gap-2 font-bold text-sm rounded-xl transition-all cursor-pointer active:scale-[0.99] border ${
                   routeBuilt
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 shadow-md shadow-emerald-600/25"
                     : "bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-300"
