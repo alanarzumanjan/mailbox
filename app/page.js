@@ -162,6 +162,117 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <section
+          id="how-it-works"
+          className="py-20 bg-slate-50 text-[#172033] font-body"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Section Header */}
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="font-headline text-sm font-bold uppercase tracking-wider text-[#172033]/60 mb-2 block">
+                How it works
+              </span>
+              <h2 className="font-headline font-black text-3xl sm:text-4xl md:text-5xl tracking-tight text-[#172033]">
+                From blind rounds to smart routes
+              </h2>
+            </div>
+            {/* Steps Grid */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  step: "01",
+                  icon: Radio,
+                  title: "Install Sensors",
+                  description:
+                    "Compact sensors in mailboxes measure how full each one is, with no changes to the boxes themselves.",
+                  showArrow: true,
+                  imageSrc: "/install-sensors.png",
+                },
+                {
+                  step: "02",
+                  icon: Cpu,
+                  title: "Collect Fill Data",
+                  description:
+                    "Fill levels are sent to our platform automatically, so you always see the real state of the network.",
+                  showArrow: true,
+                  imageSrc: "/collect-fill-data.png", 
+                },
+                {
+                  step: "03",
+                  icon: Route,
+                  title: "Plan the Route",
+                  description:
+                    "Algorithms pick the mailboxes that need a visit and build the most efficient route for each courier.",
+                  showArrow: true,
+                  imageSrc: "/plan-the-route.png", // Добавлен / в начале
+                },
+                {
+                  step: "04",
+                  icon: Truck,
+                  title: "Collect Only What's Full",
+                  description:
+                    "Couriers skip empty boxes, drive less and reach full ones before they overflow.",
+                  showArrow: false,
+                  imageSrc: "/only-whats-full.png", // Добавлен / в начале
+                },
+              ].map((item, index) => {
+                const Icon = item.icon;
+
+                return (
+                  <div
+                    key={item.step}
+                    className="bg-white border border-slate-200/80 p-6 rounded-3xl relative flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all duration-300 min-h-105"
+                  >
+                    <div>
+                      {/* Step Header: Icon & Step Number */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200/60 flex items-center justify-center text-[#172033] shadow-xs">
+                          <Icon className="w-6 h-6" />
+                        </div>
+                        <span className="font-headline font-black text-2xl text-[#0b9b70]/60">
+                          {item.step}
+                        </span>
+                      </div>
+
+                      {/* Title & Description */}
+                      <h3 className="font-headline font-bold text-lg text-[#172033] mb-2">
+                        {item.title}
+                      </h3>
+                      <p className="font-body text-[#172033]/70 text-sm leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+
+                    {/* Блок с иллюстрацией */}
+                    <div className="mt-auto flex items-center justify-center w-full min-h-40">
+                      {item.imageSrc ? (
+                        <Image
+                          src={item.imageSrc}
+                          alt={item.title}
+                          width={500}
+                          height={390}
+                          className="w-full h-auto object-contain max-h-40"
+                          priority={item.step === "01"}
+                        />
+                      ) : (
+                        <div className="w-full h-35 bg-slate-50 border border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-xs text-slate-400">
+                          Illustration Placeholder
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Arrow Connector */}
+                    {item.showArrow && (
+                      <div className="hidden lg:flex absolute -right-7 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm items-center justify-center text-slate-400">
+                        <ArrowRight className="w-4 h-4" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>{" "}
+          </div>
+        </section>
         {/* 4. How it works */}
         <HowItWorksPlatform />
         {/* 5. Pilot (replaces Pricing) */}
