@@ -594,7 +594,7 @@ function drawWorld(target) {
 }
 
 /* Engineering slide: name the parts of the module */
-var modLabs = [['tof', 'ToF distance sensor', 'stops overflow', [-0.1, 0.3, 0]], ['pcb', 'ESP32', 'Wi-Fi, reports on change', [0.62, 0.2, 0]], ['bat', '18650 battery', 'power', [-0.62, 0.02, 0]], ['cell', 'Load cell + HX711', 'weight, every letter', [0.62, -0.02, 0]]].map(function (d) {
+var modLabs = [['tof', 'Fill-level sensor', 'sensor', [-0.1, 0.3, 0]], ['pcb', 'Controller + wireless', 'data transmission', [0.62, 0.2, 0]], ['bat', 'Battery', 'power', [-0.62, 0.02, 0]], ['cell', 'Sensor mount', 'inside the existing box', [0.62, -0.02, 0]]].map(function (d) {
   var l = label('<span class="k">' + d[2] + '</span><span>' + d[1] + '</span>', 'part', function () { return hero.g.localToWorld(hero.p.obj[d[0]].position.clone().add(new THREE.Vector3(d[3][0], d[3][1], d[3][2]))); });
   l.free = true; l.el.classList.add('pin'); return l;
 });

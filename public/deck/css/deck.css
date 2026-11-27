@@ -279,3 +279,6 @@ html.nocursor,html.nocursor *{cursor:none!important}
 .g3 .member .ava{width:150px;height:150px;font-size:56px}
 .g3 .member h3{font-size:30px}
 .g3 .member p{font-size:21px}
+
+.contact{padding:18px 30px 18px 18px}
+.contact b{margin:0}

@@ -32,7 +32,7 @@ Recording: press F, N off, hide the cursor, record with OBS. The clock in N show
 | 3 | Solution | The sensor module assembles itself inside the postbox from points of light ("installing the module"), then letters start falling in; live readout; at 80% the LED blinks red and the box is "Flagged for collection" |
 | 4 | Live demonstration | Split screen, the same 10 postboxes: left conventional route (all "?"), right EmptyLess route to the 3 full ones (30 → 12 blocks = −60%). Click 1: dispatcher video, click 2: courier video (`../alert-demo.mp4`, `../courier-demo.mp4`) |
 | 5 | Business model | €65 module, €10.7k for 164 freestanding boxes, hardware + SaaS, payback measured in the pilot |
-| 6 | Engineering | Module close-up with labelled parts (load cell + HX711, ToF, ESP32, 18650); click 1: exploded view, the labels follow the parts; click 2: back together |
+| 6 | Engineering | Module close-up with labelled parts (fill-level sensor, controller + wireless, battery, mount); click 1: exploded view, the labels follow the parts; click 2: back together |
 | 7 | Team | Six people and roles |
 | 8 | Pilot | Schematic map of Riga with the five pilot districts; what we will measure |
 | 9 | Vision | Waste containers, textile and battery points join the postboxes; everything links to one hub |
@@ -53,16 +53,8 @@ After editing `index.html`, run `./make-dark.sh`.
 ## Numbers (from Kira's pitch script)
 547 postboxes, 164 freestanding · 112 planned / 83 removed in 2025 · 20–25 km/h in city traffic · fuel ~€2/l · courier €11.87/h · ~2.7 kg CO₂ per litre · letter mail −25% in two years · module ~€65 in components, excl. VAT · 164 × €65 ≈ €10.7k · flagged at 80% · demo: 10 boxes, ~45 min, 3 full, route −60%.
 
-## Placeholders (press E in the deck)
-| Slide | What |
-|---|---|
-| 5 Business | SaaS subscription price |
-| 8 Pilot | pilot duration (script says 4 weeks; parts and assembly come before that) |
-| 3 Solution | prototype text from the prototype team (notes only) |
-
-Team (slide 7): photos live in `assets/team/` (square, ~360×360 jpg). To add one, save it as e.g. `assets/team/kira.jpg` and add `data-photo="assets/team/kira.jpg"` to that person's `<div class="ava">` in `index.html`, then run `./make-dark.sh`. Without a photo the initial is shown. Done: Alan, Alisa.
-Closing slide: QR code `assets/qr-email.jpg` (opens mail to emptylessteam@gmail.com).
-Product name: `EmptyLess` (as in the site header). To rename, replace it in `index.html` and run `./make-dark.sh`.
+## Source of truth
+Structure and every number on the slides come from Kira's pitch script (see `SCRIPT.md`). If the script changes, change the slides to match it — not the other way round. Only stage notes in the voiceover (in square brackets) are not spoken; the prototype team adds their part to slide 3's notes, and Kira inserts the prototype video in the edit.
 
 ## Structure
 - `index.html`: slides; each `<section>` has `data-view` / `data-views` (3D camera per step) and `<aside class="notes">` (voiceover)
