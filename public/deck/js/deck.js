@@ -32,6 +32,9 @@ function wrapWords(el) {
 }
 $$('.slide h1, .slide h2').forEach(wrapWords);
 
+/* team photos: <div class="ava" data-photo="assets/team/name.jpg"> — the initial stays if the file is missing */
+$$('.ava[data-photo]').forEach(function (a) { var im = new Image(); im.onload = function () { a.style.backgroundImage = 'url("' + a.dataset.photo + '")'; a.classList.add('ph'); }; im.src = a.dataset.photo; });
+
 /* the cursor hides itself when the mouse rests (for screen recording) */
 var curT = null;
 addEventListener('mousemove', function () { root.classList.remove('nocursor'); clearTimeout(curT); curT = setTimeout(function () { root.classList.add('nocursor'); }, 1800); });

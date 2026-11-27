@@ -60,7 +60,8 @@ After editing `index.html`, run `./make-dark.sh`.
 | 8 Pilot | pilot duration (script says 4 weeks; parts and assembly come before that) |
 | 3 Solution | prototype text from the prototype team (notes only) |
 
-Team (slide 7): check the names and roles before recording.
+Team (slide 7): photos live in `assets/team/` (square, ~360×360 jpg). To add one, save it as e.g. `assets/team/kira.jpg` and add `data-photo="assets/team/kira.jpg"` to that person's `<div class="ava">` in `index.html`, then run `./make-dark.sh`. Without a photo the initial is shown. Done: Alan, Alisa.
+Closing slide: QR code `assets/qr-email.jpg` (opens mail to emptylessteam@gmail.com).
 Product name: `EmptyLess` (as in the site header). To rename, replace it in `index.html` and run `./make-dark.sh`.
 
 ## Structure
