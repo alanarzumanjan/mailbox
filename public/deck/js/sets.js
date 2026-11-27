@@ -126,7 +126,7 @@ function updateMap(dt, t) {
   for (var i = 0; i < NDOT; i++) {
     var d = dots[i], s = clamp((mt * 1.4 - d.d * 0.35) * 2, 0, 1), c;
     s = s * s * (3 - 2 * s);
-    c = T.dotFree; var sz = 1;   // every postbox the same: black (white in the dark theme)
+    c = T.dotFree; var sz = 0.85;   // every postbox the same: black (white in the dark theme)
     if (v.map === 'risk' && d.removed) {
       // removed boxes: a short pulse, then they vanish one after another
       var rt = STATIC ? 9 : C.viewT(), at = 0.6 + d.rk * 1.6;
@@ -256,9 +256,9 @@ var grid = new THREE.Mesh(new THREE.PlaneGeometry(260, 260), gridMat); grid.rota
 /* ================= theme + frame ================= */
 S.hook('theme', function (T) {
   var dark = T.name === 'dark';
-  T.dotA = dark ? 0x8fa3c0 : 0x6b7a90; T.dotB = dark ? 0x52627e : 0xb7c1cf; T.dotFree = dark ? 0xffffff : 0x172033;
+  T.dotA = dark ? 0x8fa3c0 : 0x6b7a90; T.dotB = dark ? 0x52627e : 0xb7c1cf; T.dotFree = dark ? 0x8a9bb8 : 0x8794a8;   // soft slate: visible, not an accent
   seaMat.color.setHex(dark ? 0x121a2a : 0xdfe8f1); landMat.color.setHex(dark ? 0x22304a : 0xffffff);
-  edgeMat.color.setHex(dark ? 0x8fa3c0 : 0x172033);
+  edgeMat.color.setHex(dark ? 0x8fa3c0 : 0x9aa6b8);
   puffs.forEach(function (p) { p.material.color.setHex(dark ? 0x8794aa : 0xb9c2cd); });
   arcMat.opacity = dark ? 0.6 : 0.45; pulseMat.color.setHex(dark ? 0xffffff : ACC);
   beamMat.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending; beamMat.uniforms.uA.value = dark ? 0.75 : 0.5; beamMat.needsUpdate = true;
