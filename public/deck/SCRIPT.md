@@ -32,7 +32,7 @@ Behind EmptyLess is a multidisciplinary team in engineering, robotics, data scie
 
 ## 8. Pilot — 4:38
 
-We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one practical step: a pilot with 30 to 50 postboxes across five districts of Riga: Purvciems, Pļavnieki, Imanta, Āgenskalns and Zolitūde. [click] Latvijas Pasts gets sensors in these postboxes, a live dashboard, optimised collection routes, and a report on how often the boxes are actually empty. That gives the evidence to decide whether EmptyLess should be scaled across the national network.
+We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one practical step: a pilot with 30 to 50 postboxes across five districts of Riga: Purvciems, Pļavnieki, Imanta, Āgenskalns and Zolitūde. [click] Latvijas Pasts gets sensors in these postboxes, a live dashboard, optimised collection routes, a report on how often the boxes are actually empty, and the savings measured on real routes: kilometres, fuel and courier hours. That gives the evidence to decide whether EmptyLess should be scaled across the national network.
 
 ## 9. Vision — 5:08
 
