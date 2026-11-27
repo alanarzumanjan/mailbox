@@ -32,7 +32,7 @@ We designed EmptyLess for Latvian conditions: low temperatures, moisture and roa
 
 ## 8. Team — 4:36
 
-Behind EmptyLess is a multidisciplinary team in engineering, robotics, data science, software development and business analysis. We cover the whole solution, from sensor installation and data collection to backend, interfaces and route optimisation. We know that technology has to fit real operational processes and the people who use it. [click] We are ready to take responsibility for the next stage: integration and pilot testing.
+[click × 6 while speaking: each teammate is highlighted in turn, Kira → Ksenia] Behind EmptyLess is a multidisciplinary team in engineering, robotics, data science, software development and business analysis. We cover the whole solution, from sensor installation and data collection to backend, interfaces and route optimisation. We know that technology has to fit real operational processes and the people who use it. We are ready to take responsibility for the next stage: integration and pilot testing.
 
 ## 9. Pilot — 5:04
 

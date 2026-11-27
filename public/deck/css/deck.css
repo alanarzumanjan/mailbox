@@ -354,3 +354,10 @@ html[data-theme=light] .pi{background:#f3f6f8}
 .team .member.hl{opacity:1;transform:scale(1.08);border-color:var(--acc);box-shadow:0 0 0 4px var(--acc-soft),var(--shadow);z-index:2}
 .team .member .ava{transition:transform .6s cubic-bezier(.2,.8,.2,1)}
 .team .member.hl .ava{transform:scale(1.06)}
+/* team: click-driven highlight (no fade-in) */
+.team .member{transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .55s,box-shadow .55s,border-color .55s;position:relative}
+.team:has(.hl) .member{opacity:.6;transform:none}
+.team .member.hl{opacity:1;transform:scale(1.22);z-index:3;border-color:var(--acc);box-shadow:0 0 0 5px var(--acc-soft),0 30px 70px rgba(10,16,30,.28);background:var(--bg)}
+.team .member.hl .ava{transform:none}
+.team .member:nth-child(1){transform-origin:left top}.team .member:nth-child(2){transform-origin:center top}.team .member:nth-child(3){transform-origin:right top}
+.team .member:nth-child(4){transform-origin:left bottom}.team .member:nth-child(5){transform-origin:center bottom}.team .member:nth-child(6){transform-origin:right bottom}
