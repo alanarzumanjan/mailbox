@@ -255,3 +255,9 @@ svg.riga .d circle.core{fill-opacity:1;stroke:none;animation:none}
 .member .ava{width:64px;height:64px;font-size:28px;margin-bottom:12px}
 
 .tagl.q{padding:4px 12px;font-size:calc(18px * var(--s) + 6px);color:var(--mute)}
+
+/* headline words rise out of a mask */
+.wm{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
+.wi{display:inline-block;transform:translateY(105%);transition:transform .9s cubic-bezier(.2,.75,.15,1)}
+.slide.on .wi{transform:none;transition-delay:calc(.25s + var(--w) * .07s)}
+html.nocursor,html.nocursor *{cursor:none!important}

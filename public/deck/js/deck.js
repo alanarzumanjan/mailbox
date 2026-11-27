@@ -11,6 +11,31 @@ var cur = -1, step = 0, t0 = null;
 
 if (STATIC) { var st = document.createElement('style'); st.textContent = '*,*::before,*::after{transition:none!important}#help{display:none}'; document.head.appendChild(st); }
 
+/* headlines come in word by word (each word slides up out of a mask) */
+function wrapWords(el) {
+  var n = 0;
+  (function walk(node) {
+    [].slice.call(node.childNodes).forEach(function (c) {
+      if (c.nodeType === 3) {
+        var parts = c.textContent.split(/(\s+)/), frag = document.createDocumentFragment();
+        parts.forEach(function (t) {
+          if (!t) return;
+          if (/^\s+$/.test(t)) { frag.appendChild(document.createTextNode(t)); return; }
+          var w = document.createElement('span'); w.className = 'wm';
+          var i = document.createElement('span'); i.className = 'wi'; i.style.setProperty('--w', n++); i.textContent = t;
+          w.appendChild(i); frag.appendChild(w);
+        });
+        node.replaceChild(frag, c);
+      } else if (c.nodeType === 1 && c.tagName !== 'BR') walk(c);
+    });
+  })(el);
+}
+$$('.slide h1, .slide h2').forEach(wrapWords);
+
+/* the cursor hides itself when the mouse rests (for screen recording) */
+var curT = null;
+addEventListener('mousemove', function () { root.classList.remove('nocursor'); clearTimeout(curT); curT = setTimeout(function () { root.classList.add('nocursor'); }, 1800); });
+
 slides.forEach(function (s) {
   var i = document.createElement('i'); i.appendChild(document.createElement('b')); segs.appendChild(i);
   $$('[data-st]', s).forEach(function (e) { e.classList.add('st'); });

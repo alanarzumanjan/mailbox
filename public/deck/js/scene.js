@@ -107,6 +107,10 @@ function postbox(hero) {
     parts.freeH = (y0 + BH - 0.06 - 0.0075) - parts.plateY;   // what the distance sensor sees when empty
     parts.module = [cell, plate, pcb, chip, bat, tof];
     parts.at = { cell: cell.position.clone(), pcb: pcb.position.clone(), bat: bat.position.clone(), tof: tof.position.clone() };
+    parts.obj = { cell: cell, pcb: pcb, bat: bat, tof: tof };
+    // exploded view (Engineering): every part flies out towards the viewer, then snaps back
+    parts.explode = [[cell, [0.05, -0.18, 0.75]], [plate, [0, -0.06, 0.55]], [pcb, [0.42, 0.12, 0.7]], [chip, [0.42, 0.12, 0.7]], [bat, [-0.46, 0.08, 0.62]], [tof, [0, 0.36, 0.6]]]
+      .map(function (e) { return { m: e[0], base: e[0].position.clone(), off: new THREE.Vector3(e[1][0], e[1][1], e[1][2]) }; });
     [[BW - 0.12, BH - 0.12, 0.01, 0, cy, -BD / 2 + 0.055], [0.01, BH - 0.12, BD - 0.1, -BW / 2 + 0.055, cy, 0], [0.01, BH - 0.12, BD - 0.1, BW / 2 - 0.055, cy, 0], [BW - 0.12, 0.01, BD - 0.1, 0, y0 + 0.055, 0]]
       .forEach(function (p) { var m = box(p[0], p[1], p[2], M.lining); m.position.set(p[3], p[4], p[5]); g.add(m); });
   }
@@ -201,6 +205,10 @@ var vb = rbox(1.5, 0.85, 0.8, 0.12, M.van); vb.position.set(-0.1, 0.62, 0); van.
 var vc = rbox(0.55, 0.6, 0.78, 0.12, M.van); vc.position.set(0.85, 0.5, 0); van.add(vc);
 var ws = box(0.04, 0.32, 0.66, M.dark); ws.position.set(1.12, 0.62, 0); van.add(ws);
 var vs = box(1.52, 0.1, 0.82, M.acc); vs.position.set(-0.1, 0.45, 0); van.add(vs);
+var vanHead = std(0xffffff, 0.3, 0, { emissive: 0xfff3d6, emissiveIntensity: 1 });
+[0.26, -0.26].forEach(function (z) { var h = box(0.03, 0.08, 0.14, vanHead); h.position.set(1.13, 0.4, z); h.castShadow = false; van.add(h); });
+var vanBrake = std(0xff3b30, 0.4, 0, { emissive: 0xff2a1f, emissiveIntensity: 1.2 });
+[0.3, -0.3].forEach(function (z) { var h = box(0.03, 0.1, 0.1, vanBrake); h.position.set(-0.86, 0.6, z); h.castShadow = false; van.add(h); });
 [[-0.55, 0.35], [-0.55, -0.35], [0.75, 0.35], [0.75, -0.35]].forEach(function (p) { var wh = mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.14, 16), M.dark); wh.rotation.x = Math.PI / 2; wh.position.set(p[0], 0.18, p[1]); van.add(wh); });
 van.scale.setScalar(1.15); scene.add(van);
 var vanU = 0;
@@ -308,14 +316,15 @@ var VIEWS = {
   cityAll:    { grp: 'city', pos: [8, 48, 52], tgt: [2, 0, -2], ox: 0.0, shade: 0.55, shadeL: 0.6, route: 'all', status: 'unknown', bars: 0, vanOn: 1 },
   cityStatus: { grp: 'city', pos: [24, 50, 48], tgt: [4, 0, -2], ox: 0.3, shade: 0, shadeL: 1, route: 'none', status: 'known', bars: 1, labs: 'full', rings: 1 },
   cityFull:   { grp: 'city', pos: [22, 52, 50], tgt: [4, 0, -2], ox: 0.3, shade: 0, shadeL: 1, route: 'full', status: 'known', bars: 1, vanOn: 1, labs: 'full', rings: 1 },
-  cityHigh:   { grp: 'city', pos: [0, 62, 44], tgt: [0, 0, 0], ox: 0, shade: 0.62, shadeL: 0.5, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1 },
+  cityHigh:   { beams: 1, grp: 'city', pos: [0, 62, 44], tgt: [0, 0, 0], ox: 0, shade: 0.62, shadeL: 0.5, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1 },
   cityPilot:  { grp: 'city', pos: [12, 36, 34], tgt: [-6, 0, -6], ox: 0.24, shade: 0, shadeL: 1, route: 'full', status: 'known', bars: 1, vanOn: 1, pilot: 1, labs: 'pilot', rings: 1 },
   cityFar:    { grp: 'city', pos: [34, 70, 70], tgt: [-2, 4, -4], ox: 0.24, shade: 0, shadeL: 1, route: 'full', status: 'known', bars: 1, vanOn: 1, pulse: 1, orbit: 1, cloud: 'giant', rings: 1 }
 };
-VIEWS.install = { grp: 'box', pos: [HX + 1.7, 2.0, HZ - 4.3], tgt: [HX, 1.1, HZ], ox: 0.2, shade: 0, shadeL: 1, cut: 1, letters: 0, route: 'none', status: 'live', cloud: 'install' };
+VIEWS.install = { heroLab: 1, ring: 1, grp: 'box', pos: [HX + 1.7, 2.0, HZ - 4.3], tgt: [HX, 1.1, HZ], ox: 0.2, shade: 0, shadeL: 1, cut: 1, letters: 1, route: 'none', status: 'live', cloud: 'install' };
 VIEWS.module = { grp: 'box', pos: [HX + 1.95, 1.9, HZ - 4.3], tgt: [HX, 1.05, HZ], ox: 0.2, shade: 0, shadeL: 1, cut: 1, letters: 0, route: 'none', status: 'live', modLabs: 1 };
 VIEWS.split = { fog: [220, 420], grp: 'city', pos: [-4, 112, 34], tgt: [-4, 0, -21], ox: 0, shade: 0, shadeL: 0, shadeT: 1, split: 1, route: 'demo', status: 'demo', vanOn: 1 };
 VIEWS.splitDim = { fog: [220, 420], grp: 'city', pos: [-4, 112, 34], tgt: [-4, 0, -21], ox: 0, shade: 0.55, shadeL: 0, shadeT: 1, split: 1, route: 'demo', status: 'demo', vanOn: 1 };
+VIEWS.moduleX = {}; for (var mk in VIEWS.module) VIEWS.moduleX[mk] = VIEWS.module[mk]; VIEWS.moduleX.explode = 1; VIEWS.moduleX.pos = [HX + 2.9, 2.35, HZ - 6.0];
 var hooks = { frame: [], enter: [], theme: [], side: [] };
 S.hook = function (kind, fn) { hooks[kind].push(fn); if (kind === 'theme') fn(T); };
 S.addViews = function (o) { for (var k in o) VIEWS[k] = o[k]; };
@@ -416,13 +425,13 @@ function makePost() {
     var P = { main: rt(true), a: rt(), b: rt(), c: rt(), d: rt() };
     var VS = 'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}';
     function mat(fs, u) { u.tA = { value: null }; u.px = { value: new THREE.Vector2() }; return new THREE.ShaderMaterial({ uniforms: u, vertexShader: VS, fragmentShader: 'varying vec2 vUv;uniform sampler2D tA;uniform vec2 px;' + fs, depthTest: false, depthWrite: false }); }
-    P.bright = mat('uniform float th;void main(){vec3 c=texture2D(tA,vUv).rgb;float l=max(c.r,max(c.g,c.b));gl_FragColor=vec4(c*smoothstep(th,th+0.35,l),1.0);}', { th: { value: 0.78 } });
+    P.bright = mat('uniform float th;void main(){vec3 c=texture2D(tA,vUv).rgb;if(!(c.r>=0.0&&c.g>=0.0&&c.b>=0.0&&c.r<1e4&&c.g<1e4&&c.b<1e4))c=vec3(0.0);c=min(c,vec3(6.0));float l=max(c.r,max(c.g,c.b));gl_FragColor=vec4(c*smoothstep(th,th+0.35,l),1.0);}', { th: { value: 0.78 } });
     P.blur = mat('uniform vec2 dir;void main(){vec2 o=dir*px;vec3 s=texture2D(tA,vUv).rgb*0.227;' +
       's+=(texture2D(tA,vUv+o*1.38).rgb+texture2D(tA,vUv-o*1.38).rgb)*0.316;s+=(texture2D(tA,vUv+o*3.23).rgb+texture2D(tA,vUv-o*3.23).rgb)*0.07;gl_FragColor=vec4(s,1.0);}', { dir: { value: new THREE.Vector2(1, 0) } });
     P.copy = mat('void main(){gl_FragColor=texture2D(tA,vUv);}', {});
     P.comp = mat('uniform sampler2D tB,tC;uniform float s1,s2,vig,grain,t;' +
       'float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}' +
-      'void main(){vec3 c=texture2D(tA,vUv).rgb+texture2D(tB,vUv).rgb*s1+texture2D(tC,vUv).rgb*s2;' +
+      'void main(){vec3 c=texture2D(tA,vUv).rgb;if(!(c.r>=0.0&&c.g>=0.0&&c.b>=0.0&&c.r<1e4))c=vec3(0.0);c+=texture2D(tB,vUv).rgb*s1+texture2D(tC,vUv).rgb*s2;' +
       'float v=smoothstep(1.05,0.25,length((vUv-0.5)*vec2(1.25,1.0)));c*=mix(1.0,v,vig);' +
       'c+=(h(vUv*1000.0+t)-0.5)*grain;gl_FragColor=vec4(c,1.0);}',
       { tB: { value: null }, tC: { value: null }, s1: { value: 0.85 }, s2: { value: 0.9 }, vig: { value: 0.38 }, grain: { value: 0.022 }, t: { value: 0 } });
@@ -453,7 +462,7 @@ if (!NOFX) post = makePost();
 var clock = new THREE.Clock(), tmp = new THREE.Vector3(), tmpT = new THREE.Vector3(), elapsed = 0;
 
 function updateHero(dt) {
-  var s = heroState, active = !!view.letters;
+  var s = heroState, active = !!view.letters && cloudMode !== 'install';
   if (!active) { s.n = 0; s.phase = 'fill'; s.t = 0; s.born = []; }
   s.clock += dt;
   if (active && !STATIC) {
@@ -485,7 +494,7 @@ function updateHero(dt) {
   var fill = Math.min(1, BASE[landed] / STACK_MAX), full = fill >= FULL_FILL && s.phase !== 'collect';
   hero.p.led.color.setHex(full ? FULL : ACC); hero.p.led.emissive.setHex(full ? FULL : ACC);
   hero.liveFill = s.phase === 'collect' ? 0 : fill; hero.liveFull = full;
-  var st = s.phase === 'collect' ? '<span class="st">Collected ✓</span>' : full ? '<span class="st">Full · pickup requested</span>' : '<span class="st">Has space</span>';
+  var st = s.phase === 'collect' ? '<span class="st">Collected ✓</span>' : full ? '<span class="st">Flagged for collection</span>' : '<span class="st">Has space</span>';
   heroLab.inner.className = 'tagl big' + (full ? ' full' : '');
   heroLab.inner.innerHTML = '<span class="k">Box LV-0142 · live</span><span>' + (s.phase === 'collect' ? 0 : landed) + ' letters · ' + (s.phase === 'collect' ? 0 : grams) + ' g · ' + Math.round(hero.liveFill * 100) + '%</span>' + st;
 }
@@ -587,7 +596,7 @@ function drawWorld(target) {
 
 /* Engineering slide: name the parts of the module */
 var modLabs = [['tof', 'ToF distance sensor', 'stops overflow', [-0.1, 0.3, 0]], ['pcb', 'ESP32', 'Wi-Fi, reports on change', [0.62, 0.2, 0]], ['bat', '18650 battery', 'power', [-0.62, 0.02, 0]], ['cell', 'Load cell + HX711', 'weight, every letter', [0.62, -0.02, 0]]].map(function (d) {
-  var l = label('<span class="k">' + d[2] + '</span><span>' + d[1] + '</span>', 'part', function () { return hero.g.localToWorld(hero.p.at[d[0]].clone().add(new THREE.Vector3(d[3][0], d[3][1], d[3][2]))); });
+  var l = label('<span class="k">' + d[2] + '</span><span>' + d[1] + '</span>', 'part', function () { return hero.g.localToWorld(hero.p.obj[d[0]].position.clone().add(new THREE.Vector3(d[3][0], d[3][1], d[3][2]))); });
   l.free = true; l.el.classList.add('pin'); return l;
 });
 
@@ -609,6 +618,9 @@ function frame() {
   hero.p.skin.forEach(function (m) { m.visible = cur.cut < 0.5; });
   updateHero(dt);
   updateCloud(dt);
+  cur.explode = lerp(cur.explode || 0, view.explode || 0, STATIC ? 1 : ease(dt, 2.6));
+  var ex = cur.explode * cur.explode * (3 - 2 * cur.explode);
+  hero.p.explode.forEach(function (e, i) { e.m.position.copy(e.base).addScaledVector(e.off, ex); e.m.rotation.y = ex * (i % 2 ? 0.25 : -0.25); });
 
   // routes reveal
   [[tubeAll, view.route === 'all'], [tubeFull, view.route === 'full'], [tubeConv, view.route === 'demo'], [tubeOpt, view.route === 'demo']].forEach(function (r) {
@@ -647,6 +659,7 @@ function frame() {
     var hide = view.pilot && !inPilot(b) ? 0.25 : 1;
     b.p.bar.scale.y = Math.max(0.001, cur.bars * (0.15 + fill * 2.2) * pulse * hide); b.p.bar.visible = cur.bars > 0.02;
     b.p.barMat.color.setHex(full ? FULL : ACC); b.p.barMat.emissive.setHex(full ? FULL : ACC);
+    b.p.led.emissiveIntensity = full && view.status !== 'unknown' ? T.led * (0.55 + 0.45 * Math.sin(elapsed * 6 + i)) : T.led;
     // rings: full boxes call the dispatcher
     var ringOn = full && view.status !== 'unknown' && ((view.rings && !b.hero) || (view.ring && b.hero)) && hide === 1;
     var ph = (elapsed * 0.45 + i * 0.37) % 1, rs = b.hero ? 0.5 : 1;

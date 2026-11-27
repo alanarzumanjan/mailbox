@@ -133,7 +133,7 @@ function updateMap(dt, t) {
       c = FULL; sz = 1.5 * blink * clamp(1 - (rt - 2.2) / 1.2, 0, 1);
     }
     colA.setHex(c); inst.setColorAt(i, colA);
-    vP.set(d.x, 0.75, d.z); vS.setScalar(Math.max(0.0001, s * sz)); mtx.compose(vP, qI, vS); inst.setMatrixAt(i, mtx);
+    vP.set(d.x, 0.75 + (1 - s) * 14, d.z); vS.setScalar(Math.max(0.0001, Math.min(1, s * 1.5) * sz)); mtx.compose(vP, qI, vS); inst.setMatrixAt(i, mtx);
   }
   inst.instanceMatrix.needsUpdate = true; if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
   var a = t * 0.35, rx = px(24.11) + Math.cos(a) * 1.6, rz = pz(56.95) + Math.sin(a * 1.3) * 1.0;
@@ -190,9 +190,59 @@ function updateNet(dt, t) {
   hubRing.rotation.z = t * 0.6; hubRing.scale.setScalar(1 + Math.sin(t * 2) * 0.08);
 }
 S.addViews({
-  network: { grp: 'city', pos: [30, 58, 62], tgt: [-2, 4, -4], ox: 0.26, shade: 0, shadeL: 1, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1, orbit: 1, net: 1 },
-  pilotBg: { grp: 'city', pos: [0, 62, 44], tgt: [0, 0, 0], ox: 0, shade: 0.8, shadeL: 0.6, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1 }
+  network: { beams: 1, grp: 'city', pos: [30, 58, 62], tgt: [-2, 4, -4], ox: 0.26, shade: 0, shadeL: 1, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1, orbit: 1, net: 1 },
+  pilotBg: { beams: 1, grp: 'city', pos: [0, 62, 44], tgt: [0, 0, 0], ox: 0, shade: 0.8, shadeL: 0.6, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1 }
 });
+
+/* ================= ATMOSPHERE ================= */
+// 1) uplink beams: a full box sends its data up as packets of light
+var beamMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  uniforms: { uT: { value: 0 }, uC: { value: new THREE.Color(ACC) }, uA: { value: 0.6 } },
+  vertexShader: 'varying float vY;void main(){vY=uv.y;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader: 'uniform float uT,uA;uniform vec3 uC;varying float vY;void main(){float y=clamp(vY,0.0,1.0);float base=pow(max(1.0-y,0.0),2.2);float pk=smoothstep(0.82,1.0,fract(y*5.0-uT*1.4));gl_FragColor=vec4(uC*(1.0+pk),clamp((base*0.55+pk*(1.0-y)*0.9)*uA,0.0,1.0));}'
+});
+var beamG = new THREE.CylinderGeometry(0.16, 0.16, 16, 12, 1, true); beamG.translate(0, 8, 0);
+var beams = C.boxes.map(function (b) { var m = new THREE.Mesh(beamG, beamMat); m.position.copy(b.pos); m.visible = false; m.frustumCulled = false; scene.add(m); return m; });
+function beamsOn(side) {
+  var v = C.view();
+  C.boxes.forEach(function (b, i) {
+    var on = b.full && b.g.visible && ((v.beams && !v.split) || (v.split && side === 2 && b.demo));
+    beams[i].visible = on; beams[i].scale.set(v.split ? 2.2 : 1, 1, v.split ? 2.2 : 1);
+  });
+}
+S.hook('side', beamsOn);
+
+// 2) dust in the air
+var DUST = 2600, dpos = new Float32Array(DUST * 3), dseed = new Float32Array(DUST);
+for (var di = 0; di < DUST; di++) {
+  var near = di < 900;
+  dpos[di * 3] = near ? 1.75 + (rnd() - 0.5) * 12 : (rnd() - 0.5) * 70;
+  dpos[di * 3 + 1] = near ? rnd() * 5 : rnd() * 16;
+  dpos[di * 3 + 2] = near ? 1.75 + (rnd() - 0.5) * 12 : (rnd() - 0.5) * 70;
+  dseed[di] = rnd();
+}
+var dustG = new THREE.BufferGeometry(); dustG.setAttribute('position', new THREE.BufferAttribute(dpos, 3)); dustG.setAttribute('aS', new THREE.BufferAttribute(dseed, 1));
+var dustMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false,
+  uniforms: { uT: { value: 0 }, uC: { value: new THREE.Color(0xffffff) }, uA: { value: 0.5 }, uPix: { value: Math.min(devicePixelRatio || 1, 2) } },
+  vertexShader: 'attribute float aS;uniform float uT,uPix;varying float vA;void main(){vec3 p=position;p.x+=sin(uT*0.13+aS*40.0)*1.2;p.y+=mod(uT*0.08*(0.4+aS),2.0)-1.0+sin(uT*0.4+aS*9.0)*0.3;p.z+=cos(uT*0.11+aS*25.0)*1.2;' +
+    'vec4 mv=modelViewMatrix*vec4(p,1.0);gl_Position=projectionMatrix*mv;gl_PointSize=uPix*(1.2+aS*2.2)*(14.0/-mv.z);vA=0.35+0.65*sin(uT*0.7+aS*30.0)*0.5+0.5;}',
+  fragmentShader: 'uniform vec3 uC;uniform float uA;varying float vA;void main(){float d=length(gl_PointCoord-0.5);gl_FragColor=vec4(uC,smoothstep(0.5,0.0,d)*uA*vA);}'
+});
+var dust = new THREE.Points(dustG, dustMat); dust.frustumCulled = false; scene.add(dust);
+
+// 3) glowing grid on the ground with a pulse ring travelling out from the city centre
+var gridMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false,
+  uniforms: { uT: { value: 0 }, uC: { value: new THREE.Color(ACC) }, uA: { value: 1 } },
+  vertexShader: 'varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader: 'uniform float uT,uA;uniform vec3 uC;varying vec2 vP;void main(){vec2 g=abs(fract(vP/2.0-0.5)-0.5)/fwidth(vP/2.0);float line=1.0-min(min(g.x,g.y),1.0);' +
+    'float r=length(vP);float fade=1.0-smoothstep(25.0,110.0,r);float rp=mod(uT*14.0,140.0);float ring=exp(-abs(r-rp)*0.35)*(1.0-rp/140.0);' +
+    'gl_FragColor=vec4(uC,(line*0.16*fade+ring*0.55*fade*(0.3+line))*uA);}',
+  extensions: { derivatives: true }
+});
+var grid = new THREE.Mesh(new THREE.PlaneGeometry(260, 260), gridMat); grid.rotation.x = -Math.PI / 2; grid.position.y = 0.004; scene.add(grid);
 
 /* ================= theme + frame ================= */
 S.hook('theme', function (T) {
@@ -202,6 +252,13 @@ S.hook('theme', function (T) {
   edgeMat.color.setHex(dark ? 0x19c08e : ACC);
   puffs.forEach(function (p) { p.material.color.setHex(dark ? 0x8794aa : 0xb9c2cd); });
   arcMat.opacity = dark ? 0.6 : 0.45; pulseMat.color.setHex(dark ? 0xffffff : ACC);
+  beamMat.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending; beamMat.uniforms.uA.value = dark ? 0.75 : 0.5; beamMat.needsUpdate = true;
+  dustMat.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending; dustMat.uniforms.uC.value.setHex(dark ? 0xcfe9ff : 0x7a8aa3); dustMat.uniforms.uA.value = dark ? 0.55 : 0.28; dustMat.needsUpdate = true;
+  gridMat.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending; gridMat.uniforms.uC.value.setHex(dark ? 0x19c08e : 0x172033); gridMat.uniforms.uA.value = dark ? 1 : 0.35; gridMat.needsUpdate = true;
 });
-S.hook('frame', function (dt, v, t) { updateTraffic(dt, t); updateMap(dt, t); updateNet(dt, t); });
+S.hook('frame', function (dt, v, t) {
+  updateTraffic(dt, t); updateMap(dt, t); updateNet(dt, t);
+  beamMat.uniforms.uT.value = t; dustMat.uniforms.uT.value = t; gridMat.uniforms.uT.value = t;
+  beamsOn(0); dust.visible = !v.map; grid.visible = !v.map && !v.split;
+});
 })();
