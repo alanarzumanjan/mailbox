@@ -1,6 +1,6 @@
 # EmptyLess — voiceover script (EN)
 
-Kira's pitch script, split into slides; slide 7 is Ksenia's text about the prototype components. `[click]` = press → (next step). Text in square brackets that is not `[click]` is a stage note. In the deck press **N** to see this text, the planned time and a running clock.
+`[click]` = press → (next step). Text in square brackets that is not `[click]` is a stage note. In the deck press **N** to see this text, the planned time and a running clock.
 
 ## 1. Hook — 0:00
 
@@ -38,10 +38,10 @@ Behind EmptyLess is a multidisciplinary team in engineering, robotics, data scie
 
 We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one practical step: a four-week pilot with 30 to 50 postboxes across five districts of Riga: Purvciems, Pļavnieki, Imanta, Āgenskalns and Zolitūde. [click] We will measure how often couriers visit empty postboxes, sensor accuracy and reliability, unnecessary mileage, fuel use and courier time, environmental impact, and actual savings. [click] A limited investment, a controlled experiment and measurable results.
 
-## 10. Vision — 5:33
+## 10. Vision & impact — 5:33
 
-Postboxes are only the beginning. [click] The same technology can serve waste containers, textile donation points, battery recycling stations and other infrastructure that is serviced on fixed schedules, without real-time information about its actual condition. [click] EmptyLess can turn these disconnected assets into intelligent, data-driven networks. Smarter infrastructure. More efficient operations. Less waste. [click] Let us start with Latvijas Pasts. Let us start with Riga.
+Postboxes are only the beginning. [click] With real fill data, couriers drive fewer kilometres and burn less fuel, their hours go to boxes that actually have mail, and postboxes can stay where elderly residents and small communities need them, because decisions are made on data. [click] The same technology can serve waste containers, textile donation points, battery recycling stations and any infrastructure that is serviced on a fixed schedule without knowing its real condition. [click] Let us start with Latvijas Pasts in Riga, and continue to Europe.
 
 ## 11. Contact — 6:00
 
-We are EmptyLess. Thank you. [Hold this slide for a few seconds so the QR code can be scanned.]
+Stop paying to collect air. We are EmptyLess. Thank you. [Hold this slide for a few seconds so the QR code can be scanned.]

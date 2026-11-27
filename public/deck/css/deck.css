@@ -321,3 +321,30 @@ html[data-theme=light] .pi{background:#f3f6f8}
 .parts{gap:18px}
 .pgroup{padding:18px 16px 20px}
 .pi{height:350px}
+
+/* team v2: photo + name + role */
+.team{margin-top:26px}
+.team .member{grid-template-columns:170px 1fr;padding:22px 26px;align-items:center}
+.team .member .ava{grid-row:1 / span 2;width:170px;height:170px}
+.team .member h3{font-size:32px;align-self:end}
+.team .member .role{align-self:start;font-size:22px;margin-top:6px}
+/* pilot */
+.card.need{margin-top:26px;padding:22px 28px;border-left:6px solid var(--acc)}
+.card.need h3{margin:0 0 6px}.card.need p{font-size:24px;margin:0}
+/* vision impact */
+.impact{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.impact div{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 20px;box-shadow:var(--shadow)}
+.impact b{display:block;font-size:27px}.impact span{font-size:20px;color:var(--mute)}
+.assets{margin-top:16px}.assets span{font-size:22px;padding:12px 16px}
+/* closing */
+.endtxt h1{font-size:110px}
+.team{gap:26px;margin-top:34px}
+.team .member{grid-template-columns:210px 1fr;padding:26px 28px}
+.team .member .ava{width:210px;height:210px}
+.team .member .role{white-space:nowrap;font-size:20px;letter-spacing:1px}
+.g3.team{grid-template-columns:repeat(3,minmax(0,1fr))}
+.team .member{display:flex;flex-direction:row;align-items:center;gap:26px;padding:24px 26px}
+.team .member .ava{flex:none;width:200px;height:200px}
+.team .member>h3,.team .member>.role{display:none}
+.team .member .nm b{display:block;font-size:31px;line-height:1.15}
+.team .member .nm span{display:block;margin-top:10px;font-size:19px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc);line-height:1.3}
