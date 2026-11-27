@@ -380,3 +380,7 @@ html[data-theme=dark] #alarm{background:radial-gradient(ellipse at center,rgba(2
 
 /* Problem & risk: less red (team review) — no red frame or tint on the risk card */
 .card.risk{border-left:1px solid var(--line);background:var(--panel)}
+/* pilot: what Latvijas Pasts gets, as larger chips */
+.measure.gets{margin-top:34px;gap:14px}
+.measure.gets p b{font-size:26px}
+.measure.gets span{font-size:27px;padding:16px 24px;border-radius:16px;border:2px solid var(--line)}

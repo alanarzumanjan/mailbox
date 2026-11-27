@@ -1,6 +1,6 @@
 # EmptyLess — voiceover script (EN)
 
-`[click]` = press → (next step). Text in square brackets that is not `[click]` is a stage note. In the deck press **N** to see this text, the planned time and a running clock.
+`[click]` = press → (next step). Text in square brackets that is not `[click]` is a stage note. In the deck press **N** to see this text.
 
 ## 1. Hook — 0:00
 
@@ -32,7 +32,7 @@ Behind EmptyLess is a multidisciplinary team in engineering, robotics, data scie
 
 ## 8. Pilot — 4:38
 
-We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one practical step: a four-week pilot with 30 to 50 postboxes across five districts of Riga: Purvciems, Pļavnieki, Imanta, Āgenskalns and Zolitūde. [click] We will measure how often couriers visit empty postboxes, sensor accuracy and reliability, unnecessary mileage, fuel use and courier time, environmental impact, and actual savings. [click] A limited investment, a controlled experiment and measurable results.
+We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one practical step: a pilot with 30 to 50 postboxes across five districts of Riga: Purvciems, Pļavnieki, Imanta, Āgenskalns and Zolitūde. [click] Latvijas Pasts gets sensors in these postboxes, a live dashboard, optimised collection routes, and a report on how often the boxes are actually empty. That gives the evidence to decide whether EmptyLess should be scaled across the national network.
 
 ## 9. Vision — 5:08
 
