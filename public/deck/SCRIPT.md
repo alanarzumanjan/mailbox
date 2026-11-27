@@ -1,6 +1,6 @@
 # EmptyLess — voiceover script (EN)
 
-Kira's pitch script (≈5:00), split into slides. `[click]` = press → (next step). Text in square brackets that is not `[click]` is a stage note, not spoken. In the deck press **N** to see this text, the planned time and a running clock (R resets the clock).
+Kira's pitch script, split into slides; slide 7 is Ksenia's text about the prototype components. `[click]` = press → (next step). Text in square brackets that is not `[click]` is a stage note. In the deck press **N** to see this text, the planned time and a running clock.
 
 ## 1. Hook — 0:00
 
@@ -26,18 +26,22 @@ Now, the economics. [click] One module costs about €65 in components, excludin
 
 We designed EmptyLess for Latvian conditions: low temperatures, moisture and road salt. [click] The system combines physical sensors, wireless data transmission, analytics and mathematical route optimisation, with one goal: affordable, reliable and compatible with existing infrastructure. [click] We already have a working prototype that connects physical postbox monitoring with digital route planning. That lets us move from concept to real-world testing.
 
-## 7. Team — 3:38
+## 7. Components — 3:38
+
+[click] The alternative for the ultrasonic sensor was an infrared sensor, which detects an object in a certain set range. However, ultrasonic sensor was chosen since unlike an infrared sensor, which checks if something is or isn't in front of it, the ultrasonic sensor can see exactly what distance the object is from the sensor. That allows the calculation of the fill percentage of the postbox. [click] The weight sensor that was chosen has a limit of 5 kilograms, however, that can be expanded to up to 20 kilograms for the postboxes of other sizes. [click] As for the microcontroller, the Arduino UNO was used for simplified functionality, and for the final product the options were to add an additional module for the Wi-Fi or choose a controller with the inbuilt Wi-Fi capabilities. In the end, ESP32 Wi-Fi microcontroller was chosen for the final product.
+
+## 8. Team — 4:36
 
 Behind EmptyLess is a multidisciplinary team in engineering, robotics, data science, software development and business analysis. We cover the whole solution, from sensor installation and data collection to backend, interfaces and route optimisation. We know that technology has to fit real operational processes and the people who use it. [click] We are ready to take responsibility for the next stage: integration and pilot testing.
 
-## 8. Pilot — 4:05
+## 9. Pilot — 5:04
 
 We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one practical step: a four-week pilot with 30 to 50 postboxes across five districts of Riga: Purvciems, Pļavnieki, Imanta, Āgenskalns and Zolitūde. [click] We will measure how often couriers visit empty postboxes, sensor accuracy and reliability, unnecessary mileage, fuel use and courier time, environmental impact, and actual savings. [click] A limited investment, a controlled experiment and measurable results.
 
-## 9. Vision — 4:34
+## 10. Vision — 5:33
 
 Postboxes are only the beginning. [click] The same technology can serve waste containers, textile donation points, battery recycling stations and other infrastructure that is serviced on fixed schedules, without real-time information about its actual condition. [click] EmptyLess can turn these disconnected assets into intelligent, data-driven networks. Smarter infrastructure. More efficient operations. Less waste. [click] Let us start with Latvijas Pasts. Let us start with Riga.
 
-## 10. Contact — 5:00
+## 11. Contact — 6:00
 
 We are EmptyLess. Thank you. [Hold this slide for a few seconds so the QR code can be scanned.]

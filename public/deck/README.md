@@ -14,7 +14,7 @@ Static HTML + three.js r128, no build step.
 |---|---|
 | → / Space / Enter / PgDn / click | next **step** (items on a slide appear one by one), then the next slide |
 | ← / Backspace / PgUp | back one step |
-| 1–9, 0 | jump to a slide (0 = slide 10) |
+| 1–9, 0 | jump to a slide (0 = slide 10; use → for 11) |
 | F | fullscreen |
 | T | switch light ↔ dark |
 | N | voiceover text, planned time, step and a running clock |
@@ -33,10 +33,11 @@ Recording: press F, N off, hide the cursor, record with OBS. The clock in N show
 | 4 | Live demonstration | Split screen, the same 10 postboxes: left conventional route (all "?"), right EmptyLess route to the 3 full ones (30 → 12 blocks = −60%). Click 1: dispatcher video, click 2: courier video (`../alert-demo.mp4`, `../courier-demo.mp4`) |
 | 5 | Business model | €65 module, €10.7k for 164 freestanding boxes, hardware + SaaS, payback measured in the pilot |
 | 6 | Engineering | Module close-up with labelled parts (fill-level sensor, controller + wireless, battery, mount); click 1: exploded view, the labels follow the parts; click 2: back together |
-| 7 | Team | Six people and roles |
-| 8 | Pilot | Schematic map of Riga with the five pilot districts; what we will measure |
-| 9 | Vision | Waste containers, textile and battery points join the postboxes; everything links to one hub |
-| 10 | Thank you + contact | "We are EmptyLess. Thank you." and a very large QR code (mailto:emptylessteam@gmail.com); hold it a few seconds in the video |
+| 7 | Prototype components (Ksenia) | Click 1: infrared vs ultrasonic (ultrasonic chosen: exact distance → fill %). Click 2: HX711 weight sensor, 5 kg, up to 20 kg. Click 3: Arduino UNO + Wi-Fi module vs ESP32 (ESP32 chosen). Images: Fritzing parts (CC BY-SA 3.0), ESP32-DevKitC photo by Espressif (CC BY-SA 4.0) — credit line is on the slide |
+| 8 | Team | Six people and roles, with photos |
+| 9 | Pilot | Schematic map of Riga with the five pilot districts; what we will measure |
+| 10 | Vision | Waste containers, textile and battery points join the postboxes; everything links to one hub |
+| 11 | Thank you + contact | "We are EmptyLess. Thank you." and a very large QR code (mailto:emptylessteam@gmail.com); hold it a few seconds in the video |
 
 Effects: headlines rise word by word; uplink beams with data packets over full boxes; dust in the air; glowing ground grid with a pulse ring (strong in the dark theme); full boxes blink; the map's postboxes rain down from above; the cursor hides itself after ~2 s for recording. Between the box close-up, the city and the map the picture dips to the background instead of flying. The camera drifts slightly all the time. Dark theme: glow on LEDs, routes and points, a soft vignette and grain (`?nofx` turns it off).
 
