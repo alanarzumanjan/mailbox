@@ -35,6 +35,17 @@ $$('.slide h1, .slide h2').forEach(wrapWords);
 /* team photos: <div class="ava" data-photo="assets/team/name.jpg"> — the initial stays if the file is missing */
 $$('.ava[data-photo]').forEach(function (a) { var im = new Image(); im.onload = function () { a.style.backgroundImage = 'url("' + a.dataset.photo + '")'; a.classList.add('ph'); }; im.src = a.dataset.photo; });
 
+/* team slide: the cards light up one by one, first to last, then back, while the slide is open */
+var teamT = null;
+function teamTour(on) {
+  clearInterval(teamT); $$('.team .member').forEach(function (c) { c.classList.remove('hl'); });
+  var cards = $$('.slide.on .team .member'); if (!on || !cards.length || STATIC) return;
+  var seq = cards.map(function (c, i) { return i; }).concat(cards.slice(1, -1).map(function (c, i) { return cards.length - 2 - i; }));
+  var k = 0;
+  function tick() { cards.forEach(function (c, i) { c.classList.toggle('hl', i === seq[k % seq.length]); }); k++; }
+  setTimeout(function () { if (slides[cur].querySelector('.team')) { tick(); teamT = setInterval(tick, 1300); } }, 1200);
+}
+
 /* the cursor hides itself when the mouse rests (for screen recording) */
 var curT = null;
 addEventListener('mousemove', function () { root.classList.remove('nocursor'); clearTimeout(curT); curT = setTimeout(function () { root.classList.add('nocursor'); }, 1800); });
@@ -107,6 +118,7 @@ function show(n, k) {
   sec.textContent = s.dataset.sec || '';
   $$('[data-st]', s).forEach(function (e) { e.classList.remove('on'); });
   applyStep(STATIC ? nsteps(s) : Math.max(0, Math.min(k || 0, nsteps(s))), true);
+  teamTour(!!s.querySelector('.team'));
   if (history.replaceState) history.replaceState(null, '', location.pathname + location.search + '#' + (n + 1));
 }
 function next() { if (t0 === null) t0 = Date.now(); if (step < nsteps(slides[cur])) applyStep(step + 1); else if (cur < slides.length - 1) show(cur + 1, 0); }

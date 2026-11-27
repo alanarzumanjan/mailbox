@@ -348,3 +348,9 @@ html[data-theme=light] .pi{background:#f3f6f8}
 .team .member>h3,.team .member>.role{display:none}
 .team .member .nm b{display:block;font-size:31px;line-height:1.15}
 .team .member .nm span{display:block;margin-top:10px;font-size:19px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc);line-height:1.3}
+/* team tour: one card at a time grows, the others step back */
+.team .member{transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .6s,box-shadow .6s,border-color .6s}
+.team:has(.hl) .member{opacity:.55;transform:scale(.97)}
+.team .member.hl{opacity:1;transform:scale(1.08);border-color:var(--acc);box-shadow:0 0 0 4px var(--acc-soft),var(--shadow);z-index:2}
+.team .member .ava{transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.team .member.hl .ava{transform:scale(1.06)}
