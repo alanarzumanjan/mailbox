@@ -101,12 +101,13 @@ while (dots.length < NDOT) {
   if (dots.length < 340) { var r = rnd() * tw, t = TOWNS[0]; for (var ti = 0; ti < TOWNS.length; ti++) { r -= TOWNS[ti][2]; if (r <= 0) { t = TOWNS[ti]; break; } } lon = t[0] + gauss() * t[3] * 1.8; lat = t[1] + gauss() * t[3]; }
   else { lon = 20.9 + rnd() * 7.4; lat = 55.65 + rnd() * 2.45; }
   if (!inside(lon, lat)) continue;
-  dots.push({ x: px(lon), z: pz(lat), free: false, removed: false, d: Math.hypot(lon - 24.11, (lat - 56.95) * 1.8) });
+  dots.push({ x: px(lon), z: pz(lat), free: false, removed: false, d: Math.hypot(lon - 24.11, (lat - 56.95) * 1.8), h: rnd(), ph: rnd() });
 }
 var order = dots.map(function (d, i) { return i; }).sort(function () { return rnd() - 0.5; });
 order.slice(0, NFREE).forEach(function (i) { dots[i].free = true; });
 order.slice(NFREE, NFREE + NREM).forEach(function (i, k) { dots[i].removed = true; dots[i].rk = k / NREM; });
-var dotG = new THREE.SphereGeometry(0.22, 10, 8), dotM = basic(0xffffff);
+var dotG = new THREE.CylinderGeometry(0.17, 0.17, 1, 10); dotG.translate(0, 0.5, 0);
+var dotM = std(0xffffff, 0.5, 0.1, { emissive: 0x5d7196, emissiveIntensity: 0 });
 var inst = new THREE.InstancedMesh(dotG, dotM, NDOT); inst.instanceMatrix.setUsage(THREE.DynamicDrawUsage); map.add(inst);
 var colA = new THREE.Color(), mtx = new THREE.Matrix4(), qI = new THREE.Quaternion(), vP = new THREE.Vector3(), vS = new THREE.Vector3();
 // a courier van crawling through Riga
@@ -117,6 +118,15 @@ var townLabs = [['Riga', 24.11, 56.95], ['Daugavpils', 26.53, 55.88], ['Liepāja
 });
 var remRings = [], ringG2 = new THREE.RingGeometry(0.55, 0.8, 40);
 dots.forEach(function (d) { if (!d.removed) return; var m = new THREE.Mesh(ringG2, basic(FULL, { transparent: true, opacity: 0, depthWrite: false })); m.rotation.x = -Math.PI / 2; m.position.set(d.x, 0.68, d.z); m.visible = false; map.add(m); remRings.push({ m: m, ph: rnd() }); });
+var routeMat = basic(0x8794a8, { transparent: true, opacity: 0.35, depthWrite: false }), pktMat = basic(0xffffff);
+var mapRoutes = TOWNS.slice(1, 14).map(function (tw, i) {
+  var a = new THREE.Vector3(px(24.11), 0.7, pz(56.95)), b = new THREE.Vector3(px(tw[0]), 0.7, pz(tw[1]));
+  var mid = a.clone().lerp(b, 0.5); mid.y += 1.2 + a.distanceTo(b) * 0.18;
+  var curve = new THREE.QuadraticBezierCurve3(a, mid, b), g = new THREE.TubeGeometry(curve, 48, 0.07, 5, false);
+  var m = new THREE.Mesh(g, routeMat); m.userData = { total: g.index.count }; g.setDrawRange(0, 0); map.add(m);
+  var pk = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), pktMat); map.add(pk);
+  return { m: m, curve: curve, pk: pk, ph: i * 0.137, delay: 0.9 + i * 0.08 };
+});
 var mapT = 0;
 function updateMap(dt, t) {
   var v = C.view(), on = !!v.map;
@@ -133,8 +143,12 @@ function updateMap(dt, t) {
       var pop = clamp((rt - at + 0.35) / 0.35, 0, 1), gone = clamp((rt - at) / 0.45, 0, 1);
       sz = (1 + Math.sin(pop * Math.PI) * 0.9) * (1 - gone);
     }
-    colA.setHex(c); inst.setColorAt(i, colA);
-    vP.set(d.x, 0.75 + (1 - s) * 14, d.z); vS.setScalar(Math.max(0.0001, Math.min(1, s * 1.5) * sz)); mtx.compose(vP, qI, vS); inst.setMatrixAt(i, mtx);
+    // soft colour with a slow twinkle; a gentle height wave rolls out from Riga
+    var tw2 = Math.max(0, Math.sin(t * 0.9 + d.ph * 40)); tw2 = Math.pow(tw2, 24);
+    colA.setHex(c).lerp(T.dotHi, STATIC ? 0 : tw2 * 0.85); inst.setColorAt(i, colA);
+    var hgt = (0.55 + 0.35 * d.h + 0.35 * Math.max(0, Math.sin(t * 1.1 - d.d * 2.6))) * (1 + tw2 * 0.8);
+    var k2 = Math.max(0.0001, Math.min(1, s * 1.5) * sz);
+    vP.set(d.x, 0.62 + (1 - s) * 14, d.z); vS.set(k2, Math.max(0.0001, hgt * k2), k2); mtx.compose(vP, qI, vS); inst.setMatrixAt(i, mtx);
   }
   remRings.forEach(function (r) {
     r.m.visible = false;
@@ -146,6 +160,12 @@ function updateMap(dt, t) {
   var a = t * 0.35, rx = px(24.11) + Math.cos(a) * 1.6, rz = pz(56.95) + Math.sin(a * 1.3) * 1.0;
   mapVan.position.set(rx, 0.9, rz); mapVanHalo.position.set(rx, 0.66, rz); mapVanHalo.scale.setScalar(1 + (t * 0.8 % 1) * 1.5); mapVanHalo.material.opacity = 0.5 * (1 - t * 0.8 % 1);
   townLabs.forEach(function (l, i) { C.setLabel(l, mt > 0.8 + i * 0.12); });
+  mapRoutes.forEach(function (r) {
+    var k = clamp((mt - r.delay) / 1.4, 0, 1);
+    r.m.geometry.setDrawRange(0, Math.floor(r.m.userData.total * k / 3) * 3);
+    r.pk.visible = k >= 1;
+    if (r.pk.visible) r.pk.position.copy(r.curve.getPoint(STATIC ? 0.5 : (t * 0.18 + r.ph) % 1));
+  });
 }
 var MV = { fog: [160, 360], grp: 'map', pos: [X0 + 2, 82, 58], tgt: [X0 + 2, 0, 3], ox: 0.24, shade: 0, shadeL: 1, route: 'none', status: 'unknown', quiet: 1 };
 function mv(o) { var r = {}; for (var k in MV) r[k] = MV[k]; for (var j in o) r[j] = o[j]; return r; }
@@ -256,7 +276,10 @@ var grid = new THREE.Mesh(new THREE.PlaneGeometry(260, 260), gridMat); grid.rota
 /* ================= theme + frame ================= */
 S.hook('theme', function (T) {
   var dark = T.name === 'dark';
-  T.dotA = dark ? 0x8fa3c0 : 0x6b7a90; T.dotB = dark ? 0x52627e : 0xb7c1cf; T.dotFree = dark ? 0x8a9bb8 : 0x8794a8;   // soft slate: visible, not an accent
+  T.dotHi = new THREE.Color(dark ? 0xb9c9e6 : 0x3a4a66);
+  routeMat.color.setHex(dark ? 0x8fa6cc : 0x9aa6b8); routeMat.opacity = dark ? 0.6 : 0.4; pktMat.color.setHex(dark ? 0xeaf2ff : 0x6b7a90);
+  dotM.emissiveIntensity = dark ? 0.25 : 0;
+  T.dotA = dark ? 0x8fa3c0 : 0x6b7a90; T.dotB = dark ? 0x52627e : 0xb7c1cf; T.dotFree = dark ? 0x667a9c : 0x8794a8;   // soft slate: visible, not an accent
   seaMat.color.setHex(dark ? 0x121a2a : 0xdfe8f1); landMat.color.setHex(dark ? 0x22304a : 0xffffff);
   edgeMat.color.setHex(dark ? 0x8fa3c0 : 0x9aa6b8);
   puffs.forEach(function (p) { p.material.color.setHex(dark ? 0x8794aa : 0xb9c2cd); });
