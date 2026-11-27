@@ -1,0 +1,296 @@
+{
+  "boxes": [
+    {
+      "id": "MG-001",
+      "name": "Old Town",
+      "address": "Kaļķu iela 1, Riga",
+      "district": "centrs",
+      "lat": 56.9496,
+      "lng": 24.1052,
+      "weight": 1850,
+      "max": 2000,
+      "battery": 94
+    },
+    {
+      "id": "MG-002",
+      "name": "Central Station",
+      "address": "Stacijas laukums 2, Riga",
+      "district": "centrs",
+      "lat": 56.9468,
+      "lng": 24.1194,
+      "weight": 620,
+      "max": 2000,
+      "battery": 87
+    },
+    {
+      "id": "MG-003",
+      "name": "Art Nouveau Quarter",
+      "address": "Alberta iela 12, Riga",
+      "district": "centrs",
+      "lat": 56.9604,
+      "lng": 24.102,
+      "weight": 410,
+      "max": 2000,
+      "battery": 15
+    },
+    {
+      "id": "MG-004",
+      "name": "Central Market",
+      "address": "Nēģu iela 7, Riga",
+      "district": "centrs",
+      "lat": 56.9437,
+      "lng": 24.1141,
+      "weight": 260,
+      "max": 2000,
+      "battery": 98
+    },
+    {
+      "id": "MG-005",
+      "name": "Esplanāde Park",
+      "address": "Elizabetes iela 55, Riga",
+      "district": "centrs",
+      "lat": 56.9558,
+      "lng": 24.113,
+      "weight": 1080,
+      "max": 2000,
+      "battery": 62
+    },
+    {
+      "id": "MG-006",
+      "name": "Āgenskalns Market",
+      "address": "Nometņu iela 64, Riga",
+      "district": "pardaugava",
+      "lat": 56.9385,
+      "lng": 24.0812,
+      "weight": 2000,
+      "max": 2000,
+      "battery": 81
+    },
+    {
+      "id": "MG-007",
+      "name": "National Library",
+      "address": "Mūkusalas iela 3, Riga",
+      "district": "pardaugava",
+      "lat": 56.9427,
+      "lng": 24.0985,
+      "weight": 1720,
+      "max": 2000,
+      "battery": 90
+    },
+    {
+      "id": "MG-008",
+      "name": "Victory Park",
+      "address": "Uzvaras bulvāris 1, Riga",
+      "district": "pardaugava",
+      "lat": 56.9343,
+      "lng": 24.0899,
+      "weight": 540,
+      "max": 2000,
+      "battery": 73
+    },
+    {
+      "id": "MG-009",
+      "name": "Imanta",
+      "address": "Kurzemes prospekts 104, Riga",
+      "district": "pardaugava",
+      "lat": 56.9566,
+      "lng": 24.0206,
+      "weight": 2000,
+      "max": 2000,
+      "battery": 18
+    },
+    {
+      "id": "MG-010",
+      "name": "Ziepniekkalns",
+      "address": "Ziepniekkalna iela 25, Riga",
+      "district": "pardaugava",
+      "lat": 56.9082,
+      "lng": 24.0654,
+      "weight": 190,
+      "max": 2000,
+      "battery": 95
+    },
+    {
+      "id": "MG-011",
+      "name": "Teika Centre",
+      "address": "Brīvības gatve 201, Riga",
+      "district": "teika",
+      "lat": 56.9685,
+      "lng": 24.1495,
+      "weight": 2000,
+      "max": 2000,
+      "battery": 88
+    },
+    {
+      "id": "MG-012",
+      "name": "Purvciems",
+      "address": "Ieriķu iela 3, Riga",
+      "district": "teika",
+      "lat": 56.9648,
+      "lng": 24.1962,
+      "weight": 1650,
+      "max": 2000,
+      "battery": 79
+    },
+    {
+      "id": "MG-013",
+      "name": "Mežaparks Gate",
+      "address": "Mežaparka iela 10, Riga",
+      "district": "teika",
+      "lat": 56.9872,
+      "lng": 24.1583,
+      "weight": 330,
+      "max": 2000,
+      "battery": 92
+    },
+    {
+      "id": "MG-014",
+      "name": "Alfa Quarter",
+      "address": "Brīvības gatve 372, Riga",
+      "district": "teika",
+      "lat": 56.9757,
+      "lng": 24.2104,
+      "weight": 910,
+      "max": 2000,
+      "battery": 66
+    }
+  ],
+  "districts": [
+    {
+      "id": "all",
+      "label": "All Riga",
+      "center": [
+        56.9515,
+        24.112
+      ],
+      "zoom": 12
+    },
+    {
+      "id": "centrs",
+      "label": "Centrs & Old Town",
+      "center": [
+        56.9505,
+        24.1115
+      ],
+      "zoom": 14
+    },
+    {
+      "id": "pardaugava",
+      "label": "Pārdaugava",
+      "center": [
+        56.942,
+        24.06
+      ],
+      "zoom": 13
+    },
+    {
+      "id": "teika",
+      "label": "Teika & Purvciems",
+      "center": [
+        56.962,
+        24.175
+      ],
+      "zoom": 13
+    }
+  ],
+  "couriers": [
+    {
+      "id": "CR-01",
+      "name": "Jānis Ozols",
+      "district": "centrs",
+      "zone": "Centrs & Old Town",
+      "status": "en_route",
+      "pickups": 7,
+      "note": "Heading to MG-001"
+    },
+    {
+      "id": "CR-02",
+      "name": "Anna Kalniņa",
+      "district": "pardaugava",
+      "zone": "Pārdaugava",
+      "status": "at_pickup",
+      "pickups": 9,
+      "note": "At MG-006 · collecting"
+    },
+    {
+      "id": "CR-03",
+      "name": "Mārtiņš Liepa",
+      "district": "teika",
+      "zone": "Teika & Purvciems",
+      "status": "en_route",
+      "pickups": 5,
+      "note": "Heading to MG-011"
+    },
+    {
+      "id": "CR-04",
+      "name": "Elīna Bērziņa",
+      "district": "all",
+      "zone": "Floating · all zones",
+      "status": "break",
+      "pickups": 2,
+      "note": "Back at 16:15"
+    }
+  ],
+  "events": [
+    {
+      "type": "critical",
+      "boxId": "MG-011",
+      "message": "Capacity reached (100%) — pickup required",
+      "time": "15:48"
+    },
+    {
+      "type": "warning",
+      "boxId": "MG-003",
+      "message": "Low battery (15%) — service needed",
+      "time": "15:36"
+    },
+    {
+      "type": "warning",
+      "boxId": "MG-005",
+      "message": "Rapid fill detected (+40% in the last hour)",
+      "time": "15:21"
+    },
+    {
+      "type": "info",
+      "boxId": "MG-001",
+      "message": "Lid opened by courier",
+      "time": "14:32"
+    },
+    {
+      "type": "success",
+      "boxId": "MG-008",
+      "message": "Pickup confirmed — mailbox emptied",
+      "time": "14:10"
+    },
+    {
+      "type": "warning",
+      "boxId": "MG-009",
+      "message": "Low battery (18%) — service needed",
+      "time": "13:52"
+    },
+    {
+      "type": "critical",
+      "boxId": "MG-006",
+      "message": "Capacity reached (100%) — pickup required",
+      "time": "13:40"
+    },
+    {
+      "type": "info",
+      "boxId": "MG-012",
+      "message": "Sensor calibration completed",
+      "time": "12:58"
+    },
+    {
+      "type": "success",
+      "boxId": "MG-010",
+      "message": "Pickup confirmed — mailbox emptied",
+      "time": "12:15"
+    },
+    {
+      "type": "info",
+      "boxId": "SYSTEM",
+      "message": "Shift started · 4 couriers signed in",
+      "time": "08:00"
+    }
+  ]
+}
