@@ -105,13 +105,13 @@ while (dots.length < NDOT) {
 }
 var order = dots.map(function (d, i) { return i; }).sort(function () { return rnd() - 0.5; });
 order.slice(0, NFREE).forEach(function (i) { dots[i].free = true; });
-order.slice(NFREE, NFREE + NREM).forEach(function (i) { dots[i].removed = true; });
+order.slice(NFREE, NFREE + NREM).forEach(function (i, k) { dots[i].removed = true; dots[i].rk = k / NREM; });
 var dotG = new THREE.SphereGeometry(0.22, 10, 8), dotM = basic(0xffffff);
 var inst = new THREE.InstancedMesh(dotG, dotM, NDOT); inst.instanceMatrix.setUsage(THREE.DynamicDrawUsage); map.add(inst);
 var colA = new THREE.Color(), mtx = new THREE.Matrix4(), qI = new THREE.Quaternion(), vP = new THREE.Vector3(), vS = new THREE.Vector3();
 // a courier van crawling through Riga
-var mapVan = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 12), basic(FULL)); map.add(mapVan);
-var mapVanHalo = new THREE.Mesh(new THREE.RingGeometry(0.6, 0.85, 32), basic(FULL, { transparent: true, opacity: 0.5, depthWrite: false })); mapVanHalo.rotation.x = -Math.PI / 2; map.add(mapVanHalo);
+var mapVan = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 12), basic(0x6b7a90)); map.add(mapVan);
+var mapVanHalo = new THREE.Mesh(new THREE.RingGeometry(0.6, 0.85, 32), basic(0x6b7a90, { transparent: true, opacity: 0.5, depthWrite: false })); mapVanHalo.rotation.x = -Math.PI / 2; map.add(mapVanHalo);
 var townLabs = [['Riga', 24.11, 56.95], ['Daugavpils', 26.53, 55.88], ['Liepāja', 21.01, 56.51], ['Ventspils', 21.57, 57.39], ['Rēzekne', 27.33, 56.51], ['Valmiera', 25.43, 57.54]].map(function (d) {
   var l = C.label('<span>' + d[0] + '</span>', 'town', function () { return new THREE.Vector3(X0 + px(d[1]), 0.8, pz(d[2])); }); l.el.classList.add('pin'); return l;
 });
@@ -126,19 +126,18 @@ function updateMap(dt, t) {
   for (var i = 0; i < NDOT; i++) {
     var d = dots[i], s = clamp((mt * 1.4 - d.d * 0.35) * 2, 0, 1), c;
     s = s * s * (3 - 2 * s);
-    if (v.map === 'all') c = d.free ? T.dotA : T.dotA;
-    else c = d.free ? T.dotFree : T.dotB;
-    var sz = v.map === 'all' ? 1 : d.free ? 1.35 : 0.8;
+    c = T.dotFree; var sz = 1;   // every postbox the same: black (white in the dark theme)
     if (v.map === 'risk' && d.removed) {
-      var rt = STATIC ? 9 : C.viewT();
-      var blink = rt < 2.2 ? (Math.sin(rt * 14) > 0 ? 1 : 0.4) : 1;
-      c = FULL; sz = 1.5 * blink * clamp(1 - (rt - 2.2) / 1.2, 0, 1);
+      // removed boxes: a short pulse, then they vanish one after another
+      var rt = STATIC ? 9 : C.viewT(), at = 0.6 + d.rk * 1.6;
+      var pop = clamp((rt - at + 0.35) / 0.35, 0, 1), gone = clamp((rt - at) / 0.45, 0, 1);
+      sz = (1 + Math.sin(pop * Math.PI) * 0.9) * (1 - gone);
     }
     colA.setHex(c); inst.setColorAt(i, colA);
     vP.set(d.x, 0.75 + (1 - s) * 14, d.z); vS.setScalar(Math.max(0.0001, Math.min(1, s * 1.5) * sz)); mtx.compose(vP, qI, vS); inst.setMatrixAt(i, mtx);
   }
   remRings.forEach(function (r) {
-    r.m.visible = v.map === 'risk';
+    r.m.visible = false;
     if (!r.m.visible) return;
     var k = STATIC ? 0.4 : (t * 0.55 + r.ph) % 1;
     r.m.scale.setScalar(0.6 + k * 3.4); r.m.material.opacity = (1 - k) * 0.85;
@@ -150,7 +149,7 @@ function updateMap(dt, t) {
 }
 var MV = { fog: [160, 360], grp: 'map', pos: [X0 + 2, 82, 58], tgt: [X0 + 2, 0, 3], ox: 0.24, shade: 0, shadeL: 1, route: 'none', status: 'unknown', quiet: 1 };
 function mv(o) { var r = {}; for (var k in MV) r[k] = MV[k]; for (var j in o) r[j] = o[j]; return r; }
-S.addViews({ map: mv({ map: 'all' }), mapFree: mv({ map: 'free' }), mapRisk: mv({ map: 'risk', alarm: 1 }) });
+S.addViews({ map: mv({ map: 'all' }), mapFree: mv({ map: 'free' }), mapRisk: mv({ map: 'risk' }) });
 
 /* ================= NETWORK (Vision) ================= */
 var net = new THREE.Group(); net.visible = false; scene.add(net);
@@ -259,7 +258,7 @@ S.hook('theme', function (T) {
   var dark = T.name === 'dark';
   T.dotA = dark ? 0x8fa3c0 : 0x6b7a90; T.dotB = dark ? 0x52627e : 0xb7c1cf; T.dotFree = dark ? 0xffffff : 0x172033;
   seaMat.color.setHex(dark ? 0x121a2a : 0xdfe8f1); landMat.color.setHex(dark ? 0x22304a : 0xffffff);
-  edgeMat.color.setHex(dark ? 0xff6b6f : FULL);
+  edgeMat.color.setHex(dark ? 0x8fa3c0 : 0x172033);
   puffs.forEach(function (p) { p.material.color.setHex(dark ? 0x8794aa : 0xb9c2cd); });
   arcMat.opacity = dark ? 0.6 : 0.45; pulseMat.color.setHex(dark ? 0xffffff : ACC);
   beamMat.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending; beamMat.uniforms.uA.value = dark ? 0.75 : 0.5; beamMat.needsUpdate = true;

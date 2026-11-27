@@ -377,3 +377,6 @@ html[data-theme=dark] #alarm{background:radial-gradient(ellipse at center,rgba(2
 /* live demo videos: centred under the headline, one at a time */
 .slide .vtile{left:50%;right:auto;top:300px;width:1120px;height:630px;margin-left:-560px}
 .slide:has(.vtile.on) .half,.slide:has(.vtile.on) .divider{opacity:0;transition:opacity .4s}
+
+/* Problem & risk: less red (team review) — no red frame or tint on the risk card */
+.card.risk{border-left:1px solid var(--line);background:var(--panel)}

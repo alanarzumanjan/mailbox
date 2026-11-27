@@ -4,7 +4,7 @@
 
 ## 1. Hook — 0:00
 
-[click] Letter mail volumes have dropped by 25% in just two years, yet couriers keep following fixed routes to postboxes, without knowing whether they are empty. [click] Why are we still paying to collect air?
+Letter mail volumes have dropped by 25% in just two years, yet couriers keep following fixed routes to postboxes, without knowing whether they are empty. Why are we still paying to collect air?
 
 ## 2. Problem & risk — 0:15
 
@@ -18,30 +18,26 @@ Latvijas Pasts couriers follow predetermined collection routes across [click] 16
 
 Let us show you how it works. On the left, a conventional route: ten postboxes and about 45 minutes of driving and collecting, whether they contain mail or not. On the right, the EmptyLess dashboard. Our sensors show real-time occupancy. In this simulated scenario, only three of ten postboxes have reached the threshold. The system drops the other seven stops and recalculates, and the route is reduced by 60%. That means fewer kilometres, less fuel, fewer unnecessary stops and more productive working hours. [click] Dispatchers see the whole network, [click] and couriers receive optimised routes directly.
 
-## 5. Business model — 2:34
-
-Now, the economics. [click] One module costs about €65 in components, excluding VAT. [click] For 164 freestanding postboxes, the hardware for the whole network is roughly €10,700. That is modernising existing assets, not building new ones. [click] Our model combines hardware and Software as a Service. The customer buys the module and pays a recurring subscription for monitoring, analytics and route optimisation. That means continuous value for the customer and recurring revenue for EmptyLess. [click] Fewer trips, less fuel and fewer unproductive hours point to a fast payback, and the pilot will measure it.
-
-## 6. Engineering — 3:12
-
-We designed EmptyLess for Latvian conditions: low temperatures, moisture and road salt. [click] The system combines physical sensors, wireless data transmission, analytics and mathematical route optimisation, with one goal: affordable, reliable and compatible with existing infrastructure. [click] We already have a working prototype that connects physical postbox monitoring with digital route planning. That lets us move from concept to real-world testing.
-
-## 7. Components — 3:38
+## 5. Components — 2:34
 
 [click] The alternative for the ultrasonic sensor was an infrared sensor, which detects an object in a certain set range. However, ultrasonic sensor was chosen since unlike an infrared sensor, which checks if something is or isn't in front of it, the ultrasonic sensor can see exactly what distance the object is from the sensor. That allows the calculation of the fill percentage of the postbox. [click] The weight sensor that was chosen has a limit of 5 kilograms, however, that can be expanded to up to 20 kilograms for the postboxes of other sizes. [click] As for the microcontroller, the Arduino UNO was used for simplified functionality, and for the final product the options were to add an additional module for the Wi-Fi or choose a controller with the inbuilt Wi-Fi capabilities. In the end, ESP32 Wi-Fi microcontroller was chosen for the final product.
 
-## 8. Team — 4:36
+## 6. Business model — 3:33
+
+Now, the economics. [click] One module costs about €65 in components, excluding VAT. [click] For 164 freestanding postboxes, the hardware for the whole network is roughly €10,700. That is modernising existing assets, not building new ones. [click] Our model combines hardware and Software as a Service. The customer buys the module and pays a recurring subscription for monitoring, analytics and route optimisation. That means continuous value for the customer and recurring revenue for EmptyLess. [click] Fewer trips, less fuel and fewer unproductive hours point to a fast payback, and the pilot will measure it.
+
+## 7. Team — 4:11
 
 Behind EmptyLess is a multidisciplinary team in engineering, robotics, data science, software development and business analysis. We cover the whole solution, from sensor installation and data collection to backend, interfaces and route optimisation. We know that technology has to fit real operational processes and the people who use it. We are ready to take responsibility for the next stage: integration and pilot testing.
 
-## 9. Pilot — 5:04
+## 8. Pilot — 4:38
 
 We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one practical step: a four-week pilot with 30 to 50 postboxes across five districts of Riga: Purvciems, Pļavnieki, Imanta, Āgenskalns and Zolitūde. [click] We will measure how often couriers visit empty postboxes, sensor accuracy and reliability, unnecessary mileage, fuel use and courier time, environmental impact, and actual savings. [click] A limited investment, a controlled experiment and measurable results.
 
-## 10. Vision & impact — 5:33
+## 9. Vision — 5:08
 
-Postboxes are only the beginning. [click] With real fill data, couriers drive fewer kilometres and burn less fuel, their hours go to boxes that actually have mail, and postboxes can stay where elderly residents and small communities need them, because decisions are made on data. [click] The same technology can serve waste containers, textile donation points, battery recycling stations and any infrastructure that is serviced on a fixed schedule without knowing its real condition. [click] Let us start with Latvijas Pasts in Riga, and continue to Europe.
+Postboxes are only the beginning. [click] The same technology can serve waste containers, textile donation points, battery recycling stations and other infrastructure that is serviced on fixed schedules, without real-time information about its actual condition. [click] Let us start with Latvijas Pasts in Riga, and continue to Europe.
 
-## 11. Contact — 6:00
+## 10. Contact — 5:28
 
 Stop paying to collect air. We are EmptyLess. Thank you. [Hold this slide for a few seconds so the QR code can be scanned.]
