@@ -54,7 +54,7 @@ function nsteps(s) {
     $$('[data-st]', s).forEach(function (e) { m = Math.max(m, +e.dataset.st); });
     $$('[data-win]', s).forEach(function (e) { m = Math.max(m, +e.dataset.win); });
     if (s.dataset.views) m = Math.max(m, s.dataset.views.split(',').length - 1);
-    m = Math.max(m, $$('.team .member', s).length);   // team: one click per teammate
+    if ($$('.team .member', s).length) m = Math.max(m, $$('.team .member', s).length + 1);   // team: one click per teammate + one to put the last back
     s._n = m;
   }
   return s._n;
@@ -91,7 +91,15 @@ function applyStep(k, entering) {
     if (!on && was) $$('video', e).forEach(function (v) { setVideo(v, false); });
   });
   $$('[data-win]', s).forEach(function (e) { e.classList.toggle('win', +e.dataset.win <= k); });
-  $$('.team .member', s).forEach(function (c, i) { c.classList.toggle('hl', i === k - 1); });
+  // team: the current teammate flies to the centre of the grid and grows; the next click sends them back and brings the next one
+  $$('.team .member', s).forEach(function (c, i) {
+    var g = c.parentNode, on = i === k - 1;
+    if (on) {
+      c.style.setProperty('--tx', (g.clientWidth / 2 - (c.offsetLeft + c.offsetWidth / 2)) + 'px');
+      c.style.setProperty('--ty', (g.clientHeight / 2 - (c.offsetTop + c.offsetHeight / 2)) + 'px');
+    }
+    c.classList.toggle('hl', on);
+  });
   if (entering) $$('[data-to]', s).forEach(function (el) { if (!el.closest('[data-st]')) count(el); });
   var vs = s.dataset.views;
   if (window.SCENE) SCENE.view(vs ? vs.split(',')[Math.min(k, vs.split(',').length - 1)].trim() : s.dataset.view);

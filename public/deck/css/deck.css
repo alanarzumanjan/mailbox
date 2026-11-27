@@ -361,3 +361,8 @@ html[data-theme=light] .pi{background:#f3f6f8}
 .team .member.hl .ava{transform:none}
 .team .member:nth-child(1){transform-origin:left top}.team .member:nth-child(2){transform-origin:center top}.team .member:nth-child(3){transform-origin:right top}
 .team .member:nth-child(4){transform-origin:left bottom}.team .member:nth-child(5){transform-origin:center bottom}.team .member:nth-child(6){transform-origin:right bottom}
+/* team v3: the highlighted card moves to the centre and grows */
+.team{position:relative}
+.team .member,.team .member:nth-child(n){transform-origin:center center}
+.team:has(.hl) .member{opacity:.25}
+.team .member.hl{opacity:1;transform:translate(var(--tx,0),var(--ty,0)) scale(1.65);z-index:5;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .5s,box-shadow .6s}
