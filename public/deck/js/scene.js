@@ -476,10 +476,9 @@ function updateHero(dt) {
     var shown = i < s.n && s.phase !== 'collect';
     L.visible = shown;
     if (!shown) return;
-    grams += WEIGHTS[i];
     var q = LPOS[i], restY = hero.p.plateY + BASE[i] + LT[i] / 2;
     var age = (STATIC || s.born[i] == null) ? 1 : clamp((s.clock - s.born[i]) / DROP_TIME, 0, 1);
-    if (age >= 1) landed = i + 1;
+    if (age >= 1) { landed = i + 1; grams += WEIGHTS[i]; }
     if (age < 0.35) {            // slides in flat through the slot
       var a = age / 0.35; L.position.set(0, hero.p.slotY, lerp(fz, 0.06, a)); L.rotation.set(0.1, 0, 0);
     } else {                     // drops and settles on the pile, slightly turned
@@ -488,7 +487,7 @@ function updateHero(dt) {
       L.rotation.set(lerp(0.1, q.tilt, e), q.yaw * e, q.tilt * e);
     }
   });
-  if (STATIC) landed = Math.min(s.n, CAP);
+  if (STATIC) { landed = Math.min(s.n, CAP); grams = 0; for (var gi = 0; gi < landed; gi++) grams += WEIGHTS[gi]; }
   s.grams = grams;
   // the sensor reads what has landed
   var fill = Math.min(1, BASE[landed] / STACK_MAX), full = fill >= FULL_FILL && s.phase !== 'collect';
