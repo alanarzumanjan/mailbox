@@ -1,43 +1,39 @@
 # EmptyLess — voiceover script (EN)
 
-Target ≈ 5:00. `[click]` = press → (next step). In the deck press **N** to see this text, the planned time and a running clock (R resets the clock).
+Kira's pitch script (≈5:00), split into slides. `[click]` = press → (next step). Text in square brackets that is not `[click]` is a stage note, not spoken. In the deck press **N** to see this text, the planned time and a running clock (R resets the clock).
 
 ## 1. Hook — 0:00
 
-Every working day, a Latvijas Pasts courier drives to a postbox, opens it — and finds it empty. [click] Nobody could know before the lock was open. So the van drives on, on the same fixed schedule, every day. [click] We built EmptyLess, so every postbox can tell you how full it is.
+[click] Letter mail volumes have dropped by 25% in just two years, yet couriers keep following fixed routes to postboxes, without knowing whether they are empty. [click] Why are we still paying to collect air?
 
-## 2. Problem — 0:25
+## 2. Problem & risk — 0:15
 
-Latvijas Pasts runs [click] 547 postboxes, all emptied on a fixed round. But [click] letters fell 14 percent in 2024 and another 13 percent this year. [click] In 2025, 83 boxes were removed — without data on how much mail each box gets. Meanwhile [click] parcels grow 17 percent — that's where courier time is needed. [click] And every empty stop still costs fuel, courier hours and CO₂.
+Latvijas Pasts couriers follow predetermined collection routes across [click] 164 freestanding postboxes. [click] In city traffic, their average speed is only 20 to 25 kilometres per hour, and in rush hour even less. [click] Every stop comes at a cost. Fuel is about €2 per litre. Courier labour is €11.87 per hour. And every litre burned produces about 2.7 kilograms of CO₂. The real problem is that Latvijas Pasts has no tools to know whether a postbox actually needs collecting. As letter volumes fall, this becomes harder to justify. [click] In 2025, Latvijas Pasts planned to remove 112 postboxes and removed 83. If costs keep growing, more will follow, and elderly residents and smaller communities lose access to essential postal services. We believe there is a better way to keep postal accessibility while reducing operational waste.
 
-## 3. Solution — 1:05
+## 3. Solution — 1:10
 
-We create a fill sensor that fits into the postboxes Latvijas Pasts already has. It notices even one letter and reports it live — for dispatchers and couriers — so that couriers drive only to full boxes. Now every box on the map has a status. [click] The sensor feels the weight, reports only when something changes, and the route goes only to the red boxes.
+[Live demonstration: installing the EmptyLess sensor module inside a postbox.] Meet EmptyLess: an affordable, modular IoT solution that turns existing postboxes into intelligent, connected infrastructure. [click] Instead of replacing postboxes, we upgrade what is already there. Our sensor kit costs about €65 in components. It monitors the fill level of each postbox and sends the data to our central analytics platform. When a postbox reaches 80% capacity, the system flags it for collection and optimises the courier route. [click] Our key advantage is retrofit. No new postboxes, no new vehicles, no rebuilt courier software. The module installs quickly, and couriers keep using familiar navigation. [PROTOTYPE TEXT — to be added by the prototype team]
 
-## 4. Demo — 1:40
+## 4. Live demo — 1:48
 
-Here is our prototype. A letter drops in, the load cell feels the weight, the ESP32 sends weight and fill level to our backend — and once the box is full, its LED turns red. [click] The dispatcher sees it instantly: the box is full, and it's added to the next route. [click] The courier opens the app — and gets a route only to the boxes that are full.
+Let us show you how it works. On the left, a conventional route: ten postboxes and about 45 minutes of driving and collecting, whether they contain mail or not. On the right, the EmptyLess dashboard. Our sensors show real-time occupancy. In this simulated scenario, only three of ten postboxes have reached the threshold. The system drops the other seven stops and recalculates, and the route is reduced by 60%. That means fewer kilometres, less fuel, fewer unnecessary stops and more productive working hours. [click] Dispatchers see the whole network, [click] and couriers receive optimised routes directly.
 
-## 5. USP — 2:20
+## 5. Business model — 2:34
 
-The alternatives. Today, the courier finds out a box is empty only after opening it. A camera in the box needs light and power — and someone still has to look at the pictures, which are photos of people's mail. A new smart box knows when it's full, but it means replacing every box, at 1,500 euros or more. [click] EmptyLess goes into the boxes that already exist, the box itself reports when it's full — automatically — it sends only weight and fill level, and it costs 62 euros.
+Now, the economics. [click] One module costs about €65 in components, excluding VAT. [click] For 164 freestanding postboxes, the hardware for the whole network is roughly €10,700. That is modernising existing assets, not building new ones. [click] Our model combines hardware and Software as a Service. The customer buys the module and pays a recurring subscription for monitoring, analytics and route optimisation. That means continuous value for the customer and recurring revenue for EmptyLess. [click] Fewer trips, less fuel and fewer unproductive hours point to a fast payback, and the pilot will measure it.
 
-## 6. Business — 2:55
+## 6. Engineering — 3:12
 
-The business. [click] The kit costs 62 euros per box — ex VAT, from official shops. [click] Equipping all 547 boxes in Latvia costs about 34 thousand euros, once. [click] Our current projection is 77 thousand euros saved per year on 50 routes — the pilot will confirm the real number. [click] We sell the hardware at cost and earn on a platform licence per box. And every post with falling letter volume is our next market.
+We designed EmptyLess for Latvian conditions: low temperatures, moisture and road salt. [click] The system combines physical sensors, wireless data transmission, analytics and mathematical route optimisation, with one goal: affordable, reliable and compatible with existing infrastructure. [click] We already have a working prototype that connects physical postbox monitoring with digital route planning. That lets us move from concept to real-world testing.
 
-## 7. Validation — 3:35
+## 7. Team — 3:38
 
-What's validated? [click] A working prototype that sends live data from a real box to our backend, and dispatcher and courier apps that are online right now. [click] Our numbers come from the regulator and the statistics office. And our mentor's feedback — retrofit, don't replace — changed our design: the module now fits into the boxes that already exist.
+Behind EmptyLess is a multidisciplinary team in engineering, robotics, data science, software development and business analysis. We cover the whole solution, from sensor installation and data collection to backend, interfaces and route optimisation. We know that technology has to fit real operational processes and the people who use it. [click] We are ready to take responsibility for the next stage: integration and pilot testing.
 
-## 8. Team — 4:00
+## 8. Pilot — 4:05
 
-We are six students from TSI in Riga, and together we cover the whole chain: the device, the backend and data, the apps, and the business case. In 48 hours we built a working box and a working platform.
+We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one practical step: a four-week pilot with 30 to 50 postboxes across five districts of Riga: Purvciems, Pļavnieki, Imanta, Āgenskalns and Zolitūde. [click] We will measure how often couriers visit empty postboxes, sensor accuracy and reliability, unnecessary mileage, fuel use and courier time, environmental impact, and actual savings. [click] A limited investment, a controlled experiment and measurable results.
 
-## 9. Ask & plan — 4:15
+## 9. Vision — 4:34
 
-Our ask: give us 30 postboxes on one mixed route in Riga, and six months. The hardware for the whole pilot costs under 1,900 euros. [click] In the first two months we order the parts, build and test 30 units. [click] In month three we install them on one route and connect them to the dashboard. [click] Then for three months demand-based routes run next to a control route — and we report the kilometres, fuel, hours and CO₂ saved. [click] From Latvijas Pasts we need access to the boxes, the route data, and one dispatcher to work with.
-
-## 10. Vision — 4:45
-
-Our vision: a postal network that knows itself. [click] Every postbox in Latvia reports its real demand. [click] Decisions about which boxes to keep or move are made on data, not guesses. [click] And courier hours move from empty boxes to growing parcels — with less fuel and less CO₂. [click] EmptyLess — never visit an empty postbox again. Thank you.
+Postboxes are only the beginning. [click] The same technology can serve waste containers, textile donation points, battery recycling stations and other infrastructure that is serviced on fixed schedules, without real-time information about its actual condition. [click] EmptyLess can turn these disconnected assets into intelligent, data-driven networks. Smarter infrastructure. More efficient operations. Less waste. [click] Let us start with Latvijas Pasts. Let us start with Riga. We are EmptyLess. Thank you.
