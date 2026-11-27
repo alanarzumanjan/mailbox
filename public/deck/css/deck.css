@@ -282,3 +282,11 @@ html.nocursor,html.nocursor *{cursor:none!important}
 
 .contact{padding:18px 30px 18px 18px}
 .contact b{margin:0}
+
+/* closing slide: very large QR so it scans from a screen or a video */
+.endtxt{position:absolute;left:120px;top:250px;width:760px}
+.endtxt h1{font-size:104px}
+.endtxt .mail{font-size:40px;font-weight:800;color:var(--ink);margin-top:6px}
+.qrbig{position:absolute;right:140px;top:150px;width:780px;height:780px;padding:22px;border-radius:44px;background:#172033;box-shadow:0 40px 100px rgba(10,16,30,.35)}
+.qrbig img{width:100%;height:100%;display:block;border-radius:26px;image-rendering:pixelated}
+html[data-theme=dark] .qrbig{box-shadow:0 0 0 3px rgba(11,155,112,.55),0 40px 100px rgba(0,0,0,.45)}

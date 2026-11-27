@@ -36,4 +36,8 @@ We are not asking Latvijas Pasts to upgrade its network tomorrow. We propose one
 
 ## 9. Vision — 4:34
 
-Postboxes are only the beginning. [click] The same technology can serve waste containers, textile donation points, battery recycling stations and other infrastructure that is serviced on fixed schedules, without real-time information about its actual condition. [click] EmptyLess can turn these disconnected assets into intelligent, data-driven networks. Smarter infrastructure. More efficient operations. Less waste. [click] Let us start with Latvijas Pasts. Let us start with Riga. We are EmptyLess. Thank you.
+Postboxes are only the beginning. [click] The same technology can serve waste containers, textile donation points, battery recycling stations and other infrastructure that is serviced on fixed schedules, without real-time information about its actual condition. [click] EmptyLess can turn these disconnected assets into intelligent, data-driven networks. Smarter infrastructure. More efficient operations. Less waste. [click] Let us start with Latvijas Pasts. Let us start with Riga.
+
+## 10. Contact — 5:00
+
+We are EmptyLess. Thank you. [Hold this slide for a few seconds so the QR code can be scanned.]

@@ -14,7 +14,7 @@ Static HTML + three.js r128, no build step.
 |---|---|
 | → / Space / Enter / PgDn / click | next **step** (items on a slide appear one by one), then the next slide |
 | ← / Backspace / PgUp | back one step |
-| 1–9 | jump to a slide |
+| 1–9, 0 | jump to a slide (0 = slide 10) |
 | F | fullscreen |
 | T | switch light ↔ dark |
 | N | voiceover text, planned time, step and a running clock |
@@ -24,7 +24,7 @@ Static HTML + three.js r128, no build step.
 
 Recording: press F, N off, hide the cursor, record with OBS. The clock in N shows whether you're on time (planned time is per slide, `data-t`).
 
-## Slides (follow Kira's pitch script, ≈5 min)
+## Slides (follow Kira's pitch script, ≈5 min; slide 10 is the closing card)
 | # | Slide | On screen |
 |---|---|---|
 | 1 | Hook — the cost of collecting air | The courier van stuck in a queue of cars, brake lights, exhaust |
@@ -36,6 +36,7 @@ Recording: press F, N off, hide the cursor, record with OBS. The clock in N show
 | 7 | Team | Six people and roles |
 | 8 | Pilot | Schematic map of Riga with the five pilot districts; what we will measure |
 | 9 | Vision | Waste containers, textile and battery points join the postboxes; everything links to one hub |
+| 10 | Thank you + contact | "We are EmptyLess. Thank you." and a very large QR code (mailto:emptylessteam@gmail.com); hold it a few seconds in the video |
 
 Effects: headlines rise word by word; uplink beams with data packets over full boxes; dust in the air; glowing ground grid with a pulse ring (strong in the dark theme); full boxes blink; the map's postboxes rain down from above; the cursor hides itself after ~2 s for recording. Between the box close-up, the city and the map the picture dips to the background instead of flying. The camera drifts slightly all the time. Dark theme: glow on LEDs, routes and points, a soft vignette and grain (`?nofx` turns it off).
 

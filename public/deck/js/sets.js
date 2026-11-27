@@ -191,6 +191,7 @@ function updateNet(dt, t) {
 }
 S.addViews({
   network: { beams: 1, grp: 'city', pos: [30, 58, 62], tgt: [-2, 4, -4], ox: 0.26, shade: 0, shadeL: 1, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1, orbit: 1, net: 1 },
+  endBg: { grp: 'city', pos: [34, 70, 70], tgt: [-2, 4, -4], ox: 0, shade: 0.88, shadeL: 0.4, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1, orbit: 1, net: 1 },
   pilotBg: { beams: 1, grp: 'city', pos: [0, 62, 44], tgt: [0, 0, 0], ox: 0, shade: 0.8, shadeL: 0.6, route: 'full', status: 'known', bars: 1, vanOn: 1, rings: 1 }
 });
 
