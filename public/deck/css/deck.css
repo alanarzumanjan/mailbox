@@ -374,3 +374,6 @@ svg.warn{width:30px;height:30px;flex:none;color:var(--full)}
 @keyframes alarm{50%{filter:brightness(1.35)}}
 html[data-theme=dark] #alarm{background:radial-gradient(ellipse at center,rgba(229,72,77,0) 48%,rgba(229,72,77,.22) 78%,rgba(229,72,77,.45) 100%)}
 .slide.tone-risk .stat .u{color:var(--full)}
+/* live demo videos: centred under the headline, one at a time */
+.slide .vtile{left:50%;right:auto;top:300px;width:1120px;height:630px;margin-left:-560px}
+.slide:has(.vtile.on) .half,.slide:has(.vtile.on) .divider{opacity:0;transition:opacity .4s}

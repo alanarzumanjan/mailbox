@@ -81,7 +81,7 @@ function setVideo(v, play) {
 function applyStep(k, entering) {
   var s = slides[cur]; step = k;
   $$('[data-st]', s).forEach(function (e) {
-    var was = e.classList.contains('on'), on = +e.dataset.st <= k;
+    var was = e.classList.contains('on'), on = +e.dataset.st <= k && !(e.dataset.until && k >= +e.dataset.until);
     e.classList.toggle('on', on);
     if (on && !was) {
       $$('[data-to]', e).concat(e.matches('[data-to]') ? [e] : []).forEach(count);
