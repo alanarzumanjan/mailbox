@@ -49,12 +49,12 @@ test("district rule matches the frontend", () => {
 });
 
 test("haversine is roughly right for Riga", () => {
-  // Старый город → Тейка, около 3 км
+  // Old Town → Teika, about 3 km
   const d = haversineKm({ lat: 56.9496, lng: 24.1052 }, { lat: 56.9685, lng: 24.1495 });
   assert.ok(d > 2.5 && d < 3.5, `got ${d}`);
 });
 
-// --- маршрут ---
+// --- route ---
 
 function bruteForceBest(points, depot) {
   let best = Infinity;

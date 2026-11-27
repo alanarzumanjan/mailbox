@@ -1,6 +1,6 @@
-// Фоновая проверка: какие датчики перестали выходить на связь.
-// Датчик, который ни разу не присылал данные (lastSeenAt = null), не
-// считается пропавшим — он просто ещё не установлен.
+// Background check: which sensors stopped reporting.
+// A sensor that never sent data (lastSeenAt = null) is not
+// considered lost; it simply has not been installed yet.
 import { Device } from "../models/Device.js";
 import { Box } from "../models/Box.js";
 import { bus, TOPICS } from "../lib/bus.js";
@@ -16,8 +16,8 @@ export async function markOfflineDevices(offlineMinutes, now = Date.now()) {
 
   const marked = [];
   for (const { boxId } of stale) {
-    // Условие online: true в фильтре делает операцию идемпотентной:
-    // повторный прогон или второй инстанс не создадут дубль события.
+    // The online: true filter makes this idempotent: a second run
+    // or a second instance will not create a duplicate event.
     const box = await Box.findOneAndUpdate(
       { _id: boxId, active: true, "state.online": true },
       { $set: { "state.online": false } },

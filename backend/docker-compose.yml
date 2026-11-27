@@ -1,18 +1,18 @@
-# Локальная разработка одной командой:
+# Local development in one command:
 #   cp .env.example .env
 #   docker compose up --build
 #
 # API:     http://localhost:4000      Swagger: http://localhost:4000/docs
 # MongoDB: mongodb://localhost:27017/emptyless (DBeaver / Compass)
-# При пустой базе API сам наполнит её демо-данными и напечатает ключ датчика.
-# Пересоздать демо-данные: docker compose exec api node src/seed/seed.js
+# With an empty database the API seeds demo data and prints the device key.
+# Recreate demo data: docker compose exec api node src/seed/seed.js
 
 services:
   mongo:
     image: mongo:7
     restart: unless-stopped
     ports:
-      - "127.0.0.1:27017:27017" # только с этой машины
+      - "127.0.0.1:27017:27017" # this machine only
     volumes:
       - mongo_data:/data/db
     healthcheck:
@@ -29,9 +29,9 @@ services:
         condition: service_healthy
     env_file: .env
     environment:
-      # Внутри docker-сети база доступна по имени сервиса, не по localhost
+      # Inside the docker network the database is reached by service name, not localhost
       MONGODB_URI: mongodb://mongo:27017/emptyless
-      # development — чтобы пустая база наполнялась демо-данными при старте
+      # development, so an empty database is seeded with demo data on startup
       NODE_ENV: development
       TZ: Europe/Riga
     ports:

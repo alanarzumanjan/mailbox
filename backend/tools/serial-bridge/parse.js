@@ -1,11 +1,11 @@
-// Разбор строки, которую Arduino печатает в Serial.
-// Понимает три формата, чтобы не зависеть от того, как написан скетч:
+// Parses a line the Arduino prints to Serial.
+// Understands three formats so it does not depend on how the sketch is written:
 //
-//   {"weight":1850,"distance":120,"battery":86}     — JSON (рекомендуемый)
+//   {"weight":1850,"distance":120,"battery":86}     — JSON (recommended)
 //   1850,120                                         — CSV: weight,distance[,battery]
-//   Weight: 1850 g | Distance: 12.0 cm               — человекочитаемый вывод
+//   Weight: 1850 g | Distance: 12.0 cm               — human-readable output
 //
-// Возвращает { weight, distance?, battery? } в граммах и миллиметрах, либо null.
+// Returns { weight, distance?, battery? } in grams and millimetres, or null.
 
 const num = (v) => {
   const n = Number(String(v).replace(",", "."));
@@ -14,7 +14,7 @@ const num = (v) => {
 
 function normalise({ weight, distance, battery }) {
   if (weight === undefined) return null;
-  const out = { weight: Math.max(0, Math.round(weight)) }; // отрицательный вес после тары — шум
+  const out = { weight: Math.max(0, Math.round(weight)) }; // negative weight after tare is noise
   if (distance !== undefined) out.distance = Math.max(0, Math.round(distance));
   if (battery !== undefined) out.battery = Math.min(100, Math.max(0, Math.round(battery)));
   return out;
@@ -38,7 +38,7 @@ export function parseLine(raw) {
     return normalise({ weight: w, distance: d, battery: b });
   }
 
-  // "Weight: 1850 g  Distance: 12 cm" — ищем числа после ключевых слов
+  // "Weight: 1850 g  Distance: 12 cm": look for numbers after keywords
   const pick = (re) => {
     const m = re.exec(line);
     return m ? { value: num(m[1]), unit: (m[2] ?? "").toLowerCase() } : null;
@@ -54,8 +54,8 @@ export function parseLine(raw) {
 }
 
 /**
- * Стоит ли отправлять показание: изменилось заметно или давно не отправляли.
- * Экономит трафик и батарею в реальном устройстве и не спамит API.
+ * Whether to send a reading: it changed noticeably or nothing was sent for a while.
+ * Saves traffic and battery on a real device and does not spam the API.
  */
 export function shouldSend(prev, next, { minWeightDeltaG = 10, minDistanceDeltaMm = 5, maxSilenceMs = 60_000 }, now = Date.now()) {
   if (!prev) return true;

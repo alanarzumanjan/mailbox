@@ -1,12 +1,12 @@
-// Наполнение базы демо-данными фронта (src/seed/data.json выгружен из
-// data/initialBoxes.js, data/districts.js, data/dispatchData.js) плюс
-// демо-пользователи и датчик для MG-001.
+// Seeds the database with the frontend demo data (src/seed/data.json is exported from
+// data/initialBoxes.js, data/districts.js, data/dispatchData.js) plus
+// demo users and a device for MG-001.
 //
-//   npm run seed                                   — локально
-//   docker compose exec api node src/seed/seed.js  — в Docker
+//   npm run seed                                   — locally
+//   docker compose exec api node src/seed/seed.js  — in Docker
 //
-// Пересоздаёт коллекции, поэтому можно гонять сколько угодно.
-// В production не запускать: сотрёт реальные данные.
+// Recreates the collections, so it is safe to run repeatedly.
+// Never run in production: it wipes real data.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { Box } from "../models/Box.js";
@@ -26,16 +26,16 @@ import { logger } from "../lib/logger.js";
 
 const data = JSON.parse(readFileSync(new URL("./data.json", import.meta.url), "utf8"));
 
-// Демо-доступы для разработки и презентации. В production пользователей
-// создаёт админ через POST /api/users.
+// Demo accounts for development and the pitch. In production, users are
+// created by an admin via POST /api/users.
 export const DEMO_USERS = Object.freeze([
   { email: "admin@emptyless.lv", name: "Admin", role: "admin", password: "admin-demo-2026", notifyEmail: true },
   { email: "dispatcher@emptyless.lv", name: "Dispatcher", role: "dispatcher", password: "dispatch-demo-2026", notifyEmail: true },
   { email: "courier@emptyless.lv", name: "Jānis Ozols", role: "courier", password: "courier-demo-2026", courierId: "CR-01" },
 ]);
 
-// "15:48" → последний прошедший момент с этим временем (сегодня или вчера),
-// чтобы демо-события не оказались в будущем и не висели выше настоящих.
+// "15:48" → the most recent past moment with that time (today or yesterday),
+// so demo events never end up in the future, above real ones.
 function lastOccurrenceOf(hhmm) {
   const [h, m] = hhmm.split(":").map(Number);
   const d = new Date();
@@ -95,10 +95,10 @@ export async function seedDatabase({ quiet = false } = {}) {
     ),
   );
 
-  // Индексы (включая уникальные и TTL) создаём явно, не полагаясь на autoIndex.
+  // Create indexes (including unique and TTL) explicitly instead of relying on autoIndex.
   await Promise.all(models.map((M) => M.syncIndexes()));
 
-  // Датчик для реального прототипа: его ключ прошивается в Arduino-мост.
+  // Device for the real prototype: its key goes into the Arduino bridge.
   const { device, apiKey } = await provisionDevice({ boxId: "MG-001", name: "Prototype (Arduino)" });
 
   if (!quiet) {
@@ -107,13 +107,13 @@ export async function seedDatabase({ quiet = false } = {}) {
         events: data.events.length, users: DEMO_USERS.map((u) => u.email) },
       "database seeded",
     );
-    // Ключ показывается один раз — как при настоящей выдаче датчика.
+    // The key is shown only once, just like when provisioning a real device.
     console.log(`\nDemo device ${device.id} for ${device.boxId}. X-Device-Key:\n  ${apiKey}\n`);
   }
   return { deviceKey: apiKey, deviceId: device.id };
 }
 
-// Запуск как скрипта: node src/seed/seed.js
+// Run as a script: node src/seed/seed.js
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { config } = await import("../config.js");
   if (config.NODE_ENV === "production") {

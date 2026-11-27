@@ -2,7 +2,7 @@ import { AuditLog } from "../models/AuditLog.js";
 import { User } from "../models/User.js";
 import { logger } from "../lib/logger.js";
 
-// Не храним в журнале секреты, даже если они случайно попали в changes.
+// Never store secrets in the log, even if they slipped into changes.
 const SECRET_KEYS = new Set(["password", "passwordHash", "apiKey", "keyHash", "refreshToken"]);
 
 function scrub(obj) {
@@ -13,8 +13,8 @@ function scrub(obj) {
 }
 
 /**
- * Записать действие. Ошибка аудита не должна ломать основное действие,
- * поэтому она логируется, но не пробрасывается.
+ * Record an action. An audit failure must not break the main action,
+ * so it is logged but not rethrown.
  */
 export async function audit(req, action, targetType, targetId, changes = null) {
   try {

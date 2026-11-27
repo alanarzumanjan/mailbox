@@ -1,4 +1,4 @@
-// Публичные схемы API. Используются и для валидации, и для Swagger.
+// Public API schemas. Used for both validation and Swagger.
 import { z } from "zod";
 import { registry } from "./lib/openapi.js";
 import { STATUS } from "./domain/fill.js";

@@ -1,4 +1,4 @@
-// Аутентификация (кто это) и авторизация (что ему можно).
+// Authentication (who is this) and authorization (what are they allowed to do).
 import { HttpError } from "./errors.js";
 import { verifyAccessToken } from "../services/auth.js";
 
@@ -17,8 +17,8 @@ export function authenticate(req, res, next) {
   next();
 }
 
-// EventSource в браузере не умеет ставить заголовки, поэтому для SSE
-// токен допускается в query (?access_token=). Только для этого эндпоинта.
+// Browser EventSource cannot set headers, so for SSE the token is accepted
+// in the query string (?access_token=). Only for this endpoint.
 export function authenticateStream(req, res, next) {
   const token = readToken(req) ?? req.query.access_token;
   if (!token) throw new HttpError(401, "unauthorized", "Missing access token");
@@ -37,7 +37,7 @@ export const requireRole =
     next();
   };
 
-// Готовые наборы прав, чтобы в роутах читалось по смыслу
+// Ready-made permission sets so routes read by intent
 export const ROLE = Object.freeze({
   staff: requireRole("admin", "dispatcher", "courier"),
   dispatch: requireRole("admin", "dispatcher"),

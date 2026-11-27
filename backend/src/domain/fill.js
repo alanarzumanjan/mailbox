@@ -1,11 +1,11 @@
-// Расчёт заполненности ящика по двум датчикам.
+// Box fill level from two sensors.
 //
-// Вес (load cell + HX711) хорошо видит даже одну лёгкую открытку, но не видит
-// объём. ИК-датчик расстояния сверху срабатывает, когда письма дошли до верха,
-// даже если они лёгкие. Берём максимум из двух процентов: ящик считается
-// заполненным, если заполнен хотя бы по одному признаку.
+// Weight (load cell + HX711) notices even a single light postcard but not
+// volume. The IR distance sensor on top triggers when letters reach the top,
+// even if they are light. We take the max of the two percentages: the box counts
+// as full if it is full by either measure.
 
-// Пороги совпадают с фронтом (data/initialBoxes.js → getBoxStatus).
+// Thresholds match the frontend (data/initialBoxes.js → getBoxStatus).
 export const THRESHOLDS = Object.freeze({
   warningPercent: 75,
   fullPercent: 100,
@@ -26,8 +26,8 @@ export function weightPercent(weightG, maxWeightG) {
   return clamp((weightG / maxWeightG) * 100, 0, 100);
 }
 
-// emptyMm — расстояние до дна пустого ящика, fullMm — до "линии полного".
-// Чем меньше расстояние, тем выше стопка писем.
+// emptyMm is the distance to the bottom of an empty box, fullMm to the "full line".
+// The smaller the distance, the taller the stack of letters.
 export function volumePercent(distanceMm, emptyMm, fullMm) {
   if (distanceMm == null || emptyMm == null || fullMm == null) return 0;
   if (emptyMm <= fullMm) return 0;

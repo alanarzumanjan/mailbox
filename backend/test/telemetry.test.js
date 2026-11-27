@@ -1,4 +1,4 @@
-// Датчики, показания, события, офлайн, выемки, маршрут, ящики.
+// Devices, readings, events, offline detection, pickups, routing, boxes.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { setupIntegration, skip, ctx, as, reading } from "./helpers.js";
@@ -10,7 +10,7 @@ const eventsOf = async (boxId, type) => {
   return (await as("dispatcher").get(`/api/events?${q}`).expect(200)).body.data;
 };
 
-// ---------- Ключи устройств ----------
+// ---------- Device keys ----------
 
 test("device key is required and bound to its box", { skip }, async () => {
   await ctx.request(ctx.app).post("/api/devices/readings").send({ weight: 1 }).expect(401);
@@ -52,12 +52,12 @@ test("provision, rotate and revoke a device", { skip }, async () => {
   await as("admin").post("/api/devices").send({ boxId: "MG-999" }).expect(404);
 });
 
-// ---------- Правила событий ----------
+// ---------- Event rules ----------
 
 test("filling a box emits exactly one critical event", { skip }, async () => {
   const r = await reading({ weight: 2000, distance: 250 }).expect(201);
   assert.equal(r.body.data.status, "full");
-  await reading({ weight: 2010, distance: 250 }).expect(201); // дребезг у порога
+  await reading({ weight: 2010, distance: 250 }).expect(201); // jitter around the threshold
   assert.equal((await eventsOf("MG-001", "critical")).length, 1);
 
   const box = await as("dispatcher").get("/api/boxes/MG-001").expect(200);
@@ -108,7 +108,7 @@ test("sensors that never reported are not flagged offline", { skip }, async () =
   assert.deepEqual(await markOfflineDevices(30, Date.now() + 86400_000), []);
 });
 
-// ---------- Выемки и KPI ----------
+// ---------- Pickups and KPIs ----------
 
 test("pickup empties the box, logs it and credits the courier", { skip }, async () => {
   await reading({ weight: 2000 }).expect(201);
@@ -120,7 +120,7 @@ test("pickup empties the box, logs it and credits the courier", { skip }, async 
   assert.equal(res.body.data.pickup.responseMin, 0);
 
   const couriers = await as("dispatcher").get("/api/couriers").expect(200);
-  assert.equal(couriers.body.data.find((c) => c.id === "CR-01").pickups, 8); // было 7
+  assert.equal(couriers.body.data.find((c) => c.id === "CR-01").pickups, 8); // was 7
   assert.equal((await eventsOf("MG-001", "success")).length, 1);
 
   const stats = await as("dispatcher").get("/api/stats/overview").expect(200);
@@ -134,7 +134,7 @@ test("pickup empties the box, logs it and credits the courier", { skip }, async 
   await as("dispatcher").post("/api/boxes/MG-001/pickups").send({ courierId: "CR-99" }).expect(404);
 });
 
-// ---------- Маршрут ----------
+// ---------- Routing ----------
 
 test("route covers all full boxes optimally and filters by district", { skip }, async () => {
   const full = await as("courier").get("/api/boxes?status=full").expect(200);
@@ -154,7 +154,7 @@ test("route covers all full boxes optimally and filters by district", { skip }, 
   assert.equal(explicit.body.data.stops.length, 2);
 });
 
-// ---------- Ящики ----------
+// ---------- Boxes ----------
 
 test("boxes in the frontend shape, with filters", { skip }, async () => {
   const res = await as("courier").get("/api/boxes").expect(200);
@@ -194,6 +194,6 @@ test("simulate fills the fullest non-full box through the real pipeline", { skip
   const res = await as("dispatcher").post("/api/simulate/mail").send({ district: "centrs" }).expect(201);
   assert.equal(res.body.data.status, "full");
   assert.equal((await eventsOf(res.body.data.id, "critical")).length, 1);
-  // Симуляция — не настоящий датчик: онлайн-статус не меняется
+  // A simulation is not a real sensor: online status does not change
   assert.equal(res.body.data.online, null);
 });

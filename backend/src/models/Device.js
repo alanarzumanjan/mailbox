@@ -1,10 +1,10 @@
-// Датчик (контроллер), установленный в ящик. У каждого свой API-ключ:
-// украденный или сломанный датчик отзывается точечно, не трогая остальные.
+// Sensor (controller) installed in a box. Each has its own API key:
+// a stolen or broken device is revoked individually without touching the others.
 //
-// Ключ вида eld_<prefix>_<secret> показывается ОДИН раз при выдаче.
-// В базе — только префикс (для поиска) и SHA-256 от полного ключа. Ключ
-// длинный и случайный, поэтому медленный bcrypt тут не нужен: перебор
-// невозможен, а проверка должна быть быстрой на каждом показании.
+// A key looks like eld_<prefix>_<secret> and is shown ONCE when provisioned.
+// The database stores only the prefix (for lookup) and a SHA-256 of the full key.
+// The key is long and random, so slow bcrypt is unnecessary: brute force
+// is infeasible, and the check must be fast on every reading.
 import mongoose from "mongoose";
 
 const deviceSchema = new mongoose.Schema(

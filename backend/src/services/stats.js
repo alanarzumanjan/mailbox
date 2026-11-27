@@ -1,4 +1,4 @@
-// KPI для шапки диспетчера (components/DispatcherDashboard.js).
+// KPIs for the dispatcher header (components/DispatcherDashboard.js).
 import { Box } from "../models/Box.js";
 import { Courier, ACTIVE_COURIER_STATUSES } from "../models/Courier.js";
 import { Pickup } from "../models/Pickup.js";
@@ -28,8 +28,8 @@ export async function getOverview() {
       Pickup.find({ collectedAt: { $gte: since } }).select("responseMin").lean(),
     ]);
 
-  // Среднее считаем в приложении: выемок за день немного, а простой find
-  // работает одинаково в MongoDB и в тестовой FerretDB.
+  // Average computed in the app: few pickups per day, and a plain find
+  // behaves the same on MongoDB and on the FerretDB used in tests.
   const responses = pickupsToday.map((p) => p.responseMin).filter((m) => m != null);
   const avgResponseMin = responses.length
     ? Math.round(responses.reduce((a, b) => a + b, 0) / responses.length)

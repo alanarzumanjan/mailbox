@@ -1,5 +1,5 @@
-// Факт выемки: кто, когда, сколько забрал и как быстро отреагировал.
-// Из этой коллекции считается "Avg response" на дашборде диспетчера.
+// A pickup record: who, when, how much was collected and how fast they responded.
+// The dispatcher dashboard "Avg response" is computed from this collection.
 import mongoose from "mongoose";
 
 const pickupSchema = new mongoose.Schema(
@@ -8,7 +8,7 @@ const pickupSchema = new mongoose.Schema(
     courierId: { type: String, default: null, ref: "Courier" },
     weightG: { type: Number, min: 0, required: true },
     fillPercent: { type: Number, min: 0, max: 100, required: true },
-    // Время от "ящик стал полным" до выемки. null — если забрали до заполнения.
+    // Time from "box became full" to pickup. null if collected before it was full.
     responseMin: { type: Number, min: 0, default: null },
     collectedAt: { type: Date, default: Date.now },
   },

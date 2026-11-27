@@ -18,7 +18,7 @@ export default [
     },
   },
   {
-    // Сид печатает ключ устройства, мост — работает как CLI
+    // The seed prints the device key; the bridge is a CLI
     files: ["src/seed/**", "tools/**"],
     rules: { "no-console": "off" },
   },

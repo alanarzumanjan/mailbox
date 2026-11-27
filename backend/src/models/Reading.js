@@ -1,6 +1,6 @@
-// Сырые показания датчиков. Нужны для графиков, детекта "быстрого заполнения"
-// и разбора спорных случаев. Живут READING_RETENTION_DAYS (по умолчанию 30)
-// через TTL-индекс, чтобы база не росла бесконечно. 0 — хранить всегда.
+// Raw sensor readings. Used for charts, "rapid fill" detection
+// and investigating disputes. Kept for READING_RETENTION_DAYS (default 30)
+// via a TTL index so the database does not grow forever. 0 keeps them forever.
 import mongoose from "mongoose";
 
 const retentionDays = Number(process.env.READING_RETENTION_DAYS ?? 30);

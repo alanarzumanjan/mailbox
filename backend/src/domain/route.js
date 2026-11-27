@@ -1,11 +1,11 @@
-// Порядок объезда ящиков курьером (открытый маршрут: старт в депо, без возврата).
+// Courier visiting order (open route: starts at the depot, no return).
 //
-// До EXACT_LIMIT точек — точное решение Held-Karp (DP по битовым маскам),
-// O(n^2 * 2^n): 12 точек считаются за миллисекунды. Больше — nearest neighbour
-// + улучшение 2-opt: не гарантирует оптимум, зато быстро на любом n.
+// Up to EXACT_LIMIT stops: exact Held-Karp (bitmask DP),
+// O(n^2 * 2^n), 12 stops take milliseconds. Beyond that: nearest neighbour
+// + 2-opt improvement, not guaranteed optimal but fast for any n.
 //
-// Здесь решается только ПОРЯДОК. Геометрию линии по дорогам фронт по-прежнему
-// строит через OSRM (components/MapView.js).
+// Only the ORDER is solved here. The road geometry is still drawn by the
+// frontend via OSRM (components/MapView.js).
 
 import { haversineKm } from "./geo.js";
 
@@ -18,14 +18,14 @@ function distanceMatrix(nodes) {
 }
 
 function pathLength(order, dist) {
-  // order — индексы узлов, 0 = депо
+  // order holds node indices, 0 = depot
   let total = 0;
   for (let i = 1; i < order.length; i++) total += dist[order[i - 1]][order[i]];
   return total;
 }
 
 function heldKarp(dist, n) {
-  // Точки — индексы 1..n в dist, 0 — депо.
+  // Stops are indices 1..n in dist, 0 is the depot.
   const FULL = (1 << n) - 1;
   const dp = Array.from({ length: 1 << n }, () => new Float64Array(n).fill(Infinity));
   const parent = Array.from({ length: 1 << n }, () => new Int8Array(n).fill(-1));
@@ -74,7 +74,7 @@ function nearestNeighbourTwoOpt(dist, n) {
     order.push(best);
   }
 
-  // 2-opt: разворачиваем отрезки, пока это укорачивает путь. Депо (позиция 0) не трогаем.
+  // 2-opt: reverse segments while that shortens the path. The depot (position 0) stays put.
   let improved = true;
   while (improved) {
     improved = false;

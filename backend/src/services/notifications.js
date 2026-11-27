@@ -1,8 +1,8 @@
-// Уведомления о критических событиях вне дашборда: email (Resend) и webhook
-// (Slack/Teams/любой HTTP-приёмник). Подписаны на шину, сервисы о них не знают.
+// Notifications about critical events outside the dashboard: email (Resend) and webhook
+// (Slack/Teams/any HTTP receiver). Subscribed to the bus; services don't know about them.
 //
-// Отправка в процессе, без очереди: при падении процесса в момент отправки
-// письмо потеряется. Для прода следующий шаг — очередь (BullMQ/SQS) с ретраями.
+// Sent in-process without a queue: if the process dies mid-send, the message
+// is lost. Next step for production: a queue (BullMQ/SQS) with retries.
 import { bus, TOPICS } from "../lib/bus.js";
 import { logger } from "../lib/logger.js";
 import { User } from "../models/User.js";
@@ -47,7 +47,7 @@ export function createNotifier({ resendApiKey, fromEmail, webhookUrl }) {
   if (webhookUrl) {
     channels.push(async (event, box) => {
       const { text } = describe(event, box);
-      // Поле text понимают Slack и Teams; остальным пригодится event целиком.
+      // Slack and Teams read the text field; other receivers get the full event.
       await postJson(webhookUrl, { text, event, box });
     });
   }
@@ -66,6 +66,6 @@ export function createNotifier({ resendApiKey, fromEmail, webhookUrl }) {
     channels: channels.length,
     start: () => bus.on(TOPICS.EVENT_CREATED, listener),
     stop: () => bus.off(TOPICS.EVENT_CREATED, listener),
-    handle, // для тестов
+    handle, // for tests
   };
 }

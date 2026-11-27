@@ -37,7 +37,7 @@ async function nextBoxId() {
   return `MG-${String(max + 1).padStart(3, "0")}`;
 }
 
-// ---------- Список и карточка ----------
+// ---------- List and details ----------
 
 const ListQuery = z.object({
   district: z.string().optional().openapi({ example: "centrs" }),
@@ -78,7 +78,7 @@ router.get("/:id", ROLE.staff, validate({ params: Params }), async (req, res) =>
   res.json({ data: (await findBoxOr404(req.valid.params.id)).toApi() });
 });
 
-// ---------- Управление (admin) ----------
+// ---------- Management (admin) ----------
 
 const CreateBox = z.object({
   name: z.string().trim().min(1).max(120).openapi({ example: "Freedom Monument" }),
@@ -148,7 +148,7 @@ router.patch("/:id", ROLE.admin, validate({ params: Params, body: UpdateBox }), 
     if (box.capacity.emptyDistanceMm <= box.capacity.fullDistanceMm) {
       throw new HttpError(400, "validation_error", "emptyDistanceMm must be greater than fullDistanceMm");
     }
-    // Новая калибровка меняет процент заполнения — пересчитываем снимок.
+    // New calibration changes the fill percentage, so recompute the snapshot.
     const { fillPercent, status } = computeFill(
       { weightG: box.state.weightG, distanceMm: box.state.distanceMm },
       box.capacity,
@@ -179,7 +179,7 @@ router.delete("/:id", ROLE.admin, validate({ params: Params }), async (req, res)
   res.status(204).end();
 });
 
-// ---------- История ----------
+// ---------- History ----------
 
 registry.registerPath({
   method: "get",
@@ -213,7 +213,7 @@ router.get("/:id/pickups", ROLE.dispatch, validate({ params: Params, query: Page
   res.json({ data: items.map((p) => p.toApi()), nextCursor });
 });
 
-// ---------- Выемка ----------
+// ---------- Pickup ----------
 
 const PickupBody = z.object({
   courierId: COURIER_ID.optional().openapi({ description: "Dispatchers only; couriers act as themselves" }),
@@ -234,7 +234,7 @@ registry.registerPath({
 router.post("/:id/pickups", ROLE.staff, validate({ params: Params, body: PickupBody }), async (req, res) => {
   let courierId = req.valid.body.courierId ?? null;
   if (req.user.role === "courier") {
-    // Курьер не может записать выемку на другого курьера
+    // A courier cannot record a pickup on behalf of another courier
     if (courierId && courierId !== req.user.courierId) {
       throw new HttpError(403, "forbidden", "Couriers can only record their own pickups");
     }

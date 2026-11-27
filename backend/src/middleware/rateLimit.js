@@ -1,5 +1,5 @@
-// Ограничение частоты запросов. Хранилище в памяти процесса: для одного
-// инстанса достаточно; при горизонтальном масштабировании нужен Redis-store.
+// Request rate limiting. In-memory store: fine for a single instance;
+// horizontal scaling needs a Redis store.
 import rateLimit from "express-rate-limit";
 
 const handler = (req, res) =>
@@ -13,11 +13,11 @@ export function createLimiters({ disabled = false } = {}) {
     return { api: pass, auth: pass, device: pass };
   }
   return {
-    // Общий лимит на API
+    // General API limit
     api: rateLimit({ ...base, windowMs: 60_000, limit: 600 }),
-    // Логин: защита от перебора паролей
+    // Login: brute-force protection
     auth: rateLimit({ ...base, windowMs: 15 * 60_000, limit: 20 }),
-    // Устройство шлёт раз в минуту; 60/мин с запасом на пачку после реконнекта
+    // A device reports once a minute; 60/min leaves room for a burst after reconnect
     device: rateLimit({
       ...base,
       windowMs: 60_000,

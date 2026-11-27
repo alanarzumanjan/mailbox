@@ -1,5 +1,5 @@
-// Конфигурация из переменных окружения. Валидируем на старте:
-// лучше упасть сразу с понятной ошибкой, чем в рантайме на первом запросе.
+// Configuration from environment variables, validated at startup:
+// better to fail early with a clear error than at runtime on the first request.
 import { z } from "zod";
 
 const bool = z
@@ -19,41 +19,41 @@ const schema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   MONGODB_URI: z.string().min(1).default("mongodb://localhost:27017/emptyless"),
 
-  // Через запятую. "*" — любой origin (удобно в разработке, в проде так не надо).
+  // Comma-separated. "*" allows any origin (handy in development, not for production).
   CORS_ORIGINS: z.string().default("*"),
-  // За прокси (Vercel, Render, nginx) — чтобы rate limit видел реальный IP.
+  // Behind a proxy (Vercel, Render, nginx), so rate limiting sees the real IP.
   TRUST_PROXY: bool.default("false"),
 
-  // Авторизация пользователей
+  // User authentication
   JWT_SECRET: z.string().min(32).default(DEV_SECRET),
   ACCESS_TOKEN_TTL_MIN: z.coerce.number().int().min(1).max(120).default(15),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(30),
   GOOGLE_CLIENT_ID: optionalString,
-  // Стоимость bcrypt. 12 — разумно для прода; в тестах можно 4 для скорости.
+  // bcrypt cost. 12 is sensible for production; tests can use 4 for speed.
   BCRYPT_ROUNDS: z.coerce.number().int().min(4).max(15).default(12),
 
-  // Устройства: без показаний дольше N минут — "датчик офлайн".
+  // Devices: no readings for longer than N minutes means "sensor offline".
   DEVICE_OFFLINE_MINUTES: z.coerce.number().int().min(1).default(30),
   MONITOR_INTERVAL_SEC: z.coerce.number().int().min(5).default(60),
 
-  // Уведомления (оба канала необязательны)
+  // Notifications (both channels optional)
   RESEND_API_KEY: optionalString,
   NOTIFY_FROM_EMAIL: z.string().default("EmptyLess <onboarding@resend.dev>"),
   ALERT_WEBHOOK_URL: optionalString,
 
-  // Эндпоинт /api/simulate для демо-кнопки "Simulate mail" на фронте.
+  // /api/simulate endpoint for the frontend "Simulate mail" demo button.
   ENABLE_SIMULATION: bool.default("true"),
-  // Сколько дней хранить сырые показания (TTL-индекс). 0 — не удалять.
+  // How many days to keep raw readings (TTL index). 0 means never delete.
   READING_RETENTION_DAYS: z.coerce.number().int().min(0).default(30),
 
-  // Параметры экономической модели для /api/analytics/savings
+  // Economic model parameters for /api/analytics/savings
   FUEL_L_PER_100KM: z.coerce.number().positive().default(9),
   FUEL_PRICE_EUR: z.coerce.number().positive().default(1.6),
   AVG_SPEED_KMH: z.coerce.number().positive().default(25),
   STOP_MINUTES: z.coerce.number().min(0).default(3),
 });
 
-// "KEY=" в .env означает "не задано", а не пустую строку
+// "KEY=" in .env means "not set", not an empty string
 const env = Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== ""));
 const parsed = schema.safeParse(env);
 if (!parsed.success) {

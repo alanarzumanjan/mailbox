@@ -1,4 +1,4 @@
-// Панель диспетчера: лента событий, курьеры, районы, KPI, аудит.
+// Dispatcher panel: event feed, couriers, districts, KPIs, audit.
 import { Router } from "express";
 import { z } from "zod";
 import { Event, EVENT_TYPES } from "../models/Event.js";
@@ -16,7 +16,7 @@ import { audit } from "../services/audit.js";
 
 const security = [{ [bearerAuth.name]: [] }];
 
-// ---------- События ----------
+// ---------- Events ----------
 
 export const eventsRouter = Router();
 eventsRouter.use(authenticate, ROLE.staff);
@@ -45,7 +45,7 @@ eventsRouter.get("/", validate({ query: EventsQuery }), async (req, res) => {
   res.json({ data: items.map((e) => e.toApi()), nextCursor });
 });
 
-// ---------- Курьеры ----------
+// ---------- Couriers ----------
 
 export const couriersRouter = Router();
 couriersRouter.use(authenticate);
@@ -96,7 +96,7 @@ couriersRouter.patch("/:id", ROLE.staff, validate({ params: CourierParams, body:
   res.json({ data: courier.toApi() });
 });
 
-// ---------- Районы ----------
+// ---------- Districts ----------
 
 export const districtsRouter = Router();
 districtsRouter.use(authenticate, ROLE.staff);
@@ -143,7 +143,7 @@ statsRouter.get("/overview", async (req, res) => {
   res.json({ data: await getOverview() });
 });
 
-// ---------- Аудит (admin) ----------
+// ---------- Audit (admin) ----------
 
 export const auditRouter = Router();
 auditRouter.use(authenticate, ROLE.admin);

@@ -1,4 +1,4 @@
-// Выемка: курьер нажимает "Collect" (components/CourierPickupSheet.js).
+// Pickup: the courier taps "Collect" (components/CourierPickupSheet.js).
 import { Box } from "../models/Box.js";
 import { Courier } from "../models/Courier.js";
 import { Pickup } from "../models/Pickup.js";
@@ -29,8 +29,8 @@ export async function collectBox(boxId, courierId = null) {
     collectedAt: now,
   });
 
-  // Сбрасываем снимок сразу, не дожидаясь следующего показания датчика,
-  // чтобы ящик моментально пропал из маршрута курьера.
+  // Reset the snapshot right away instead of waiting for the next sensor reading,
+  // so the box drops off the courier's route immediately.
   box.state.weightG = 0;
   box.state.distanceMm = box.capacity.emptyDistanceMm;
   box.state.fillPercent = 0;

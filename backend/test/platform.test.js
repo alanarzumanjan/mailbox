@@ -1,4 +1,4 @@
-// Платформа: realtime, уведомления, пагинация, аналитика, документация, ошибки, лимиты.
+// Platform: realtime, notifications, pagination, analytics, docs, errors, limits.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
@@ -72,7 +72,7 @@ test("SSE stream requires a valid token", { skip }, async () => {
   await ctx.request(ctx.app).get("/api/stream?access_token=bad").expect(401);
 });
 
-// ---------- Уведомления ----------
+// ---------- Notifications ----------
 
 test("critical events are pushed to the webhook; others are not", { skip }, async () => {
   const hits = [];
@@ -89,7 +89,7 @@ test("critical events are pushed to the webhook; others are not", { skip }, asyn
   const notifier = createNotifier({ webhookUrl: `http://127.0.0.1:${hook.address().port}/hook` });
   notifier.start();
   try {
-    await reading({ weight: 100, battery: 10 }).expect(201); // warning — без уведомления
+    await reading({ weight: 100, battery: 10 }).expect(201); // warning, no notification
     await reading({ weight: 2000 }).expect(201); // critical
     await waitFor(() => hits.length >= 1);
     await new Promise((r) => setTimeout(r, 100));
@@ -114,7 +114,7 @@ test("a failing channel does not break telemetry", { skip }, async () => {
   }
 });
 
-// ---------- Пагинация ----------
+// ---------- Pagination ----------
 
 test("events paginate by cursor without gaps or duplicates", { skip }, async () => {
   const all = (await as("dispatcher").get("/api/events?limit=100").expect(200)).body.data;
@@ -140,7 +140,7 @@ test("events since a timestamp (polling)", { skip }, async () => {
   assert.equal(res.body.data.length, 1);
 });
 
-// ---------- Аналитика ----------
+// ---------- Analytics ----------
 
 test("savings: smart route is shorter than the fixed schedule", { skip }, async () => {
   const res = await as("dispatcher").get("/api/analytics/savings").expect(200);
@@ -171,7 +171,7 @@ test("fill history and pickups per day", { skip }, async () => {
   await as("dispatcher").get("/api/analytics/fill-history?boxId=MG-999").expect(404);
 });
 
-// ---------- Документация и ошибки ----------
+// ---------- Docs and errors ----------
 
 test("OpenAPI document covers the API and Swagger UI is served", { skip }, async () => {
   const doc = (await ctx.request(ctx.app).get("/openapi.json").expect(200)).body;

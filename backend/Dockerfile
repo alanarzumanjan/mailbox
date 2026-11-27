@@ -1,5 +1,5 @@
-# Production-образ API. Зависимости ставятся отдельным слоем,
-# поэтому правки кода не пересобирают node_modules.
+# Production API image. Dependencies are installed in a separate layer,
+# so code changes do not rebuild node_modules.
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./

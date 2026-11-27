@@ -1,5 +1,5 @@
-// Валидация входа через Zod. Распарсенные значения кладём в req.valid,
-// чтобы обработчики работали уже с приведёнными типами (числа из query и т.п.).
+// Request validation with Zod. Parsed values go into req.valid so handlers
+// work with coerced types (numbers from the query string and so on).
 export const validate = (schemas) => (req, res, next) => {
   req.valid = {};
   for (const part of ["params", "query", "body"]) {

@@ -1,13 +1,13 @@
-// Почтовый ящик: паспорт (адрес, координаты, ёмкость) + последнее состояние датчиков.
-// История показаний хранится отдельно (Reading), здесь только "текущий снимок",
-// чтобы карта и дашборд читали одну коллекцию одним запросом.
+// Postbox: passport (address, coordinates, capacity) + latest sensor state.
+// Reading history is stored separately (Reading); here is only the "current snapshot",
+// so the map and dashboard read one collection in one query.
 import mongoose from "mongoose";
 import { STATUS } from "../domain/fill.js";
 
 const capacitySchema = new mongoose.Schema(
   {
     maxWeightG: { type: Number, required: true, min: 1, default: 2000 },
-    // Калибровка ИК-датчика для конкретного ящика (мм от датчика).
+    // IR sensor calibration for this particular box (mm from the sensor).
     emptyDistanceMm: { type: Number, min: 0, default: 300 },
     fullDistanceMm: { type: Number, min: 0, default: 40 },
   },
@@ -21,10 +21,10 @@ const stateSchema = new mongoose.Schema(
     battery: { type: Number, min: 0, max: 100, default: null },
     fillPercent: { type: Number, min: 0, max: 100, default: 0 },
     status: { type: String, enum: Object.values(STATUS), default: STATUS.NORMAL },
-    // Когда ящик стал полным — для расчёта времени реакции курьера.
+    // When the box became full, used to measure courier response time.
     fullSince: { type: Date, default: null },
     lastReadingAt: { type: Date, default: null },
-    // null — датчик ещё ни разу не выходил на связь; false — пропал.
+    // null: the sensor has never reported; false: it went silent.
     online: { type: Boolean, default: null },
   },
   { _id: false },
@@ -32,7 +32,7 @@ const stateSchema = new mongoose.Schema(
 
 const boxSchema = new mongoose.Schema(
   {
-    _id: { type: String, match: /^MG-\d{3,}$/ }, // MG-001, как во фронте
+    _id: { type: String, match: /^MG-\d{3,}$/ }, // MG-001, same as the frontend
     name: { type: String, required: true, trim: true, maxlength: 120 },
     address: { type: String, required: true, trim: true, maxlength: 200 },
     district: { type: String, required: true, index: true },
@@ -49,7 +49,7 @@ const boxSchema = new mongoose.Schema(
 
 boxSchema.index({ "state.status": 1 });
 
-// Плоский формат, который уже понимает фронт (data/initialBoxes.js):
+// Flat shape the frontend already understands (data/initialBoxes.js):
 // { id, name, address, district, lat, lng, weight, max, battery, ... }
 boxSchema.methods.toApi = function toApi() {
   return {

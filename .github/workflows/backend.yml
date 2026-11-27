@@ -1,5 +1,5 @@
-# CI бэкенда: линт, юнит- и интеграционные тесты против настоящей MongoDB,
-# сборка Docker-образа. Файл должен лежать в .github/workflows/ в корне репозитория.
+# Backend CI: lint, unit and integration tests against a real MongoDB,
+# Docker image build. This file must live in .github/workflows/ at the repo root.
 name: backend
 
 on:

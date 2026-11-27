@@ -1,13 +1,13 @@
-// Внутренняя шина доменных событий. Сервисы публикуют факты
-// ("ящик обновлён", "создано событие"), а подписчики (SSE, уведомления)
-// реагируют, не зная друг о друге.
+// Internal domain event bus. Services publish facts
+// ("box updated", "event created") and subscribers (SSE, notifications)
+// react without knowing about each other.
 //
-// Работает в пределах одного процесса. Для нескольких инстансов API
-// заменяется на MongoDB change streams или Redis pub/sub без изменения сервисов.
+// Works within a single process. For multiple API instances it is replaced
+// with MongoDB change streams or Redis pub/sub without changing the services.
 import { EventEmitter } from "node:events";
 
 export const bus = new EventEmitter();
-bus.setMaxListeners(1000); // по слушателю на каждое открытое SSE-подключение
+bus.setMaxListeners(1000); // one listener per open SSE connection
 
 export const TOPICS = Object.freeze({
   BOX_UPDATED: "box.updated",

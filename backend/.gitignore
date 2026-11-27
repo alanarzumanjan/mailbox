@@ -1,4 +1,4 @@
 node_modules/
 .env
-# корневой .gitignore (Next.js) игнорирует .env* — шаблон нужен в репозитории
+# the root .gitignore (Next.js) ignores .env*; the template must be tracked
 !.env.example

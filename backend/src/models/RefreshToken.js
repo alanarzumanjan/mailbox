@@ -1,7 +1,7 @@
-// Refresh-токены с ротацией. Храним только SHA-256 хэш: утечка базы не даёт
-// готовых токенов. Все токены одной сессии связаны `family` — если старый
-// (уже использованный) токен приходит снова, это признак кражи, и вся
-// семья отзывается.
+// Rotating refresh tokens. Only a SHA-256 hash is stored, so a database leak
+// yields no usable tokens. All tokens of one session share a `family`: if an old
+// (already used) token shows up again, that signals theft and the whole
+// family is revoked.
 import mongoose from "mongoose";
 
 const refreshTokenSchema = new mongoose.Schema(

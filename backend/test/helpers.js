@@ -1,5 +1,5 @@
-// Общая обвязка интеграционных тестов: своя временная база на каждый файл,
-// свежий сид перед каждым тестом, готовые токены для всех ролей.
+// Shared integration test harness: a temporary database per file,
+// a fresh seed before each test, ready tokens for every role.
 import { before, after, beforeEach } from "node:test";
 
 export const BASE_URI = process.env.TEST_MONGODB_URI;
@@ -52,7 +52,7 @@ export function setupIntegration({ appOptions = {} } = {}) {
   return ctx;
 }
 
-/** Запрос от имени роли: as("admin").get("/api/users") */
+/** Request as a role: as("admin").get("/api/users") */
 export const as = (role) => {
   const agent = ctx.request(ctx.app);
   const withAuth = (method) => (url) => agent[method](url).set("authorization", `Bearer ${ctx.tokens[role]}`);

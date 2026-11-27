@@ -1,7 +1,7 @@
-// Демо-кнопка "Simulate mail" (handleSimulateMail в CourierApp / DispatcherDashboard).
-// Генерирует синтетическое показание и прогоняет его через тот же конвейер,
-// что и настоящий датчик — события, уведомления и SSE работают как "вживую".
-// Включается флагом ENABLE_SIMULATION; в проде выключить.
+// Demo "Simulate mail" button (handleSimulateMail in CourierApp / DispatcherDashboard).
+// Generates a synthetic reading and runs it through the same pipeline
+// as a real sensor, so events, notifications and SSE behave "live".
+// Enabled by ENABLE_SIMULATION; turn it off in production.
 import { Router } from "express";
 import { z } from "zod";
 import { Box } from "../models/Box.js";
@@ -38,7 +38,7 @@ router.post("/mail", validate({ body: Body }), async (req, res) => {
   if (boxId) {
     box = await Box.findOne({ _id: boxId, active: true });
   } else {
-    // Как на фронте: берём самый заполненный из ещё не полных ящиков.
+    // Like the frontend: pick the fullest box that is not full yet.
     const filter = { active: true, "state.status": { $ne: STATUS.FULL } };
     if (district && district !== "all") filter.district = district;
     box = await Box.findOne(filter).sort({ "state.fillPercent": -1 });

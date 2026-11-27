@@ -1,5 +1,5 @@
-// Оптимизация маршрута курьера.
-// Заменяет сортировку по долготе в components/CourierApp.js на настоящий TSP.
+// Courier route optimisation.
+// Replaces the longitude sort in components/CourierApp.js with a real TSP.
 import { Router } from "express";
 import { z } from "zod";
 import { Box } from "../models/Box.js";

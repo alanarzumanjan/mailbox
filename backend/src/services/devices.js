@@ -16,7 +16,7 @@ async function nextDeviceId() {
   return `DEV-${String(max + 1).padStart(3, "0")}`;
 }
 
-/** Выдать новый датчик ящику. Возвращает ключ в открытом виде — единственный раз. */
+/** Provision a new device for a box. Returns the plaintext key, exactly once. */
 export async function provisionDevice({ boxId, name, firmware }) {
   if (!(await Box.exists({ _id: boxId, active: true }))) throw notFound(`Box ${boxId}`);
   const { prefix, key } = generateKey();
@@ -31,7 +31,7 @@ export async function provisionDevice({ boxId, name, firmware }) {
   return { device, apiKey: key };
 }
 
-/** Новый ключ взамен старого (старый перестаёт работать сразу). */
+/** Issue a new key; the old one stops working immediately. */
 export async function rotateDeviceKey(deviceId) {
   const device = await Device.findById(deviceId);
   if (!device) throw notFound(`Device ${deviceId}`);
@@ -52,7 +52,7 @@ export async function revokeDevice(deviceId) {
   return device;
 }
 
-/** Найти активный датчик по ключу из заголовка. null — ключ неверный. */
+/** Find an active device by the header key. null means the key is invalid. */
 export async function findDeviceByKey(key) {
   const match = KEY_RE.exec(key ?? "");
   if (!match) return null;

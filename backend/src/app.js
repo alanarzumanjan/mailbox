@@ -1,5 +1,5 @@
-// Сборка Express-приложения. Отдельно от server.js, чтобы тесты
-// поднимали app без listen() и без реального порта.
+// Builds the Express app. Kept separate from server.js so tests
+// can run the app without listen() and a real port.
 import { randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import express from "express";
@@ -46,11 +46,11 @@ export function createApp({
         res.setHeader("x-request-id", id);
         return id;
       },
-      // health и стрим не засоряют логи
+      // keep health checks and the stream out of the logs
       autoLogging: { ignore: (req) => req.url === "/health" || req.url.startsWith("/api/stream") },
     }),
   );
-  // CSP отключаем только для Swagger UI: ему нужны inline-скрипты
+  // CSP is disabled only because Swagger UI needs inline scripts
   app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: "cross-origin" } }));
   app.use(
     cors({

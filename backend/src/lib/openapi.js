@@ -1,5 +1,5 @@
-// Единый источник правды: Zod-схемы валидируют запросы И описывают API в Swagger.
-// Роуты регистрируют свои пути через `registry.registerPath(...)`.
+// Single source of truth: Zod schemas validate requests AND describe the API in Swagger.
+// Routes register their paths via `registry.registerPath(...)`.
 import { z } from "zod";
 import {
   extendZodWithOpenApi,
@@ -33,7 +33,7 @@ export const ErrorSchema = registry.register(
   }),
 );
 
-// Обёртка { data: T }, в которой отдаются все успешные ответы.
+// The { data: T } envelope used for every successful response.
 export const envelope = (schema) => z.object({ data: schema });
 
 const errorResponse = (description) => ({

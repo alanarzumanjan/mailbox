@@ -1,4 +1,4 @@
-// География: расстояние между точками и район Риги по координатам.
+// Geography: distance between points and Riga district by coordinates.
 
 const EARTH_RADIUS_KM = 6371;
 const toRad = (d) => (d * Math.PI) / 180;
@@ -12,13 +12,13 @@ export function haversineKm(a, b) {
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
 }
 
-// Точка старта курьера по умолчанию — центр "All Riga" из data/districts.js
+// Default courier start point: the "All Riga" centre from data/districts.js
 export const DEFAULT_DEPOT = Object.freeze({ lat: 56.9515, lng: 24.112 });
 
-// Та же грубая разбивка, что и во фронте (data/districts.js → getBoxDistrict),
-// чтобы ящик, созданный через API, попадал в тот же район, что и на карте.
+// Same rough split as the frontend (data/districts.js → getBoxDistrict),
+// so a box created via the API lands in the same district as on the map.
 export function districtFromLocation({ lat, lng }) {
-  if (lng < 24.093) return "pardaugava"; // левый берег Даугавы
+  if (lng < 24.093) return "pardaugava"; // left bank of the Daugava
   if (lng > 24.14 || lat > 56.97) return "teika";
   return "centrs";
 }

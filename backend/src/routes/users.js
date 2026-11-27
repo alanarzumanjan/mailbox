@@ -1,4 +1,4 @@
-// Управление пользователями (только admin).
+// User management (admin only).
 import { Router } from "express";
 import { z } from "zod";
 import { validate } from "../middleware/validate.js";
@@ -17,7 +17,7 @@ router.use(authenticate, ROLE.admin);
 const security = [{ [bearerAuth.name]: [] }];
 const Params = z.object({ id: OBJECT_ID });
 
-// Пароль: не короче 10 символов — разумный минимум без "сложности ради сложности".
+// Password: at least 10 characters, a sensible minimum without "complexity for its own sake".
 const Password = z.string().min(10).max(200);
 
 async function assertCourierLink(role, courierId) {

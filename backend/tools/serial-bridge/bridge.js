@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Мост Arduino (USB Serial) → EmptyLess API.
+// Arduino (USB Serial) → EmptyLess API bridge.
 //
-// У Arduino Uno нет Wi-Fi, поэтому показания уходят через компьютер, к
-// которому он подключён. В серийном устройстве этот код заменяет ESP32 с
-// прямым HTTP POST — контракт API тот же.
+// An Arduino Uno has no Wi-Fi, so readings go through the computer it is
+// connected to. In the production device this is replaced by an ESP32 making
+// a direct HTTP POST; the API contract is the same.
 //
 //   EMPTYLESS_DEVICE_KEY=eld_... node bridge.js --port /dev/ttyUSB0
-//   node bridge.js --list            — показать доступные порты
-//   node bridge.js --dry-run ...     — только печатать, ничего не отправлять
+//   node bridge.js --list            — list available ports
+//   node bridge.js --dry-run ...     — print only, send nothing
 import { SerialPort } from "serialport";
 import { ReadlineParser } from "@serialport/parser-readline";
 import { parseArgs } from "node:util";
@@ -49,8 +49,8 @@ const thresholds = {
   maxSilenceMs: Number(args["max-silence"]) * 1000,
 };
 
-let last = null; // последнее отправленное { reading, at }
-let pending = null; // последнее непереданное показание (при сбое сети)
+let last = null; // last sent { reading, at }
+let pending = null; // latest unsent reading (after a network failure)
 let backoffMs = 0;
 
 async function send(reading) {
@@ -86,7 +86,7 @@ async function handle(reading) {
     pending = null;
     backoffMs = 0;
   } else {
-    // Храним только самое свежее: старые показания уже неактуальны.
+    // Keep only the latest: older readings are no longer relevant.
     pending = reading;
     backoffMs = Math.min(backoffMs ? backoffMs * 2 : 2000, 60_000);
     setTimeout(() => pending && handle(pending), backoffMs).unref();
@@ -115,8 +115,8 @@ parser.on("data", (line) => {
   void handle(reading);
 });
 
-// Даже без изменений раз в max-silence отправляем "я жив", иначе
-// бэкенд пометит датчик офлайн.
+// Even without changes, send an "I'm alive" every max-silence, otherwise
+// the backend will mark the sensor offline.
 setInterval(() => last && handle(last.reading), thresholds.maxSilenceMs).unref();
 
 process.on("SIGINT", () => {

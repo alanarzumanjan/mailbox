@@ -1,4 +1,4 @@
-// Районы для фильтра и центровки карты (data/districts.js → DISTRICTS).
+// Districts for filters and map centring (data/districts.js → DISTRICTS).
 import mongoose from "mongoose";
 
 const districtSchema = new mongoose.Schema(
@@ -18,7 +18,7 @@ districtSchema.methods.toApi = function toApi() {
   return {
     id: this._id,
     label: this.label,
-    center: [this.center.lat, this.center.lng], // формат Leaflet, как во фронте
+    center: [this.center.lat, this.center.lng], // Leaflet format, same as the frontend
     zoom: this.zoom,
   };
 };

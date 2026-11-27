@@ -10,8 +10,8 @@ import { createNotifier } from "./services/notifications.js";
 await connectDb(config.MONGODB_URI);
 logger.info("MongoDB connected");
 
-// Пустая база в разработке — сразу наполняем демо-данными, чтобы
-// `docker compose up` давал рабочий API без ручных шагов.
+// Empty database in development: seed demo data right away so that
+// `docker compose up` gives a working API with no manual steps.
 if (config.NODE_ENV !== "production" && (await Box.estimatedDocumentCount()) === 0) {
   await seedDatabase();
 }
@@ -53,8 +53,8 @@ function shutdown(signal) {
     await disconnectDb();
     process.exit(0);
   });
-  // Текущие запросы успевают завершиться; SSE-потоки бесконечны —
-  // их обрываем через 3 с, браузер сам переподключится к новому инстансу.
+  // In-flight requests get time to finish; SSE streams never end, so they
+  // are cut after 3 s and the browser reconnects to the new instance.
   setTimeout(() => server.closeAllConnections(), 3000).unref();
   setTimeout(() => process.exit(1), 10000).unref();
 }

@@ -1,4 +1,4 @@
-// Датчики: приём показаний (по ключу устройства) и управление (admin).
+// Sensors: reading ingestion (by device key) and management (admin).
 import { Router } from "express";
 import { z } from "zod";
 import { deviceAuth } from "../middleware/deviceAuth.js";
@@ -16,9 +16,9 @@ export function createDevicesRouter({ limiter }) {
   const router = Router();
   const security = [{ [bearerAuth.name]: [] }];
 
-  // ---------- Телеметрия ----------
+  // ---------- Telemetry ----------
 
-  // Контракт совпадает с тем, что Arduino уже выводит в Serial: вес и расстояние.
+  // The contract matches what the Arduino already prints to Serial: weight and distance.
   const ReadingBody = z.object({
     weight: z.number().min(0).max(100000).openapi({ description: "Grams", example: 1850 }),
     distance: z.number().min(0).max(5000).nullable().optional()
@@ -60,7 +60,7 @@ export function createDevicesRouter({ limiter }) {
       { weightG: weight, distanceMm: distance, battery, firmware },
       { source: "device", device: req.device },
     );
-    // Ответ короткий: устройству нужен только статус, чтобы зажечь светодиод.
+    // Short response: the device only needs the status to switch its LED.
     res.status(201).json({
       data: {
         boxId: box._id,
@@ -72,7 +72,7 @@ export function createDevicesRouter({ limiter }) {
     });
   });
 
-  // ---------- Управление датчиками (admin) ----------
+  // ---------- Device management (admin) ----------
 
   const admin = [authenticate, ROLE.admin];
   const Params = z.object({ id: DEVICE_ID });

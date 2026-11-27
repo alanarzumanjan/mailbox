@@ -1,6 +1,6 @@
-// Аутентификация: пароль или Google ID token → пара токенов.
-// Access (JWT, 15 мин) — в заголовке Authorization. Refresh (случайная строка,
-// 30 дней) — только для /auth/refresh, ротируется при каждом использовании.
+// Authentication: password or Google ID token → token pair.
+// Access (JWT, 15 min) goes in the Authorization header. Refresh (random string,
+// 30 days) is only for /auth/refresh and is rotated on every use.
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
@@ -13,8 +13,8 @@ import { logger } from "../lib/logger.js";
 
 const BCRYPT_ROUNDS = config.BCRYPT_ROUNDS;
 const JWT_ISSUER = "emptyless-api";
-// Хэш-заглушка: сравниваем пароль даже для несуществующего пользователя,
-// чтобы по времени ответа нельзя было узнать, есть ли такой email.
+// Dummy hash: compare a password even for unknown users, so response timing
+// does not reveal whether an email exists.
 const DUMMY_HASH = bcrypt.hashSync("timing-equaliser", BCRYPT_ROUNDS);
 
 const invalidCredentials = () =>
@@ -100,7 +100,7 @@ export async function loginWithGoogle(idToken, meta) {
 
   const user = await User.findOne({ email: payload.email.toLowerCase(), active: true });
   if (!user) {
-    // Самостоятельной регистрации нет: доступ выдаёт админ.
+    // No self sign-up: access is granted by an admin.
     throw new HttpError(403, "not_invited", "This Google account has no access. Ask an administrator.");
   }
   await markLogin(user);
@@ -114,13 +114,13 @@ export async function refreshSession(token, meta) {
   }
 
   if (record.usedAt) {
-    // Токен уже обменивали — его кто-то скопировал. Отзываем всю сессию.
+    // The token was already exchanged, so someone copied it. Revoke the whole session.
     await RefreshToken.updateMany({ family: record.family }, { $set: { revokedAt: new Date() } });
     logger.warn({ userId: record.userId.toString() }, "refresh token reuse detected, session revoked");
     throw new HttpError(401, "token_reused", "Session revoked, please sign in again");
   }
 
-  // Атомарно помечаем использованным: два параллельных refresh не пройдут оба.
+  // Mark as used atomically: two parallel refreshes cannot both succeed.
   const claimed = await RefreshToken.findOneAndUpdate(
     { _id: record._id, usedAt: null },
     { $set: { usedAt: new Date() } },

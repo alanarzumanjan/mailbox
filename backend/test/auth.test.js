@@ -42,11 +42,11 @@ test("refresh rotates tokens; reusing an old one revokes the whole session", { s
   const second = r1.body.data.refreshToken;
   assert.notEqual(second, first);
 
-  // Кто-то повторно предъявил уже использованный токен — признак кражи
+  // Someone presented an already used token again: a sign of theft
   const reuse = await refresh(first).expect(401);
   assert.equal(reuse.body.error.code, "token_reused");
 
-  // И новый токен этой сессии тоже больше не работает
+  // And the new token of that session stops working too
   await refresh(second).expect(401);
 });
 
@@ -60,17 +60,17 @@ test("Google sign-in reports when it is not configured", { skip }, async () => {
   assert.equal(res.body.error.code, "not_configured");
 });
 
-// ---------- Роли ----------
+// ---------- Roles ----------
 
 test("role permissions", { skip }, async () => {
-  // Курьер видит ящики и маршрут, но не управляет системой
+  // A courier sees boxes and routes but does not manage the system
   await as("courier").get("/api/boxes").expect(200);
   await as("courier").post("/api/routes/optimize").send({}).expect(200);
   await as("courier").get("/api/stats/overview").expect(403);
   await as("courier").get("/api/boxes/MG-001/readings").expect(403);
   await as("courier").post("/api/boxes").send({ name: "x", address: "y", lat: 56.9, lng: 24.1 }).expect(403);
 
-  // Диспетчер — оперативная работа, но не пользователи и не датчики
+  // A dispatcher does operations, but not users or devices
   await as("dispatcher").get("/api/stats/overview").expect(200);
   await as("dispatcher").get("/api/users").expect(403);
   await as("dispatcher").get("/api/devices").expect(403);
@@ -94,7 +94,7 @@ test("couriers update only their own status and note", { skip }, async () => {
   await as("dispatcher").patch("/api/couriers/CR-02").send({ district: "teika" }).expect(200);
 });
 
-// ---------- Пользователи ----------
+// ---------- Users ----------
 
 test("admin manages users; disabling signs the user out", { skip }, async () => {
   const created = await as("admin")

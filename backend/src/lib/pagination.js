@@ -1,5 +1,5 @@
-// Курсорная пагинация по (дата, _id) — стабильна, когда сверху приходят новые
-// записи (в отличие от offset/skip, где страницы "съезжают").
+// Cursor pagination by (date, _id): stable while new records arrive at the top
+// (unlike offset/skip, where pages "shift").
 import { z } from "zod";
 import mongoose from "mongoose";
 import { HttpError } from "../middleware/errors.js";
@@ -21,8 +21,8 @@ function decode(cursor) {
 }
 
 /**
- * Страница документов, отсортированных по убыванию `field`.
- * Возвращает { items, nextCursor }.
+ * A page of documents sorted by `field` descending.
+ * Returns { items, nextCursor }.
  */
 export async function paginate(Model, filter, { limit, cursor }, field = "createdAt") {
   const query = { ...filter };

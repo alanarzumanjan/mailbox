@@ -31,7 +31,7 @@ export function createSystemRouter({ version }) {
     });
   });
 
-  // Документ строится лениво: к первому запросу все роуты уже зарегистрированы.
+  // Built lazily: by the first request every route has registered itself.
   let doc;
   const getDoc = () => (doc ??= buildOpenApiDocument());
   router.get("/openapi.json", (req, res) => res.json(getDoc()));

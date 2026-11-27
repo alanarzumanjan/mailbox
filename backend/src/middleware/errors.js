@@ -1,5 +1,5 @@
-// Единый формат ошибок: { error: { code, message, details? } }.
-// Express 5 сам передаёт сюда ошибки из async-обработчиков, try/catch не нужен.
+// One error format everywhere: { error: { code, message, details? } }.
+// Express 5 forwards errors from async handlers here, no try/catch needed.
 import mongoose from "mongoose";
 import { ZodError } from "zod";
 
@@ -45,7 +45,7 @@ export function errorHandler(err, req, res, next) {
     return res.status(400).json({ error: { code: "bad_json", message: "Malformed JSON body" } });
   }
 
-  // req.log — логгер запроса из pino-http (с request id)
+  // req.log is the per-request logger from pino-http (with request id)
   (req.log ?? console).error({ err }, "unhandled error");
   res.status(500).json({ error: { code: "internal", message: "Internal server error" } });
 }

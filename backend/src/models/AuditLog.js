@@ -1,11 +1,11 @@
-// Журнал административных действий: кто, что и когда поменял.
-// Нужен для разбора инцидентов ("кто отозвал ключ датчика?") и для доверия
-// заказчика к системе. Не удаляется автоматически.
+// Log of administrative actions: who changed what and when.
+// Needed to investigate incidents ("who revoked this sensor key?") and to give
+// the customer confidence in the system. Never deleted automatically.
 import mongoose from "mongoose";
 
 const auditLogSchema = new mongoose.Schema(
   {
-    actorId: { type: String, default: null }, // null — система
+    actorId: { type: String, default: null }, // null means the system
     actorEmail: { type: String, default: null },
     action: { type: String, required: true }, // "box.create", "device.revoke", ...
     targetType: { type: String, required: true },

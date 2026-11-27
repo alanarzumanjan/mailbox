@@ -1,6 +1,6 @@
-// Аналитика для диспетчера и бизнеса.
-// Агрегация в приложении, а не в $group: объёмы за окно небольшие, а код
-// одинаково работает в MongoDB и в Mongo-совместимых базах.
+// Analytics for dispatchers and the business.
+// Aggregated in the application rather than with $group: volumes per window are
+// small, and the code works the same on MongoDB and Mongo-compatible databases.
 import { Box } from "../models/Box.js";
 import { Reading } from "../models/Reading.js";
 import { Pickup } from "../models/Pickup.js";
@@ -10,7 +10,7 @@ import { notFound } from "../middleware/errors.js";
 
 const round1 = (x) => Math.round(x * 10) / 10;
 
-/** Заполненность ящика по интервалам: для графика в карточке ящика. */
+/** Fill level of a box in time buckets, for the chart on the box card. */
 export async function fillHistory(boxId, { hours, bucketMin }) {
   if (!(await Box.exists({ _id: boxId }))) throw notFound(`Box ${boxId}`);
   const since = new Date(Date.now() - hours * 3600_000);
@@ -37,7 +37,7 @@ export async function fillHistory(boxId, { hours, bucketMin }) {
   }));
 }
 
-/** Выемки по дням: количество, собранный вес, среднее время реакции. */
+/** Pickups per day: count, collected weight, average response time. */
 export async function pickupsByDay({ days }) {
   const since = new Date();
   since.setHours(0, 0, 0, 0);
@@ -68,9 +68,9 @@ export async function pickupsByDay({ days }) {
 }
 
 /**
- * Экономия от умного маршрута: объезд только полных ящиков против
- * фиксированного графика, где курьер проезжает все ящики подряд.
- * Оба маршрута считаются одним и тем же оптимизатором — сравнение честное.
+ * Savings from the smart route: visiting only full boxes versus a
+ * fixed schedule where the courier drives past every box.
+ * Both routes use the same optimizer, so the comparison is fair.
  */
 export async function routeSavings({ depot, district, includeWarning, runsPerDay, model }) {
   const filter = { active: true };

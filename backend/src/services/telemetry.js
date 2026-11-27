@@ -1,6 +1,6 @@
-// Приём показаний датчиков: обновляем снимок ящика, пишем историю
-// и генерируем события на ПЕРЕХОДАХ состояния (а не на каждом показании),
-// чтобы дребезг веса у порога не засыпал ленту диспетчера одинаковыми алертами.
+// Sensor reading ingestion: update the box snapshot, store history
+// and raise events on state TRANSITIONS (not on every reading), so weight
+// jitter around a threshold does not flood the dispatcher feed with duplicate alerts.
 import { Box } from "../models/Box.js";
 import { Reading } from "../models/Reading.js";
 import { computeFill, isLowBattery, STATUS, THRESHOLDS } from "../domain/fill.js";
@@ -20,7 +20,7 @@ async function detectRapidFill(boxId, prevFill, newFill, now) {
   const delta = newFill - hourAgo.fillPercent;
   const prevDelta = prevFill - hourAgo.fillPercent;
   const limit = THRESHOLDS.rapidFillPercentPerHour;
-  // Только в момент пересечения порога, а не на каждом следующем показании.
+  // Only at the moment the threshold is crossed, not on every following reading.
   return delta >= limit && prevDelta < limit ? Math.round(delta) : null;
 }
 
@@ -42,7 +42,7 @@ export async function ingestReading(boxId, reading, { source = "device", device 
   };
 
   const distanceMm = reading.distanceMm ?? null;
-  const battery = reading.battery ?? box.state.battery; // батарея может не прийти
+  const battery = reading.battery ?? box.state.battery; // battery may be missing
   const { fillPercent, status, trigger } = computeFill(
     { weightG: reading.weightG, distanceMm },
     box.capacity,

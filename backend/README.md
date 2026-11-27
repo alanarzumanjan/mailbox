@@ -1,41 +1,41 @@
-# EmptyLess — бэкенд
+# EmptyLess — backend
 
-Бэкенд сети умных почтовых ящиков для Latvijas Pasts. Принимает показания датчиков
-(вес + ИК-расстояние), определяет заполненность, поднимает тревоги, строит оптимальный
-маршрут курьера только по полным ящикам и считает, сколько это экономит.
+Backend for a network of smart postboxes for Latvijas Pasts. It ingests sensor readings
+(weight + IR distance), works out how full each box is, raises alerts, plans the courier
+route through full boxes only, and measures how much that saves.
 
-**Стек:** Node.js 22 · Express 5 · MongoDB (Mongoose 8) · Zod · JWT · OpenAPI 3.1 · Docker
+**Stack:** Node.js 22 · Express 5 · MongoDB (Mongoose 8) · Zod · JWT · OpenAPI 3.1 · Docker
 
 ```
 Arduino ──USB──► serial-bridge ──HTTP + X-Device-Key──┐
-ESP32 (серийная версия) ─────────HTTP + X-Device-Key──┤
+ESP32 (production unit) ─────────HTTP + X-Device-Key──┤
                                                       ▼
-                                   ┌──────────── EmptyLess API ────────────┐
-                                   │ телеметрия → правила → события       │
-                                   │ маршрут (Held-Karp) · аналитика      │
-                                   │ пользователи/роли · аудит · монитор  │
+                                   ┌──────────── EmptyLess API ───────────┐
+                                   │ telemetry → rules → events           │
+                                   │ routing (Held-Karp) · analytics      │
+                                   │ users/roles · audit · monitor        │
                                    └──┬────────────┬──────────────┬───────┘
                                       ▼            ▼              ▼
-                                   MongoDB    SSE-поток      Email / Webhook
-                                              (дашборд)      (критические)
+                                   MongoDB    SSE stream     Email / Webhook
+                                              (dashboard)    (critical alerts)
 ```
 
-## Возможности
+## Features
 
-| Область | Что сделано |
+| Area | What it does |
 |---|---|
-| Телеметрия | Приём показаний, расчёт заполнения по двум датчикам, история с TTL |
-| События | Генерация на **переходах** состояния: заполнен, низкий заряд, быстрое заполнение, датчик офлайн/онлайн |
-| Маршрут | Точный TSP (Held-Karp) до 12 точек, nearest neighbour + 2-opt дальше |
-| Аналитика | Экономия км/времени/топлива/€ против фиксированного графика, выемки по дням, история заполнения |
-| Доступ | Роли admin/dispatcher/courier, JWT + ротация refresh-токенов с детектом кражи, вход через Google |
-| Устройства | Ключ на каждый датчик (хранится хэш), выдача/ротация/отзыв, офлайн-монитор |
-| Realtime | SSE-поток `box.updated` / `event.created` / `pickup.created` |
-| Уведомления | Email (Resend) и webhook (Slack/Teams) на критические события |
-| Эксплуатация | Swagger UI, JSON-логи с request-id, rate limiting, helmet, аудит-лог, healthcheck, graceful shutdown, CI |
-| Железо | Мост USB-Serial → API для Arduino Uno без Wi-Fi |
+| Telemetry | Ingests readings, computes fill from two sensors, keeps history with a TTL |
+| Events | Raised on **state transitions**: full, low battery, rapid fill, sensor offline/online |
+| Routing | Exact TSP (Held-Karp) up to 12 stops, nearest neighbour + 2-opt beyond |
+| Analytics | km/time/fuel/€ saved versus a fixed schedule, pickups per day, fill history |
+| Access | admin/dispatcher/courier roles, JWT + rotating refresh tokens with theft detection, Google sign-in |
+| Devices | One key per sensor (stored hashed), provisioning/rotation/revocation, offline monitor |
+| Realtime | SSE stream: `box.updated` / `event.created` / `pickup.created` |
+| Notifications | Email (Resend) and webhook (Slack/Teams) for critical events |
+| Operations | Swagger UI, JSON logs with request ids, rate limiting, helmet, audit log, healthcheck, graceful shutdown, CI |
+| Hardware | USB-Serial → API bridge for an Arduino Uno without Wi-Fi |
 
-## Быстрый старт
+## Quick start
 
 ```bash
 cp .env.example .env
@@ -43,97 +43,103 @@ docker compose up --build
 ```
 
 - API — http://localhost:4000
-- **Swagger UI — http://localhost:4000/docs** (там же можно авторизоваться и вызвать любой метод)
+- **Swagger UI — http://localhost:4000/docs** (sign in and call any endpoint from there)
 - OpenAPI — http://localhost:4000/openapi.json
 - MongoDB — `mongodb://localhost:27017/emptyless`
 
-При пустой базе API сам загружает демо-данные (те же 14 ящиков, районы, курьеры и события,
-что на сайте), создаёт демо-пользователей и датчик для MG-001 и **печатает его ключ в лог**.
+With an empty database the API loads demo data (the same 14 boxes, districts, couriers and
+events as the website), creates demo users and a sensor for MG-001, and **prints its key to the log**:
 
-| Роль | Email | Пароль |
+```bash
+docker compose logs api | grep -A1 "Demo device"
+```
+
+| Role | Email | Password |
 |---|---|---|
 | admin | admin@emptyless.lv | admin-demo-2026 |
 | dispatcher | dispatcher@emptyless.lv | dispatch-demo-2026 |
 | courier (CR-01) | courier@emptyless.lv | courier-demo-2026 |
 
-Демо-доступы существуют только в режиме разработки. В production сид не запускается,
-пользователей создаёт админ через `POST /api/users`.
+Demo accounts exist only in development. Production is never seeded; an admin creates
+users via `POST /api/users`.
 
-Пересоздать демо-данные: `docker compose exec api node src/seed/seed.js`.
+Recreate demo data: `docker compose exec api node src/seed/seed.js`.
 
-Без Docker: `npm install`, запустить MongoDB, `npm run dev`.
+Without Docker: `npm install`, start MongoDB, `npm run dev`.
 
-## Подключение прототипа (Arduino)
+## Connecting the prototype (Arduino)
 
-У Arduino Uno нет Wi-Fi, поэтому показания передаёт компьютер, к которому он подключён:
+An Arduino Uno has no Wi-Fi, so the computer it is plugged into forwards the readings:
 
 ```bash
 cd tools/serial-bridge && npm install
-node bridge.js --list                                   # найти порт
-EMPTYLESS_DEVICE_KEY=eld_... node bridge.js --port /dev/ttyUSB0   # Windows: --port COM3
+node bridge.js --list                                              # find the port
+EMPTYLESS_DEVICE_KEY=eld_... node bridge.js --port /dev/ttyACM0    # Windows: --port COM3
 ```
 
-Мост понимает любой из форматов, которые печатает скетч:
+The bridge accepts any of these sketch output formats:
 
 ```
-{"weight":1850,"distance":120}        ← рекомендуемый
+{"weight":1850,"distance":120}        ← recommended
 1850,120
 Weight: 1850 g | Distance: 12 cm
 ```
 
-Отправляет только заметные изменения (±10 г, ±5 мм) и раз в минуту «я жив»,
-повторяет при обрыве сети. По ответу (`status`) можно переключать светодиод.
-В серийной версии ESP32 шлёт тот же POST напрямую — API не меняется.
+It sends only noticeable changes (±10 g, ±5 mm) plus an "I'm alive" every minute, and retries
+when the network drops. The response `status` can drive the LED. In production an ESP32 makes
+the same POST directly; the API does not change.
 
-## Как считается заполненность
+## How fill is calculated
 
-Берётся максимум из двух процентов:
+The larger of two percentages wins:
 
-- **по весу** `weight / maxWeightG` — видит даже одну открытку;
-- **по объёму** `(emptyDistanceMm − distance) / (emptyDistanceMm − fullDistanceMm)` — срабатывает,
-  когда лёгкие письма дошли до верха (ответ на вопрос «50 открыток весят мало, но забили ящик»).
+- **by weight** `weight / maxWeightG` — notices even a single postcard;
+- **by volume** `(emptyDistanceMm − distance) / (emptyDistanceMm − fullDistanceMm)` — triggers when
+  light letters reach the top (the "50 postcards weigh little but fill the box" case).
 
-Пороги как на фронте: `normal` < 75% ≤ `warning` < 100% ≤ `full`. Низкий заряд — ≤ 20%.
-Калибровка расстояний настраивается для каждого ящика (`PATCH /api/boxes/:id`).
+Thresholds match the frontend: `normal` < 75% ≤ `warning` < 100% ≤ `full`. Low battery is ≤ 20%.
+Distance calibration is per box (`PATCH /api/boxes/:id`).
 
-## Роли
+## Roles
 
 | | courier | dispatcher | admin |
 |---|:-:|:-:|:-:|
-| Ящики, районы, события, курьеры, маршрут, SSE | ✓ | ✓ | ✓ |
-| Выемка | только за себя | ✓ | ✓ |
-| Свой статус и заметка | ✓ | ✓ | ✓ |
-| KPI, аналитика, история показаний, назначение курьеров | | ✓ | ✓ |
-| Ящики: создание/изменение/списание, датчики, пользователи, аудит | | | ✓ |
+| Boxes, districts, events, couriers, routing, SSE | ✓ | ✓ | ✓ |
+| Pickup | own only | ✓ | ✓ |
+| Own status and note | ✓ | ✓ | ✓ |
+| KPIs, analytics, reading history, courier assignment | | ✓ | ✓ |
+| Create/edit/decommission boxes, devices, users, audit | | | ✓ |
 
 ## API
 
-Полная документация с примерами — в Swagger (`/docs`). Все ответы — `{ "data": ... }`,
-списки с пагинацией добавляют `nextCursor`. Ошибки — `{ "error": { code, message, details? } }`.
+Full reference with examples is in Swagger (`/docs`). Every response is `{ "data": ... }`;
+paginated lists add `nextCursor`. Errors are `{ "error": { code, message, details? } }`.
 
-| Метод | Путь | Роль |
+| Method | Path | Role |
 |---|---|---|
 | POST | `/api/auth/login` · `/google` · `/refresh` · `/logout` | — |
-| GET | `/api/auth/me` | любая |
+| GET | `/api/auth/me` | any |
 | GET/POST | `/api/users` · PATCH `/api/users/:id` | admin |
-| GET | `/api/boxes?district&status&lowBattery&online` · `/api/boxes/:id` | любая |
+| GET | `/api/boxes?district&status&lowBattery&online` · `/api/boxes/:id` | any |
 | POST/PATCH/DELETE | `/api/boxes` · `/api/boxes/:id` | admin |
 | GET | `/api/boxes/:id/readings` · `/api/boxes/:id/pickups` | dispatcher |
-| POST | `/api/boxes/:id/pickups` | любая |
-| POST | `/api/devices/readings` | **ключ устройства** |
+| POST | `/api/boxes/:id/pickups` | any |
+| POST | `/api/devices/readings` | **device key** |
 | GET/POST | `/api/devices` · `/:id/rotate-key` · `/:id/revoke` | admin |
-| POST | `/api/routes/optimize` | любая |
-| GET | `/api/events?type&boxId&since&cursor` | любая |
-| GET/PATCH | `/api/couriers` · `/api/couriers/:id` | любая* |
-| GET | `/api/districts` | любая |
+| POST | `/api/routes/optimize` | any |
+| GET | `/api/events?type&boxId&since&cursor` | any |
+| GET/PATCH | `/api/couriers` · `/api/couriers/:id` | any* |
+| GET | `/api/districts` | any |
 | GET | `/api/stats/overview` | dispatcher |
 | GET | `/api/analytics/savings` · `/pickups` · `/fill-history` | dispatcher |
-| GET | `/api/stream` | любая |
+| GET | `/api/stream` | any |
 | GET | `/api/audit` | admin |
-| POST | `/api/simulate/mail` | любая (если `ENABLE_SIMULATION`) |
+| POST | `/api/simulate/mail` | any (if `ENABLE_SIMULATION`) |
 | GET | `/health` · `/openapi.json` · `/docs` | — |
 
-### Примеры
+\* Couriers may update only their own status and note.
+
+### Examples
 
 ```http
 POST /api/devices/readings
@@ -154,8 +160,8 @@ Authorization: Bearer <token>
      "projectedYearly": { "distanceKm": 6351, "hours": 456, "fuelCostEur": 913 } } }
 ```
 
-Цифры выше — на демо-данных (3 полных ящика из 14). Параметры модели (расход, цена топлива,
-скорость, время на остановку) задаются в `.env`.
+These figures come from the demo data (3 of 14 boxes full). Model parameters (fuel use,
+fuel price, speed, minutes per stop) are set in `.env`.
 
 ### Realtime
 
@@ -165,72 +171,72 @@ es.addEventListener("box.updated", (e) => updateBox(JSON.parse(e.data)));
 es.addEventListener("event.created", (e) => pushEvent(JSON.parse(e.data)));
 ```
 
-## Подключение к фронту
+## Frontend integration
 
-| Сейчас во фронте | Заменить на |
+| Frontend today | Replace with |
 |---|---|
 | `INITIAL_BOXES` + `setBoxes` | `GET /api/boxes` + SSE `box.updated` |
 | `INITIAL_EVENTS` + `pushEvent` | `GET /api/events` + SSE `event.created` |
 | `COURIERS`, `SHIFT_STATS`, `DISTRICTS` | `/api/couriers`, `/api/stats/overview`, `/api/districts` |
-| `.sort((a, b) => a.lng - b.lng)` в `CourierApp` | `POST /api/routes/optimize` |
+| `.sort((a, b) => a.lng - b.lng)` in `CourierApp` | `POST /api/routes/optimize` |
 | `handleCollect` | `POST /api/boxes/:id/pickups` |
 | `handleSimulateMail` | `POST /api/simulate/mail` |
-| `setInterval` со случайными данными | убрать |
-| Поле `updated: "Just now"` | `updatedAt` (ISO), форматировать на клиенте |
+| `setInterval` with random data | remove |
+| `updated: "Just now"` field | `updatedAt` (ISO), format on the client |
 
-## Безопасность
+## Security
 
-- Пароли — bcrypt; ключи датчиков и refresh-токены — только SHA-256 хэши в базе.
-- Access-токен живёт 15 минут; refresh ротируется при каждом использовании, повторное
-  предъявление старого токена отзывает всю сессию.
-- Смена пароля, роли или отключение пользователя завершают все его сессии.
-- Одинаковый ответ на «нет пользователя» и «неверный пароль» (с выравниванием по времени).
-- Rate limiting: логин 20 попыток / 15 мин, датчик 60 / мин, API 600 / мин.
-- Секреты вырезаются из логов и аудита; production не стартует без `JWT_SECRET`.
-- Аудит-лог всех админ-действий: кто, что, когда, с какого IP.
+- Passwords use bcrypt; device keys and refresh tokens are stored only as SHA-256 hashes.
+- Access tokens live 15 minutes; refresh tokens rotate on every use, and replaying an old one
+  revokes the whole session.
+- Changing a password or role, or disabling a user, ends all their sessions.
+- "No such user" and "wrong password" return identical responses (with timing equalised).
+- Rate limits: login 20 attempts / 15 min, device 60 / min, API 600 / min.
+- Secrets are redacted from logs and the audit trail; production refuses to start without `JWT_SECRET`.
+- Every admin action is audited: who, what, when, from which IP.
 
-## Тесты
+## Tests
 
 ```bash
 npm run lint
-npm test                                            # юнит-тесты (без базы)
-TEST_MONGODB_URI=mongodb://localhost:27017 npm test # + интеграционные (51 тест)
-npm run test:bridge                                 # парсер моста
+npm test                                            # unit tests (no database)
+TEST_MONGODB_URI=mongodb://localhost:27017 npm test # + integration tests (51 tests)
+npm run test:bridge                                 # bridge parser
 ```
 
-Интеграционные тесты покрывают авторизацию и ротацию токенов, права ролей, ключи устройств,
-правила событий, офлайн-монитор, выемки, маршрут, SSE, уведомления, пагинацию, аналитику,
-формат ошибок и rate limiting. Оптимальность маршрута проверяется сравнением с полным перебором.
-CI (`.github/workflows/backend.yml`) гоняет всё против MongoDB 7 и собирает Docker-образ.
+Integration tests cover authentication and token rotation, role permissions, device keys,
+event rules, the offline monitor, pickups, routing, SSE, notifications, pagination, analytics,
+the error format and rate limiting. Route optimality is checked against brute force.
+CI (`.github/workflows/backend.yml`) runs everything against MongoDB 7 and builds the Docker image.
 
-## Структура
+## Layout
 
 ```
 src/
-  config.js        переменные окружения, валидация на старте
-  app.js           сборка приложения (middleware, роуты)
-  server.js        запуск, фоновый монитор, уведомления, graceful shutdown
-  schemas.js       публичные схемы API (валидация + OpenAPI)
-  domain/          чистая логика без БД: заполненность, гео, маршрут
+  config.js        environment variables, validated at startup
+  app.js           app assembly (middleware, routes)
+  server.js        startup, background monitor, notifications, graceful shutdown
+  schemas.js       public API schemas (validation + OpenAPI)
+  domain/          pure logic without the database: fill, geo, routing
   models/          Box, Reading, Event, Courier, Pickup, District, User, RefreshToken, Device, AuditLog
-  services/        телеметрия, выемки, auth, устройства, монитор, уведомления, аналитика, аудит
-  routes/          HTTP-слой
-  middleware/      auth и роли, ключ устройства, валидация, лимиты, ошибки
-  lib/             логгер, шина событий, OpenAPI, пагинация, крипто
-  seed/            демо-данные
-tools/serial-bridge/   мост Arduino → API
-test/                  тесты
+  services/        telemetry, pickups, auth, devices, monitor, notifications, analytics, audit
+  routes/          HTTP layer
+  middleware/      auth and roles, device key, validation, limits, errors
+  lib/             logger, event bus, OpenAPI, pagination, crypto
+  seed/            demo data
+tools/serial-bridge/   Arduino → API bridge
+test/                  tests
 ```
 
-## Ограничения и следующие шаги
+## Limitations and next steps
 
-Сознательные упрощения, которые нужно закрыть перед реальным масштабом:
+Deliberate simplifications to address before running at real scale:
 
-- **Несколько инстансов API.** Шина событий, SSE и rate limiting работают в памяти одного
-  процесса. Для горизонтального масштабирования — MongoDB change streams или Redis.
-- **Очередь уведомлений.** Письма и webhook уходят из процесса без ретраев; следующий шаг — BullMQ/SQS.
-- **Расстояния по прямой.** Маршрут оптимизирует порядок по haversine; для точных км можно
-  брать матрицу расстояний из OSRM `/table`.
-- **Access-токен после отключения пользователя** действует до 15 минут (refresh отзывается сразу).
-- **Связь в поле.** Прототип использует Wi-Fi/USB; для улиц Риги нужен NB-IoT или LoRaWAN —
-  формат API от этого не меняется.
+- **Multiple API instances.** The event bus, SSE and rate limiting live in one process's memory.
+  Horizontal scaling needs MongoDB change streams or Redis.
+- **Notification queue.** Emails and webhooks are sent in-process without retries; next step is BullMQ/SQS.
+- **Straight-line distances.** Routing optimises order by haversine; exact km could come from
+  the OSRM `/table` distance matrix.
+- **Access token after a user is disabled** stays valid for up to 15 minutes (refresh is revoked immediately).
+- **Connectivity in the field.** The prototype uses Wi-Fi/USB; Riga streets need NB-IoT or LoRaWAN.
+  The API format does not change.

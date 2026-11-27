@@ -1,4 +1,4 @@
-// Лента событий диспетчера (data/dispatchData.js → INITIAL_EVENTS).
+// Dispatcher event feed (data/dispatchData.js → INITIAL_EVENTS).
 import mongoose from "mongoose";
 
 export const EVENT_TYPES = Object.freeze(["critical", "warning", "info", "success"]);
@@ -6,7 +6,7 @@ export const EVENT_TYPES = Object.freeze(["critical", "warning", "info", "succes
 const eventSchema = new mongoose.Schema(
   {
     type: { type: String, enum: EVENT_TYPES, required: true },
-    // id ящика или "SYSTEM" для событий смены
+    // box id, or "SYSTEM" for shift events
     boxId: { type: String, required: true },
     message: { type: String, required: true, maxlength: 300 },
     createdAt: { type: Date, default: Date.now },

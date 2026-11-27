@@ -1,5 +1,5 @@
-// Авторизация датчика по заголовку X-Device-Key (ключ на каждое устройство).
-// OAuth тут не подходит: ESP32/Arduino не умеет логиниться через Google.
+// Device authentication via the X-Device-Key header (one key per device).
+// OAuth does not fit here: an ESP32/Arduino cannot sign in with Google.
 import { HttpError } from "./errors.js";
 import { findDeviceByKey } from "../services/devices.js";
 
