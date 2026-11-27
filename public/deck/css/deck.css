@@ -358,3 +358,19 @@ html[data-theme=light] .pi{background:#f3f6f8}
 /* team v3: the highlighted card moves to the centre and grows */
 .team{position:relative}
 .team .member,.team .member:nth-child(n){transform-origin:center center}
+
+/* Problem & risk slide: red is the only accent here (green returns with the solution) */
+.slide.tone-risk .kicker{color:var(--full);display:flex;align-items:center;gap:12px}
+.slide.tone-risk h1 em,.slide.tone-risk h2 em{color:var(--full)}
+svg.warn{width:30px;height:30px;flex:none;color:var(--full)}
+#segs i.risk b{background:var(--full)}
+.card.risk{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:20px;border-left:6px solid var(--full);background:linear-gradient(90deg,rgba(229,72,77,.14),rgba(229,72,77,.04)),var(--panel)}
+.card.risk svg.warn{width:40px;height:40px}
+.card.risk .rn{font-size:76px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--full)}
+.card.risk p{font-size:22px;line-height:1.35}
+.card.risk p b{color:var(--ink)}
+/* alarm vignette on the last step */
+#alarm{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:var(--alarm,0);transition:opacity 1s;background:radial-gradient(ellipse at center,rgba(229,72,77,0) 52%,rgba(229,72,77,.16) 80%,rgba(229,72,77,.34) 100%);animation:alarm 2.4s ease-in-out infinite}
+@keyframes alarm{50%{filter:brightness(1.35)}}
+html[data-theme=dark] #alarm{background:radial-gradient(ellipse at center,rgba(229,72,77,0) 48%,rgba(229,72,77,.22) 78%,rgba(229,72,77,.45) 100%)}
+.slide.tone-risk .stat .u{color:var(--full)}

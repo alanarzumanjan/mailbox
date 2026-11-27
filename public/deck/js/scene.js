@@ -341,6 +341,7 @@ function enterView(name) {
   view = v; viewName = name; viewT = 0; orbitA = 0;
   if (v.route === 'demo' && prev.route !== 'demo') { tubeConv.userData.k = 0; tubeOpt.userData.k = 0; vanU = 0; }
   hooks.enter.forEach(function (f) { f(v, name, prev); });
+  document.documentElement.style.setProperty('--alarm', v.alarm || 0);
   document.documentElement.style.setProperty('--shadeT', v.shadeT || 0);
   document.documentElement.style.setProperty('--shade', v.shade || 0);
   document.documentElement.style.setProperty('--shadeL', v.shadeL == null ? 1 : v.shadeL);

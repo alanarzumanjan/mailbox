@@ -40,7 +40,7 @@ var curT = null;
 addEventListener('mousemove', function () { root.classList.remove('nocursor'); clearTimeout(curT); curT = setTimeout(function () { root.classList.add('nocursor'); }, 1800); });
 
 slides.forEach(function (s) {
-  var i = document.createElement('i'); i.appendChild(document.createElement('b')); segs.appendChild(i);
+  var i = document.createElement('i'); if (s.classList.contains('tone-risk')) i.className = 'risk'; i.appendChild(document.createElement('b')); segs.appendChild(i);
   $$('[data-st]', s).forEach(function (e) { e.classList.add('st'); });
 });
 
