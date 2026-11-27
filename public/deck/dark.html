@@ -104,7 +104,9 @@
       <div class="pgroup" data-st="2">
         <div class="ph">Weight</div>
         <div class="pr">
-          <figure class="part pick"><div class="pi"><img src="assets/parts/hx711.png" alt="Weight sensor, HX711"></div><figcaption><b>HX711 weight sensor</b><span>5 kg limit, up to 20 kg for larger boxes</span></figcaption></figure>
+          <figure class="part pick"><div class="pi"><img src="assets/parts/load-cell.png" alt="Load cell"></div><figcaption><b>Load cell</b><span>5 kg limit, up to 20 kg for larger boxes</span></figcaption></figure>
+          <i class="plus">+</i>
+          <figure class="part"><div class="pi"><img src="assets/parts/hx711.png" alt="HX711 amplifier"></div><figcaption><b>HX711</b><span>amplifier, reads the load cell</span></figcaption></figure>
         </div>
       </div>
       <div class="pgroup" data-st="3">
@@ -118,7 +120,7 @@
         </div>
       </div>
     </div>
-    <div class="src">Illustrations: Fritzing parts library (CC BY-SA 3.0) · ESP32-DevKitC photo: Espressif Systems (CC BY-SA 4.0), rotated and cut out</div>
+    <div class="src">Illustrations: Fritzing parts library (CC BY-SA 3.0); load cell drawn by the team · ESP32-DevKitC photo: Espressif Systems (CC BY-SA 4.0), rotated and cut out</div>
     <aside class="notes">[click] The alternative for the ultrasonic sensor was an infrared sensor, which detects an object in a certain set range. However, ultrasonic sensor was chosen since unlike an infrared sensor, which checks if something is or isn't in front of it, the ultrasonic sensor can see exactly what distance the object is from the sensor. That allows the calculation of the fill percentage of the postbox. [click] The weight sensor that was chosen has a limit of 5 kilograms, however, that can be expanded to up to 20 kilograms for the postboxes of other sizes. [click] As for the microcontroller, the Arduino UNO was used for simplified functionality, and for the final product the options were to add an additional module for the Wi-Fi or choose a controller with the inbuilt Wi-Fi capabilities. In the end, ESP32 Wi-Fi microcontroller was chosen for the final product.</aside>
   </section>
 

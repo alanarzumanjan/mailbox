@@ -385,3 +385,4 @@ html[data-theme=dark] #alarm{background:radial-gradient(ellipse at center,rgba(2
 .measure.gets p b{font-size:26px}
 .measure.gets span{font-size:27px;padding:16px 24px;border-radius:16px;border:2px solid var(--line)}
 .measure.gets span.save{border-color:var(--acc);color:var(--acc);font-weight:800}
+.parts{grid-template-columns:2fr 2fr 3fr}
