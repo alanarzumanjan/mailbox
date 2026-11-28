@@ -28,9 +28,9 @@ const EventsQuery = PageQuery.extend({
 });
 registry.registerPath({
   method: "get",
-  path: "/api/events",
+  path: "/events",
   tags: ["Dispatch"],
-  summary: "Alert feed, newest first (paginated). Prefer /api/stream for live updates.",
+  summary: "Alert feed, newest first (paginated). Prefer /stream for live updates.",
   security,
   request: { query: EventsQuery },
   responses: { 200: json(envelope(z.array(EventSchema)).merge(Pagination)) },
@@ -52,7 +52,7 @@ couriersRouter.use(authenticate);
 
 registry.registerPath({
   method: "get",
-  path: "/api/couriers",
+  path: "/couriers",
   tags: ["Dispatch"],
   summary: "Couriers on shift",
   security,
@@ -75,7 +75,7 @@ const CourierUpdate = z
   .refine((b) => Object.keys(b).length > 0, { message: "Empty update" });
 registry.registerPath({
   method: "patch",
-  path: "/api/couriers/{id}",
+  path: "/couriers/{id}",
   tags: ["Dispatch"],
   summary: "Update courier status/assignment. Couriers may update only their own status and note.",
   security,
@@ -103,7 +103,7 @@ districtsRouter.use(authenticate, ROLE.staff);
 
 registry.registerPath({
   method: "get",
-  path: "/api/districts",
+  path: "/districts",
   tags: ["Dispatch"],
   summary: "Districts for filters and map centring; 'all' first",
   security,
@@ -133,7 +133,7 @@ const Overview = z.object({
 });
 registry.registerPath({
   method: "get",
-  path: "/api/stats/overview",
+  path: "/stats/overview",
   tags: ["Dispatch"],
   summary: "Dispatcher header KPIs",
   security,
@@ -154,7 +154,7 @@ const AuditQuery = PageQuery.extend({
 });
 registry.registerPath({
   method: "get",
-  path: "/api/audit",
+  path: "/audit",
   tags: ["Users"],
   summary: "Admin action log (admin, paginated)",
   security,

@@ -59,7 +59,7 @@ async function send(reading) {
     return true;
   }
   try {
-    const res = await fetch(`${args.api}/api/devices/readings`, {
+    const res = await fetch(`${args.api}/devices/readings`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Device-Key": args.key },
       body: JSON.stringify(reading),

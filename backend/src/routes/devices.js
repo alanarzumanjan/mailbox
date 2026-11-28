@@ -37,7 +37,7 @@ export function createDevicesRouter({ limiter }) {
 
   registry.registerPath({
     method: "post",
-    path: "/api/devices/readings",
+    path: "/devices/readings",
     tags: ["Telemetry"],
     summary: "Sensor reading from a device",
     security: [{ [deviceKeyAuth.name]: [] }],
@@ -82,7 +82,7 @@ export function createDevicesRouter({ limiter }) {
 
   registry.registerPath({
     method: "get",
-    path: "/api/devices",
+    path: "/devices",
     tags: ["Devices"],
     summary: "List devices (admin)",
     security,
@@ -102,7 +102,7 @@ export function createDevicesRouter({ limiter }) {
   });
   registry.registerPath({
     method: "post",
-    path: "/api/devices",
+    path: "/devices",
     tags: ["Devices"],
     summary: "Provision a device for a box and get its API key (admin)",
     security,
@@ -117,7 +117,7 @@ export function createDevicesRouter({ limiter }) {
 
   registry.registerPath({
     method: "post",
-    path: "/api/devices/{id}/rotate-key",
+    path: "/devices/{id}/rotate-key",
     tags: ["Devices"],
     summary: "Issue a new key; the old one stops working immediately (admin)",
     security,
@@ -132,7 +132,7 @@ export function createDevicesRouter({ limiter }) {
 
   registry.registerPath({
     method: "post",
-    path: "/api/devices/{id}/revoke",
+    path: "/devices/{id}/revoke",
     tags: ["Devices"],
     summary: "Revoke a lost or broken device (admin)",
     security,

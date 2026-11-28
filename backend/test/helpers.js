@@ -41,7 +41,7 @@ export function setupIntegration({ appOptions = {} } = {}) {
     ctx.tokens = {};
     for (const u of ctx.DEMO_USERS) {
       const res = await ctx.request(ctx.app)
-        .post("/api/auth/login")
+        .post("/auth/login")
         .send({ email: u.email, password: u.password });
       if (res.status !== 200) throw new Error(`login ${u.email} failed: ${res.status}`);
       ctx.tokens[u.role] = res.body.data.accessToken;
@@ -52,7 +52,7 @@ export function setupIntegration({ appOptions = {} } = {}) {
   return ctx;
 }
 
-/** Request as a role: as("admin").get("/api/users") */
+/** Request as a role: as("admin").get("/users") */
 export const as = (role) => {
   const agent = ctx.request(ctx.app);
   const withAuth = (method) => (url) => agent[method](url).set("authorization", `Bearer ${ctx.tokens[role]}`);
@@ -65,4 +65,4 @@ export const as = (role) => {
 };
 
 export const reading = (body, key = ctx.deviceKey) =>
-  ctx.request(ctx.app).post("/api/devices/readings").set("x-device-key", key).send(body);
+  ctx.request(ctx.app).post("/devices/readings").set("x-device-key", key).send(body);

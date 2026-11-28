@@ -23,7 +23,7 @@ const Body = z.object({
 
 registry.registerPath({
   method: "post",
-  path: "/api/simulate/mail",
+  path: "/simulate/mail",
   tags: ["Telemetry"],
   summary: "Demo: fill a postbox through the real telemetry pipeline (if ENABLE_SIMULATION)",
   security: [{ [bearerAuth.name]: [] }],

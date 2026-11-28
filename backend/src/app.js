@@ -47,7 +47,7 @@ export function createApp({
         return id;
       },
       // keep health checks and the stream out of the logs
-      autoLogging: { ignore: (req) => req.url === "/health" || req.url.startsWith("/api/stream") },
+      autoLogging: { ignore: (req) => req.url === "/health" || req.url.startsWith("/stream") },
     }),
   );
   // CSP is disabled only because Swagger UI needs inline scripts
@@ -62,20 +62,20 @@ export function createApp({
 
   app.use(createSystemRouter({ version }));
 
-  app.use("/api", limiters.api);
-  app.use("/api/auth", createAuthRouter({ limiter: limiters.auth }));
-  app.use("/api/users", usersRouter);
-  app.use("/api/boxes", boxesRouter);
-  app.use("/api/devices", createDevicesRouter({ limiter: limiters.device }));
-  app.use("/api/routes", routesRouter);
-  app.use("/api/events", eventsRouter);
-  app.use("/api/couriers", couriersRouter);
-  app.use("/api/districts", districtsRouter);
-  app.use("/api/stats", statsRouter);
-  app.use("/api/analytics", createAnalyticsRouter({ economics }));
-  app.use("/api/audit", auditRouter);
-  app.use("/api/stream", createStreamRouter({ heartbeatMs }));
-  if (enableSimulation) app.use("/api/simulate", simulateRouter);
+  app.use(limiters.api);
+  app.use("/auth", createAuthRouter({ limiter: limiters.auth }));
+  app.use("/users", usersRouter);
+  app.use("/boxes", boxesRouter);
+  app.use("/devices", createDevicesRouter({ limiter: limiters.device }));
+  app.use("/routes", routesRouter);
+  app.use("/events", eventsRouter);
+  app.use("/couriers", couriersRouter);
+  app.use("/districts", districtsRouter);
+  app.use("/stats", statsRouter);
+  app.use("/analytics", createAnalyticsRouter({ economics }));
+  app.use("/audit", auditRouter);
+  app.use("/stream", createStreamRouter({ heartbeatMs }));
+  if (enableSimulation) app.use("/simulate", simulateRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

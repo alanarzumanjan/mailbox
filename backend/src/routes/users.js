@@ -29,7 +29,7 @@ async function assertCourierLink(role, courierId) {
 
 registry.registerPath({
   method: "get",
-  path: "/api/users",
+  path: "/users",
   tags: ["Users"],
   summary: "List users (admin)",
   security,
@@ -50,7 +50,7 @@ const CreateUser = z.object({
 });
 registry.registerPath({
   method: "post",
-  path: "/api/users",
+  path: "/users",
   tags: ["Users"],
   summary: "Create a user (admin)",
   security,
@@ -81,7 +81,7 @@ const UpdateUser = z
   .refine((b) => Object.keys(b).length > 0, { message: "Empty update" });
 registry.registerPath({
   method: "patch",
-  path: "/api/users/{id}",
+  path: "/users/{id}",
   tags: ["Users"],
   summary: "Update a user; disabling or changing the password signs them out everywhere (admin)",
   security,

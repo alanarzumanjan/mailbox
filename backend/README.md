@@ -61,7 +61,7 @@ docker compose logs api | grep -A1 "Demo device"
 | courier (CR-01) | courier@emptyless.lv | courier-demo-2026 |
 
 Demo accounts exist only in development. Production is never seeded; an admin creates
-users via `POST /api/users`.
+users via `POST /users`.
 
 Recreate demo data: `docker compose exec api node src/seed/seed.js`.
 
@@ -98,7 +98,7 @@ The larger of two percentages wins:
   light letters reach the top (the "50 postcards weigh little but fill the box" case).
 
 Thresholds match the frontend: `normal` < 75% ≤ `warning` < 100% ≤ `full`. Low battery is ≤ 20%.
-Distance calibration is per box (`PATCH /api/boxes/:id`).
+Distance calibration is per box (`PATCH /boxes/:id`).
 
 ## Roles
 
@@ -117,24 +117,24 @@ paginated lists add `nextCursor`. Errors are `{ "error": { code, message, detail
 
 | Method | Path | Role |
 |---|---|---|
-| POST | `/api/auth/login` · `/google` · `/refresh` · `/logout` | — |
-| GET | `/api/auth/me` | any |
-| GET/POST | `/api/users` · PATCH `/api/users/:id` | admin |
-| GET | `/api/boxes?district&status&lowBattery&online` · `/api/boxes/:id` | any |
-| POST/PATCH/DELETE | `/api/boxes` · `/api/boxes/:id` | admin |
-| GET | `/api/boxes/:id/readings` · `/api/boxes/:id/pickups` | dispatcher |
-| POST | `/api/boxes/:id/pickups` | any |
-| POST | `/api/devices/readings` | **device key** |
-| GET/POST | `/api/devices` · `/:id/rotate-key` · `/:id/revoke` | admin |
-| POST | `/api/routes/optimize` | any |
-| GET | `/api/events?type&boxId&since&cursor` | any |
-| GET/PATCH | `/api/couriers` · `/api/couriers/:id` | any* |
-| GET | `/api/districts` | any |
-| GET | `/api/stats/overview` | dispatcher |
-| GET | `/api/analytics/savings` · `/pickups` · `/fill-history` | dispatcher |
-| GET | `/api/stream` | any |
-| GET | `/api/audit` | admin |
-| POST | `/api/simulate/mail` | any (if `ENABLE_SIMULATION`) |
+| POST | `/auth/login` · `/google` · `/refresh` · `/logout` | — |
+| GET | `/auth/me` | any |
+| GET/POST | `/users` · PATCH `/users/:id` | admin |
+| GET | `/boxes?district&status&lowBattery&online` · `/boxes/:id` | any |
+| POST/PATCH/DELETE | `/boxes` · `/boxes/:id` | admin |
+| GET | `/boxes/:id/readings` · `/boxes/:id/pickups` | dispatcher |
+| POST | `/boxes/:id/pickups` | any |
+| POST | `/devices/readings` | **device key** |
+| GET/POST | `/devices` · `/:id/rotate-key` · `/:id/revoke` | admin |
+| POST | `/routes/optimize` | any |
+| GET | `/events?type&boxId&since&cursor` | any |
+| GET/PATCH | `/couriers` · `/couriers/:id` | any* |
+| GET | `/districts` | any |
+| GET | `/stats/overview` | dispatcher |
+| GET | `/analytics/savings` · `/pickups` · `/fill-history` | dispatcher |
+| GET | `/stream` | any |
+| GET | `/audit` | admin |
+| POST | `/simulate/mail` | any (if `ENABLE_SIMULATION`) |
 | GET | `/health` · `/openapi.json` · `/docs` | — |
 
 \* Couriers may update only their own status and note.
@@ -142,7 +142,7 @@ paginated lists add `nextCursor`. Errors are `{ "error": { code, message, detail
 ### Examples
 
 ```http
-POST /api/devices/readings
+POST /devices/readings
 X-Device-Key: eld_xxxxxxxxxx_...
 { "weight": 1850, "distance": 120, "battery": 86 }
 
@@ -150,7 +150,7 @@ X-Device-Key: eld_xxxxxxxxxx_...
 ```
 
 ```http
-GET /api/analytics/savings?runsPerDay=1
+GET /analytics/savings?runsPerDay=1
 Authorization: Bearer <token>
 
 → { "data": {
@@ -166,7 +166,7 @@ fuel price, speed, minutes per stop) are set in `.env`.
 ### Realtime
 
 ```js
-const es = new EventSource(`${API}/api/stream?access_token=${accessToken}`);
+const es = new EventSource(`${API}/stream?access_token=${accessToken}`);
 es.addEventListener("box.updated", (e) => updateBox(JSON.parse(e.data)));
 es.addEventListener("event.created", (e) => pushEvent(JSON.parse(e.data)));
 ```
@@ -175,12 +175,12 @@ es.addEventListener("event.created", (e) => pushEvent(JSON.parse(e.data)));
 
 | Frontend today | Replace with |
 |---|---|
-| `INITIAL_BOXES` + `setBoxes` | `GET /api/boxes` + SSE `box.updated` |
-| `INITIAL_EVENTS` + `pushEvent` | `GET /api/events` + SSE `event.created` |
-| `COURIERS`, `SHIFT_STATS`, `DISTRICTS` | `/api/couriers`, `/api/stats/overview`, `/api/districts` |
-| `.sort((a, b) => a.lng - b.lng)` in `CourierApp` | `POST /api/routes/optimize` |
-| `handleCollect` | `POST /api/boxes/:id/pickups` |
-| `handleSimulateMail` | `POST /api/simulate/mail` |
+| `INITIAL_BOXES` + `setBoxes` | `GET /boxes` + SSE `box.updated` |
+| `INITIAL_EVENTS` + `pushEvent` | `GET /events` + SSE `event.created` |
+| `COURIERS`, `SHIFT_STATS`, `DISTRICTS` | `/couriers`, `/stats/overview`, `/districts` |
+| `.sort((a, b) => a.lng - b.lng)` in `CourierApp` | `POST /routes/optimize` |
+| `handleCollect` | `POST /boxes/:id/pickups` |
+| `handleSimulateMail` | `POST /simulate/mail` |
 | `setInterval` with random data | remove |
 | `updated: "Just now"` field | `updatedAt` (ISO), format on the client |
 

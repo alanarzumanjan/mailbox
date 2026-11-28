@@ -4,8 +4,8 @@ import { setupIntegration, skip, ctx, as } from "./helpers.js";
 
 setupIntegration();
 
-const login = (email, password) => ctx.request(ctx.app).post("/api/auth/login").send({ email, password });
-const refresh = (refreshToken) => ctx.request(ctx.app).post("/api/auth/refresh").send({ refreshToken });
+const login = (email, password) => ctx.request(ctx.app).post("/auth/login").send({ email, password });
+const refresh = (refreshToken) => ctx.request(ctx.app).post("/auth/refresh").send({ refreshToken });
 
 test("login returns tokens and the user", { skip }, async () => {
   const res = await login("dispatcher@emptyless.lv", "dispatch-demo-2026").expect(200);
@@ -23,16 +23,16 @@ test("wrong password and unknown email look identical", { skip }, async () => {
 });
 
 test("me returns the current user", { skip }, async () => {
-  const res = await as("courier").get("/api/auth/me").expect(200);
+  const res = await as("courier").get("/auth/me").expect(200);
   assert.equal(res.body.data.courierId, "CR-01");
 });
 
 test("missing, malformed and forged tokens are rejected", { skip }, async () => {
-  await ctx.request(ctx.app).get("/api/boxes").expect(401);
-  await ctx.request(ctx.app).get("/api/boxes").set("authorization", "Bearer nope").expect(401);
+  await ctx.request(ctx.app).get("/boxes").expect(401);
+  await ctx.request(ctx.app).get("/boxes").set("authorization", "Bearer nope").expect(401);
   const [h, p] = ctx.tokens.admin.split(".");
   const forged = `${h}.${p}.c2lnbmF0dXJl`;
-  const res = await ctx.request(ctx.app).get("/api/boxes").set("authorization", `Bearer ${forged}`).expect(401);
+  const res = await ctx.request(ctx.app).get("/boxes").set("authorization", `Bearer ${forged}`).expect(401);
   assert.equal(res.body.error.code, "invalid_token");
 });
 
@@ -51,12 +51,12 @@ test("refresh rotates tokens; reusing an old one revokes the whole session", { s
 });
 
 test("logout revokes the session", { skip }, async () => {
-  await ctx.request(ctx.app).post("/api/auth/logout").send({ refreshToken: ctx.adminRefresh }).expect(204);
+  await ctx.request(ctx.app).post("/auth/logout").send({ refreshToken: ctx.adminRefresh }).expect(204);
   await refresh(ctx.adminRefresh).expect(401);
 });
 
 test("Google sign-in reports when it is not configured", { skip }, async () => {
-  const res = await ctx.request(ctx.app).post("/api/auth/google").send({ idToken: "x".repeat(40) }).expect(501);
+  const res = await ctx.request(ctx.app).post("/auth/google").send({ idToken: "x".repeat(40) }).expect(501);
   assert.equal(res.body.error.code, "not_configured");
 });
 
@@ -64,71 +64,71 @@ test("Google sign-in reports when it is not configured", { skip }, async () => {
 
 test("role permissions", { skip }, async () => {
   // A courier sees boxes and routes but does not manage the system
-  await as("courier").get("/api/boxes").expect(200);
-  await as("courier").post("/api/routes/optimize").send({}).expect(200);
-  await as("courier").get("/api/stats/overview").expect(403);
-  await as("courier").get("/api/boxes/MG-001/readings").expect(403);
-  await as("courier").post("/api/boxes").send({ name: "x", address: "y", lat: 56.9, lng: 24.1 }).expect(403);
+  await as("courier").get("/boxes").expect(200);
+  await as("courier").post("/routes/optimize").send({}).expect(200);
+  await as("courier").get("/stats/overview").expect(403);
+  await as("courier").get("/boxes/MG-001/readings").expect(403);
+  await as("courier").post("/boxes").send({ name: "x", address: "y", lat: 56.9, lng: 24.1 }).expect(403);
 
   // A dispatcher does operations, but not users or devices
-  await as("dispatcher").get("/api/stats/overview").expect(200);
-  await as("dispatcher").get("/api/users").expect(403);
-  await as("dispatcher").get("/api/devices").expect(403);
-  await as("dispatcher").get("/api/audit").expect(403);
+  await as("dispatcher").get("/stats/overview").expect(200);
+  await as("dispatcher").get("/users").expect(403);
+  await as("dispatcher").get("/devices").expect(403);
+  await as("dispatcher").get("/audit").expect(403);
 
-  await as("admin").get("/api/users").expect(200);
-  await as("admin").get("/api/audit").expect(200);
+  await as("admin").get("/users").expect(200);
+  await as("admin").get("/audit").expect(200);
 });
 
 test("couriers record pickups only as themselves", { skip }, async () => {
-  await as("courier").post("/api/boxes/MG-006/pickups").send({ courierId: "CR-02" }).expect(403);
+  await as("courier").post("/boxes/MG-006/pickups").send({ courierId: "CR-02" }).expect(403);
 
-  const res = await as("courier").post("/api/boxes/MG-006/pickups").send({}).expect(201);
+  const res = await as("courier").post("/boxes/MG-006/pickups").send({}).expect(201);
   assert.equal(res.body.data.pickup.courierId, "CR-01");
 });
 
 test("couriers update only their own status and note", { skip }, async () => {
-  await as("courier").patch("/api/couriers/CR-01").send({ status: "at_pickup", note: "MG-006" }).expect(200);
-  await as("courier").patch("/api/couriers/CR-02").send({ status: "break" }).expect(403);
-  await as("courier").patch("/api/couriers/CR-01").send({ district: "teika" }).expect(403);
-  await as("dispatcher").patch("/api/couriers/CR-02").send({ district: "teika" }).expect(200);
+  await as("courier").patch("/couriers/CR-01").send({ status: "at_pickup", note: "MG-006" }).expect(200);
+  await as("courier").patch("/couriers/CR-02").send({ status: "break" }).expect(403);
+  await as("courier").patch("/couriers/CR-01").send({ district: "teika" }).expect(403);
+  await as("dispatcher").patch("/couriers/CR-02").send({ district: "teika" }).expect(200);
 });
 
 // ---------- Users ----------
 
 test("admin manages users; disabling signs the user out", { skip }, async () => {
   const created = await as("admin")
-    .post("/api/users")
+    .post("/users")
     .send({ email: "Anna@EmptyLess.lv", name: "Anna", role: "dispatcher", password: "anna-password-1" })
     .expect(201);
   assert.equal(created.body.data.email, "anna@emptyless.lv", "email is normalised");
 
   await as("admin")
-    .post("/api/users")
+    .post("/users")
     .send({ email: "anna@emptyless.lv", name: "Dup", role: "dispatcher" })
     .expect(409);
 
   const session = await login("anna@emptyless.lv", "anna-password-1").expect(200);
 
-  await as("admin").patch(`/api/users/${created.body.data.id}`).send({ active: false }).expect(200);
+  await as("admin").patch(`/users/${created.body.data.id}`).send({ active: false }).expect(200);
   await login("anna@emptyless.lv", "anna-password-1").expect(401);
   await refresh(session.body.data.refreshToken).expect(401);
 
-  const auditLog = await as("admin").get(`/api/audit?targetId=${created.body.data.id}`).expect(200);
+  const auditLog = await as("admin").get(`/audit?targetId=${created.body.data.id}`).expect(200);
   assert.deepEqual(auditLog.body.data.map((a) => a.action).sort(), ["user.create", "user.update"]);
   assert.ok(!JSON.stringify(auditLog.body).includes("anna-password-1"), "no passwords in audit");
 });
 
 test("user validation", { skip }, async () => {
-  await as("admin").post("/api/users").send({ email: "c@emptyless.lv", name: "C", role: "courier" }).expect(400);
+  await as("admin").post("/users").send({ email: "c@emptyless.lv", name: "C", role: "courier" }).expect(400);
   await as("admin")
-    .post("/api/users")
+    .post("/users")
     .send({ email: "c@emptyless.lv", name: "C", role: "dispatcher", password: "short" })
     .expect(400);
 });
 
 test("admin cannot disable or demote themselves", { skip }, async () => {
-  const me = await as("admin").get("/api/auth/me").expect(200);
-  await as("admin").patch(`/api/users/${me.body.data.id}`).send({ active: false }).expect(409);
-  await as("admin").patch(`/api/users/${me.body.data.id}`).send({ role: "courier" }).expect(409);
+  const me = await as("admin").get("/auth/me").expect(200);
+  await as("admin").patch(`/users/${me.body.data.id}`).send({ active: false }).expect(409);
+  await as("admin").patch(`/users/${me.body.data.id}`).send({ role: "courier" }).expect(409);
 });

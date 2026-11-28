@@ -27,7 +27,7 @@ import { logger } from "../lib/logger.js";
 const data = JSON.parse(readFileSync(new URL("./data.json", import.meta.url), "utf8"));
 
 // Demo accounts for development and the pitch. In production, users are
-// created by an admin via POST /api/users.
+// created by an admin via POST /users.
 export const DEMO_USERS = Object.freeze([
   { email: "admin@emptyless.lv", name: "Admin", role: "admin", password: "admin-demo-2026", notifyEmail: true },
   { email: "dispatcher@emptyless.lv", name: "Dispatcher", role: "dispatcher", password: "dispatch-demo-2026", notifyEmail: true },

@@ -41,12 +41,12 @@ const schema = z.object({
   NOTIFY_FROM_EMAIL: z.string().default("EmptyLess <onboarding@resend.dev>"),
   ALERT_WEBHOOK_URL: optionalString,
 
-  // /api/simulate endpoint for the frontend "Simulate mail" demo button.
+  // /simulate endpoint for the frontend "Simulate mail" demo button.
   ENABLE_SIMULATION: bool.default("true"),
   // How many days to keep raw readings (TTL index). 0 means never delete.
   READING_RETENTION_DAYS: z.coerce.number().int().min(0).default(30),
 
-  // Economic model parameters for /api/analytics/savings
+  // Economic model parameters for /analytics/savings
   FUEL_L_PER_100KM: z.coerce.number().positive().default(9),
   FUEL_PRICE_EUR: z.coerce.number().positive().default(1.6),
   AVG_SPEED_KMH: z.coerce.number().positive().default(25),

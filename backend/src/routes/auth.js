@@ -26,7 +26,7 @@ export function createAuthRouter({ limiter }) {
   });
   registry.registerPath({
     method: "post",
-    path: "/api/auth/login",
+    path: "/auth/login",
     tags: ["Auth"],
     summary: "Sign in with email and password",
     request: { body: jsonBody(LoginBody) },
@@ -40,7 +40,7 @@ export function createAuthRouter({ limiter }) {
   const GoogleBody = z.object({ idToken: z.string().min(10) });
   registry.registerPath({
     method: "post",
-    path: "/api/auth/google",
+    path: "/auth/google",
     tags: ["Auth"],
     summary: "Sign in with a Google ID token (only for users an admin has added)",
     request: { body: jsonBody(GoogleBody) },
@@ -53,7 +53,7 @@ export function createAuthRouter({ limiter }) {
   const RefreshBody = z.object({ refreshToken: z.string().min(10) });
   registry.registerPath({
     method: "post",
-    path: "/api/auth/refresh",
+    path: "/auth/refresh",
     tags: ["Auth"],
     summary: "Exchange a refresh token for a new pair (rotation; reuse revokes the session)",
     request: { body: jsonBody(RefreshBody) },
@@ -65,7 +65,7 @@ export function createAuthRouter({ limiter }) {
 
   registry.registerPath({
     method: "post",
-    path: "/api/auth/logout",
+    path: "/auth/logout",
     tags: ["Auth"],
     summary: "Revoke the session of this refresh token",
     request: { body: jsonBody(RefreshBody) },
@@ -78,7 +78,7 @@ export function createAuthRouter({ limiter }) {
 
   registry.registerPath({
     method: "get",
-    path: "/api/auth/me",
+    path: "/auth/me",
     tags: ["Auth"],
     summary: "Current user",
     security: [{ [bearerAuth.name]: [] }],

@@ -3,7 +3,7 @@
 // plain HTTP, reconnects by itself in the browser (EventSource) and needs no
 // separate server.
 //
-//   const es = new EventSource(`${API}/api/stream?access_token=${token}`);
+//   const es = new EventSource(`${API}/stream?access_token=${token}`);
 //   es.addEventListener("box.updated", (e) => updateBox(JSON.parse(e.data)));
 //   es.addEventListener("event.created", (e) => pushEvent(JSON.parse(e.data)));
 import { Router } from "express";
@@ -18,7 +18,7 @@ export function createStreamRouter({ heartbeatMs = HEARTBEAT_MS } = {}) {
 
   registry.registerPath({
     method: "get",
-    path: "/api/stream",
+    path: "/stream",
     tags: ["Realtime"],
     summary: "Live updates (text/event-stream): box.updated, event.created, pickup.created",
     description:

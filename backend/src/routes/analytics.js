@@ -19,7 +19,7 @@ export function createAnalyticsRouter({ economics }) {
   });
   registry.registerPath({
     method: "get",
-    path: "/api/analytics/fill-history",
+    path: "/analytics/fill-history",
     tags: ["Analytics"],
     summary: "Fill level of one postbox over time, in buckets",
     security,
@@ -39,7 +39,7 @@ export function createAnalyticsRouter({ economics }) {
   const PickupsQuery = z.object({ days: z.coerce.number().int().min(1).max(90).default(7) });
   registry.registerPath({
     method: "get",
-    path: "/api/analytics/pickups",
+    path: "/analytics/pickups",
     tags: ["Analytics"],
     summary: "Pickups per day: count, collected kg, average response time",
     security,
@@ -66,7 +66,7 @@ export function createAnalyticsRouter({ economics }) {
   });
   registry.registerPath({
     method: "get",
-    path: "/api/analytics/savings",
+    path: "/analytics/savings",
     tags: ["Analytics"],
     summary: "Smart route (full boxes only) vs fixed schedule (every box): km, time, fuel, € and yearly projection",
     security,

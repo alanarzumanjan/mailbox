@@ -47,7 +47,7 @@ const ListQuery = z.object({
 });
 registry.registerPath({
   method: "get",
-  path: "/api/boxes",
+  path: "/boxes",
   tags: ["Boxes"],
   summary: "Postboxes for the map and tables",
   security,
@@ -67,7 +67,7 @@ router.get("/", ROLE.staff, validate({ query: ListQuery }), async (req, res) => 
 
 registry.registerPath({
   method: "get",
-  path: "/api/boxes/{id}",
+  path: "/boxes/{id}",
   tags: ["Boxes"],
   summary: "One postbox",
   security,
@@ -90,7 +90,7 @@ const CreateBox = z.object({
 });
 registry.registerPath({
   method: "post",
-  path: "/api/boxes",
+  path: "/boxes",
   tags: ["Boxes"],
   summary: "Register a postbox (admin)",
   security,
@@ -113,7 +113,7 @@ router.post("/", ROLE.admin, validate({ body: CreateBox }), async (req, res) => 
     audit(req, "box.create", "box", box._id, req.valid.body),
   ]);
   bus.emit(TOPICS.BOX_UPDATED, box.toApi());
-  res.status(201).location(`/api/boxes/${box._id}`).json({ data: box.toApi() });
+  res.status(201).location(`/boxes/${box._id}`).json({ data: box.toApi() });
 });
 
 const UpdateBox = z
@@ -130,7 +130,7 @@ const UpdateBox = z
   .refine((b) => (b.lat == null) === (b.lng == null), { message: "lat and lng go together" });
 registry.registerPath({
   method: "patch",
-  path: "/api/boxes/{id}",
+  path: "/boxes/{id}",
   tags: ["Boxes"],
   summary: "Update details or sensor calibration (admin)",
   security,
@@ -164,7 +164,7 @@ router.patch("/:id", ROLE.admin, validate({ params: Params, body: UpdateBox }), 
 
 registry.registerPath({
   method: "delete",
-  path: "/api/boxes/{id}",
+  path: "/boxes/{id}",
   tags: ["Boxes"],
   summary: "Decommission a postbox; history is kept (admin)",
   security,
@@ -183,7 +183,7 @@ router.delete("/:id", ROLE.admin, validate({ params: Params }), async (req, res)
 
 registry.registerPath({
   method: "get",
-  path: "/api/boxes/{id}/readings",
+  path: "/boxes/{id}/readings",
   tags: ["Boxes"],
   summary: "Sensor reading history, newest first (paginated)",
   security,
@@ -198,7 +198,7 @@ router.get("/:id/readings", ROLE.dispatch, validate({ params: Params, query: Pag
 
 registry.registerPath({
   method: "get",
-  path: "/api/boxes/{id}/pickups",
+  path: "/boxes/{id}/pickups",
   tags: ["Boxes"],
   summary: "Pickup history, newest first (paginated)",
   security,
@@ -220,7 +220,7 @@ const PickupBody = z.object({
 });
 registry.registerPath({
   method: "post",
-  path: "/api/boxes/{id}/pickups",
+  path: "/boxes/{id}/pickups",
   tags: ["Boxes"],
   summary: "Confirm a pickup: box is emptied, event logged, courier credited",
   security,

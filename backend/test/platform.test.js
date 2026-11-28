@@ -12,7 +12,7 @@ function openStream(server, token) {
   const { port } = server.address();
   return new Promise((resolve, reject) => {
     const received = [];
-    const req = http.get(`http://127.0.0.1:${port}/api/stream?access_token=${token}`, (res) => {
+    const req = http.get(`http://127.0.0.1:${port}/stream?access_token=${token}`, (res) => {
       res.setEncoding("utf8");
       let buf = "";
       res.on("data", (chunk) => {
@@ -68,8 +68,8 @@ test("SSE stream delivers live box and event updates", { skip }, async () => {
 });
 
 test("SSE stream requires a valid token", { skip }, async () => {
-  await ctx.request(ctx.app).get("/api/stream").expect(401);
-  await ctx.request(ctx.app).get("/api/stream?access_token=bad").expect(401);
+  await ctx.request(ctx.app).get("/stream").expect(401);
+  await ctx.request(ctx.app).get("/stream?access_token=bad").expect(401);
 });
 
 // ---------- Notifications ----------
@@ -117,33 +117,33 @@ test("a failing channel does not break telemetry", { skip }, async () => {
 // ---------- Pagination ----------
 
 test("events paginate by cursor without gaps or duplicates", { skip }, async () => {
-  const all = (await as("dispatcher").get("/api/events?limit=100").expect(200)).body.data;
+  const all = (await as("dispatcher").get("/events?limit=100").expect(200)).body.data;
   assert.equal(all.length, 10);
 
   const seen = [];
   let cursor;
   do {
     const q = cursor ? `?limit=3&cursor=${cursor}` : "?limit=3";
-    const page = await as("dispatcher").get(`/api/events${q}`).expect(200);
+    const page = await as("dispatcher").get(`/events${q}`).expect(200);
     seen.push(...page.body.data.map((e) => e.id));
     cursor = page.body.nextCursor;
   } while (cursor);
   assert.deepEqual(seen, all.map((e) => e.id));
 
-  await as("dispatcher").get("/api/events?cursor=garbage").expect(400);
+  await as("dispatcher").get("/events?cursor=garbage").expect(400);
 });
 
 test("events since a timestamp (polling)", { skip }, async () => {
   const since = new Date().toISOString();
   await reading({ weight: 2000 }).expect(201);
-  const res = await as("dispatcher").get(`/api/events?since=${encodeURIComponent(since)}`).expect(200);
+  const res = await as("dispatcher").get(`/events?since=${encodeURIComponent(since)}`).expect(200);
   assert.equal(res.body.data.length, 1);
 });
 
 // ---------- Analytics ----------
 
 test("savings: smart route is shorter than the fixed schedule", { skip }, async () => {
-  const res = await as("dispatcher").get("/api/analytics/savings").expect(200);
+  const res = await as("dispatcher").get("/analytics/savings").expect(200);
   const d = res.body.data;
   assert.equal(d.fixedSchedule.stops, 14);
   assert.equal(d.smartRoute.stops, 3);
@@ -151,24 +151,24 @@ test("savings: smart route is shorter than the fixed schedule", { skip }, async 
   assert.ok(d.saved.percent > 0 && d.saved.percent < 100);
   assert.ok(d.projectedYearly.distanceKm > 0);
 
-  const district = await as("dispatcher").get("/api/analytics/savings?district=teika&runsPerDay=2").expect(200);
+  const district = await as("dispatcher").get("/analytics/savings?district=teika&runsPerDay=2").expect(200);
   assert.ok(district.body.data.fixedSchedule.stops < 14);
   assert.equal(district.body.data.assumptions.runsPerDay, 2);
 });
 
 test("fill history and pickups per day", { skip }, async () => {
   for (const weight of [200, 600, 1200]) await reading({ weight }).expect(201);
-  const hist = await as("dispatcher").get("/api/analytics/fill-history?boxId=MG-001&hours=2&bucketMin=60").expect(200);
+  const hist = await as("dispatcher").get("/analytics/fill-history?boxId=MG-001&hours=2&bucketMin=60").expect(200);
   assert.ok(hist.body.data.length >= 1);
   assert.equal(hist.body.data.reduce((s, b) => s + b.readings, 0), 3);
 
-  await as("dispatcher").post("/api/boxes/MG-001/pickups").send({}).expect(201);
-  const days = await as("dispatcher").get("/api/analytics/pickups?days=7").expect(200);
+  await as("dispatcher").post("/boxes/MG-001/pickups").send({}).expect(201);
+  const days = await as("dispatcher").get("/analytics/pickups?days=7").expect(200);
   assert.equal(days.body.data.length, 7);
   assert.equal(days.body.data.at(-1).pickups, 1);
   assert.equal(days.body.data.at(-1).collectedKg, 1.2);
 
-  await as("dispatcher").get("/api/analytics/fill-history?boxId=MG-999").expect(404);
+  await as("dispatcher").get("/analytics/fill-history?boxId=MG-999").expect(404);
 });
 
 // ---------- Docs and errors ----------
@@ -176,8 +176,8 @@ test("fill history and pickups per day", { skip }, async () => {
 test("OpenAPI document covers the API and Swagger UI is served", { skip }, async () => {
   const doc = (await ctx.request(ctx.app).get("/openapi.json").expect(200)).body;
   assert.equal(doc.openapi, "3.1.0");
-  for (const path of ["/api/auth/login", "/api/boxes", "/api/devices/readings", "/api/routes/optimize",
-    "/api/analytics/savings", "/api/stream", "/health"]) {
+  for (const path of ["/auth/login", "/boxes", "/devices/readings", "/routes/optimize",
+    "/analytics/savings", "/stream", "/health"]) {
     assert.ok(doc.paths[path], `missing ${path} in OpenAPI`);
   }
   assert.ok(doc.components.securitySchemes.bearerAuth);
@@ -193,15 +193,15 @@ test("health, request id and security headers", { skip }, async () => {
 });
 
 test("consistent error format", { skip }, async () => {
-  const nf = await ctx.request(ctx.app).get("/api/nope").expect(404);
+  const nf = await ctx.request(ctx.app).get("/nope").expect(404);
   assert.equal(nf.body.error.code, "not_found");
   const bad = await ctx.request(ctx.app)
-    .post("/api/auth/login")
+    .post("/auth/login")
     .set("content-type", "application/json")
     .send("{bad json")
     .expect(400);
   assert.equal(bad.body.error.code, "bad_json");
-  const invalid = await as("admin").post("/api/boxes").send({ name: "" }).expect(400);
+  const invalid = await as("admin").post("/boxes").send({ name: "" }).expect(400);
   assert.equal(invalid.body.error.code, "validation_error");
   assert.ok(invalid.body.error.details.fieldErrors);
 });
@@ -211,7 +211,7 @@ test("login is rate limited", { skip }, async () => {
   const limited = createApp({ rateLimit: true });
   let last;
   for (let i = 0; i < 21; i++) {
-    last = await ctx.request(limited).post("/api/auth/login").send({ email: "x@emptyless.lv", password: "nope" });
+    last = await ctx.request(limited).post("/auth/login").send({ email: "x@emptyless.lv", password: "nope" });
   }
   assert.equal(last.status, 429);
   assert.equal(last.body.error.code, "rate_limited");

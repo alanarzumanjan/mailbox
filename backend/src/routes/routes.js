@@ -27,7 +27,7 @@ const OptimizeBody = z.object({
 
 registry.registerPath({
   method: "post",
-  path: "/api/routes/optimize",
+  path: "/routes/optimize",
   tags: ["Routing"],
   summary: "Optimal visiting order for full postboxes",
   description:
